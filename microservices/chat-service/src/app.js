@@ -2,12 +2,10 @@ const express = require('express');
 
 const app = express();
 
-// Status endpoint
-app.get('/status', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Chat Service is running on port ${PORT}`);
