@@ -5,6 +5,19 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 
+// Configuração do banco de dados
+const dbConfig = {
+    server: process.env.MSSQL_SERVER,
+    port: parseInt(process.env.MSSQL_PORT),
+    database: process.env.MSSQL_DATABASE,
+    user: process.env.MSSQL_USER,
+    password: process.env.MSSQL_PASSWORD,
+    options: {
+        trustServerCertificate: process.env.MSSQL_TRUST_SERVER_CERTIFICATE === 'True',
+        encrypt: true
+    }
+};
+
 // Middleware para processar JSON
 app.use(express.json());
 
@@ -33,7 +46,6 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-
     let {username, email, password, userRole} = req.body;
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'Username, email, and password are required.' });
@@ -61,7 +73,7 @@ app.post('/register', async (req, res) => {
         await redisClient.quit();
 
         try {
-            await sql.connect(process.env.MSSQL_CONNECTION_STRING);
+            await sql.connect(dbConfig);
             const result = await sql.query`
                 SELECT userRole FROM Users WHERE id = ${userId}
             `;
@@ -78,7 +90,7 @@ app.post('/register', async (req, res) => {
     try {
         const PasswordHash = await bcrypt.hash(password, 10);
         
-        await sql.connect(process.env.MSSQL_CONNECTION_STRING);
+        await sql.connect(dbConfig);
         const result = await sql.query`
             INSERT INTO Users (Username, Email, PasswordHash, UserRole)
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});

@@ -1,6 +1,5 @@
-create database CheckpointDB
-
-use CheckpointDB
+USE CheckpointDB;
+GO
 
 -- USERS
 CREATE TABLE Users (
@@ -14,6 +13,7 @@ CREATE TABLE Users (
     IsDeleted BIT DEFAULT 0,
     UserRole VARCHAR(20) DEFAULT 'Visitor' CHECK (UserRole IN ('Visitor', 'Administrator', 'Player', 'Organizer'))
 );
+GO
 
 -- TEAMS
 CREATE TABLE Teams (
@@ -27,6 +27,7 @@ CREATE TABLE Teams (
     ChatID UNIQUEIDENTIFIER DEFAULT NEWID(),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
 );
+GO
 
 -- TEAM MEMBERS
 CREATE TABLE TeamMembers (
@@ -40,6 +41,7 @@ CREATE TABLE TeamMembers (
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
+GO
 
 -- EVENTS
 CREATE TABLE Events (
@@ -63,6 +65,7 @@ CREATE TABLE Events (
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
     FOREIGN KEY (LastModifiedBy) REFERENCES Users(UserID)
 );
+GO
 
 -- EVENT REGISTRATIONS
 CREATE TABLE EventRegistrations (
@@ -78,6 +81,7 @@ CREATE TABLE EventRegistrations (
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
+GO
 
 -- MATCHES
 CREATE TABLE Matches (
@@ -91,6 +95,7 @@ CREATE TABLE Matches (
     IsDeleted BIT DEFAULT 0,
     FOREIGN KEY (EventID) REFERENCES Events(EventID)
 );
+GO
 
 -- TEAM MATCHES (for each team in a match)
 CREATE TABLE TeamMatches (
@@ -104,8 +109,9 @@ CREATE TABLE TeamMatches (
     FOREIGN KEY (MatchID) REFERENCES Matches(MatchID),
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
+GO
 
-
+-- VIEWS
 CREATE VIEW dbo.UsersNotDeleted AS
 SELECT 
     UserID,
@@ -117,7 +123,7 @@ SELECT
     EditedAt
 FROM dbo.Users
 WHERE IsDeleted = 0;
-END
+GO
 
 CREATE VIEW dbo.TeamsNotDeleted AS
 SELECT 
@@ -129,7 +135,7 @@ SELECT
     EditedAt
 FROM dbo.Teams
 WHERE IsDeleted = 0;
-END
+GO
 
 CREATE VIEW dbo.EventsNotDeleted AS
 SELECT 
@@ -148,7 +154,7 @@ SELECT
     EditedAt
 FROM dbo.Events
 WHERE IsDeleted = 0;
-END
+GO
 
 CREATE VIEW dbo.MatchesNotDeleted AS
 SELECT 
@@ -161,4 +167,4 @@ SELECT
     EditedAt
 FROM dbo.Matches
 WHERE IsDeleted = 0;
-END
+GO
