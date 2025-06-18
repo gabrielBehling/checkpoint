@@ -1,9 +1,11 @@
 const express = require('express');
-const redis = require('redis');
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
+
 
 // Configuração do banco de dados
 const dbConfig = {
@@ -18,8 +20,8 @@ const dbConfig = {
     }
 };
 
-// Middleware para processar JSON
 app.use(express.json());
+app.use(cookieParser());
 
 // Rota de health check
 app.get('/health', (req, res) => {
@@ -46,7 +48,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    let {username, email, password, userRole} = req.body;
+    const {username, email, password, userRole} = req.body;
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'Username, email, and password are required.' });
     }
@@ -62,35 +64,34 @@ app.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Token is required for Administrator role.' });
         }
 
-        const redisClient = redis.createClient({
-            url: process.env.REDIS_URL || 'redis://localhost:6379'
-        });
-        await redisClient.connect();
-        const userId = await redisClient.get(token);
-        if (!userId) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: '1h' });
+        if (!decoded) {
             return res.status(401).json({ error: 'Invalid or expired token.' });
         }
-        await redisClient.quit();
-
-        try {
-            await sql.connect(dbConfig);
-            const result = await sql.query`
-                SELECT userRole FROM Users WHERE id = ${userId}
-            `;
-            if (!result.recordset.length || result.recordset[0].userRole !== 'Administrator') {
-                return res.status(403).json({ error: 'User is not an Administrator.' });
-            }
-        } catch (err) {
-            return res.status(500).json({ error: 'Database error', details: err.message });
-        } finally {
-            await sql.close();
+        
+        if (decoded.userRole !== 'Administrator') {
+            return res.status(401).json({ error: 'User is not an Administrator.' });
         }
     }
 
-    try {
+    try {        
+        await sql.connect(dbConfig);
+        const usernameExists = await sql.query`
+            SELECT * FROM UsersNotDeleted WHERE Username = ${username};
+        `;
+        if (usernameExists.recordset.length > 0) {
+            return res.status(400).json({ error: 'Username already exists.' });
+        }
+
+        const emailExists = await sql.query`
+            SELECT * FROM UsersNotDeleted WHERE Email = ${email};
+        `;
+        if (emailExists.recordset.length > 0) {
+            return res.status(400).json({ error: 'Email already exists.' });
+        }
+
         const PasswordHash = await bcrypt.hash(password, 10);
         
-        await sql.connect(dbConfig);
         const result = await sql.query`
             INSERT INTO Users (Username, Email, PasswordHash, UserRole)
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
@@ -100,6 +101,8 @@ app.post('/register', async (req, res) => {
     } finally {
         await sql.close();
     }
+
+    
 
     res.json({
         message: `User ${username} registered successfully as ${userRole}.`,
@@ -118,3 +121,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Auth Service is running on port ${PORT}`);
 });
+
+

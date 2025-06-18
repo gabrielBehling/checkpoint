@@ -10,8 +10,10 @@ CREATE TABLE Users (
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
     LastLogin DATETIME DEFAULT NULL,
-    IsDeleted BIT DEFAULT 0,
-    UserRole VARCHAR(20) DEFAULT 'Visitor' CHECK (UserRole IN ('Visitor', 'Administrator', 'Player', 'Organizer'))
+    DeletedAt DATETIME DEFAULT NULL,
+    UserRole VARCHAR(20) DEFAULT 'Visitor' CHECK (UserRole IN ('Visitor', 'Administrator', 'Player', 'Organizer')),
+    CONSTRAINT UC_Username UNIQUE (Username,DeletedAt),
+    CONSTRAINT UC_Email UNIQUE (Email,DeletedAt)
 );
 GO
 
@@ -22,7 +24,7 @@ CREATE TABLE Teams (
     CreatedBy INT NOT NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
-    IsDeleted BIT DEFAULT 0,
+    DeletedAt DATETIME DEFAULT NULL,
     LogoURL NVARCHAR(255),
     ChatID UNIQUEIDENTIFIER DEFAULT NEWID(),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
@@ -37,7 +39,7 @@ CREATE TABLE TeamMembers (
     Role VARCHAR(50) NOT NULL DEFAULT 'Player',
     JoinedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
-    IsDeleted BIT DEFAULT 0,
+    DeletedAt DATETIME DEFAULT NULL,
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
@@ -54,7 +56,7 @@ CREATE TABLE Events (
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
     LastModifiedBy INT NULL,
-    IsDeleted BIT DEFAULT 0,
+    DeletedAt DATETIME DEFAULT NULL,
     MaxParticipants INT DEFAULT NULL,
     MaxTeams INT DEFAULT NULL,
     CreatedBy INT NOT NULL,
@@ -76,7 +78,7 @@ CREATE TABLE EventRegistrations (
     Status VARCHAR(20) NOT NULL DEFAULT 'Pending' CHECK (Status IN ('Pending', 'Approved', 'Rejected', 'Cancelled')),
     RegisteredAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
-    IsDeleted BIT DEFAULT 0,
+    DeletedAt DATETIME DEFAULT NULL,
     FOREIGN KEY (EventID) REFERENCES Events(EventID),
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
@@ -92,7 +94,7 @@ CREATE TABLE Matches (
     Status VARCHAR(20) DEFAULT 'Scheduled' CHECK (Status IN ('Scheduled', 'InProgress', 'Finished', 'Cancelled')),
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
-    IsDeleted BIT DEFAULT 0,
+    DeletedAt DATETIME DEFAULT NULL,
     FOREIGN KEY (EventID) REFERENCES Events(EventID)
 );
 GO
@@ -105,7 +107,7 @@ CREATE TABLE TeamMatches (
     Score INT DEFAULT 0,
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
-    IsDeleted BIT DEFAULT 0,
+    DeletedAt DATETIME DEFAULT NULL,
     FOREIGN KEY (MatchID) REFERENCES Matches(MatchID),
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
@@ -122,7 +124,7 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Users
-WHERE IsDeleted = 0;
+WHERE DeletedAt <> NULL;
 GO
 
 CREATE VIEW dbo.TeamsNotDeleted AS
@@ -134,7 +136,7 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Teams
-WHERE IsDeleted = 0;
+WHERE DeletedAt <> NULL;
 GO
 
 CREATE VIEW dbo.EventsNotDeleted AS
@@ -153,7 +155,7 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Events
-WHERE IsDeleted = 0;
+WHERE DeletedAt <> NULL;
 GO
 
 CREATE VIEW dbo.MatchesNotDeleted AS
@@ -166,5 +168,5 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Matches
-WHERE IsDeleted = 0;
+WHERE DeletedAt <> NULL;
 GO
