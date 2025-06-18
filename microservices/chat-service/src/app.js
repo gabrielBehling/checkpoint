@@ -15,5 +15,5 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Chat Service is running on port ${PORT}`);
+    console.log(`Chat service is running on port ${PORT}`);
 });
