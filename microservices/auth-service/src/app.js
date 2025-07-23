@@ -52,6 +52,14 @@ app.post('/register', async (req, res) => {
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'Username, email, and password are required.' });
     }
+    if (
+        typeof(username != "string")|
+        typeof(email != "string")|
+        typeof(password != "string")|
+        typeof(userRole != "string")
+    ){
+        return res.status(400).json({ error: 'Invalid input type.' });
+    }
     if (!userRole) {
         userRole = 'Visitor'; // Default role
     } else if (!['Administrator', 'Player', 'Organizer', 'Visitor'].includes(userRole)) {
