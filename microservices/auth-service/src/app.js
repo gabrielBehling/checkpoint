@@ -59,7 +59,7 @@ app.post('/register', async (req, res) => {
     }
 
     if (userRole === 'Administrator') {
-        let { token } = req.body;
+        let { token } = req.cookies;
         if (!token) {
             return res.status(400).json({ error: 'Token is required for Administrator role.' });
         }
@@ -102,7 +102,12 @@ app.post('/register', async (req, res) => {
         await sql.close();
     }
 
-    
+    const token = jwt.sign({ username, userRole }, process.env.JWT_SECRET, { expiresIn: "1h"});
+    res.cookie("authToken", token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.json({
         message: `User ${username} registered successfully as ${userRole}.`,
