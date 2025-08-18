@@ -3,9 +3,11 @@ const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const { object, string, number } = require('yup');
 
 const app = express();
 
+require("dotenv").config({ path: '../../.env.senai' });
 
 // Configuração do banco de dados
 const dbConfig = {
@@ -22,6 +24,7 @@ const dbConfig = {
 
 app.use(express.json());
 app.use(cookieParser());
+
 
 // Rota de health check
 app.get('/health', (req, res) => {
@@ -47,25 +50,19 @@ app.post('/login', (req, res) => {
     });
 });
 
-app.post('/register', async (req, res) => {
-    const {username, email, password, userRole} = req.body;
-    if (!username || !email || !password) {
-        return res.status(400).json({ error: 'Username, email, and password are required.' });
-    }
-    if (
-        typeof(username != "string")|
-        typeof(email != "string")|
-        typeof(password != "string")|
-        typeof(userRole != "string")
-    ){
-        return res.status(400).json({ error: 'Invalid input type.' });
-    }
-    if (!userRole) {
-        userRole = 'Visitor'; // Default role
-    } else if (!['Administrator', 'Player', 'Organizer', 'Visitor'].includes(userRole)) {
-        return res.status(400).json({ error: 'Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor' });
-    }
+let registerInput = object({
+    username: string().required(),
+    email: string().email(),
+    password: string().required(),
+    userRole: string()
+        .matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" })
+        .default('Visitor')
+  });
+  
 
+app.post('/register', async (req, res) => {
+    const {username, email, password, userRole} = await registerInput.validate(req.body);
+    
     if (userRole === 'Administrator') {
         let { token } = req.cookies;
         if (!token) {
@@ -105,7 +102,7 @@ app.post('/register', async (req, res) => {
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
         `;
     } catch (err) {
-        return res.status(500).json({ error: 'Database error', details: err.message });
+        return res.status(500).json({ error: 'Database error', details: err });
     } finally {
         await sql.close();
     }
