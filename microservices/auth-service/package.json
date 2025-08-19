@@ -2,7 +2,9 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mssql": "^11.0.1"
+    "mssql": "^11.0.1",
+    "yup": "^1.7.0"
   }
 }
