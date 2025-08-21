@@ -3,7 +3,7 @@ const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const { object, string, number } = require('yup');
+const { object, string } = require('yup');
 
 const app = express();
 
@@ -28,7 +28,7 @@ app.use(cookieParser());
 
 // Rota de health check
 app.get('/health', (req, res) => {
-    res.json({ 
+    res.json({
         status: 'OK',
         timestamp: new Date().toISOString()
     });
@@ -42,27 +42,77 @@ app.get('/', (req, res) => {
     });
 });
 
-// Rotas de autenticação
-app.post('/login', (req, res) => {
+
+let loginInputSquema = object({
+    email: string().email(),
+    password: string().required(),
+});
+app.post('/login', async (req, res) => {
+    let input
+    try {
+        input = await registerInputSquema.validate(req.body, { disableStackTrace: true });
+    } catch (e) {
+        return res.status(401).json({ Error: e.message })
+    }
+
+    const { email, password} = input
+
+    let { token } = req.cookies | null
+
+    if(token){
+        return res.statusCode(409).json({ error: "User is already authenticated." })
+    }
+
+    try {
+        await sql.connect(dbConfig);
+        const emailRecords = await sql.query`
+            SELECT * FROM UsersNotDeleted WHERE Email = ${email};
+        `;
+        if (emailRecords.recordset.length > 0) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+
+
+        const passwordHash = emailRecords.recordset.shift();
+        const passwordIsRight = await bcrypt.compare(password, passwordHash);
+
+        const result = await sql.query`
+            INSERT INTO Users (Username, Email, PasswordHash, UserRole)
+            VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
+        `;
+    } catch (err) {
+        return res.status(500).json({ error: 'Database error', details: err });
+    } finally {
+        await sql.close();
+    }
+
     res.json({
         message: 'Login endpoint',
         timestamp: new Date().toISOString()
     });
 });
 
-let registerInput = object({
+
+
+let registerInputSquema = object({
     username: string().required(),
     email: string().email(),
     password: string().required(),
     userRole: string()
         .matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" })
         .default('Visitor')
-  });
-  
+});
 
 app.post('/register', async (req, res) => {
-    const {username, email, password, userRole} = await registerInput.validate(req.body);
-    
+    let input
+    try {
+        input = await registerInputSquema.validate(req.body, { disableStackTrace: true });
+    } catch (e) {
+        return res.status(401).json({ error: e.message })
+    }
+
+    const { username, email, password, userRole } = input
     if (userRole === 'Administrator') {
         let { token } = req.cookies;
         if (!token) {
@@ -73,13 +123,13 @@ app.post('/register', async (req, res) => {
         if (!decoded) {
             return res.status(401).json({ error: 'Invalid or expired token.' });
         }
-        
+
         if (decoded.userRole !== 'Administrator') {
             return res.status(401).json({ error: 'User is not an Administrator.' });
         }
     }
 
-    try {        
+    try {
         await sql.connect(dbConfig);
         const usernameExists = await sql.query`
             SELECT * FROM UsersNotDeleted WHERE Username = ${username};
@@ -96,7 +146,7 @@ app.post('/register', async (req, res) => {
         }
 
         const PasswordHash = await bcrypt.hash(password, 10);
-        
+
         const result = await sql.query`
             INSERT INTO Users (Username, Email, PasswordHash, UserRole)
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
@@ -107,7 +157,7 @@ app.post('/register', async (req, res) => {
         await sql.close();
     }
 
-    const token = jwt.sign({ username, userRole }, process.env.JWT_SECRET, { expiresIn: "1h"});
+    const token = jwt.sign({ username, userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
     res.cookie("authToken", token, {
         httpOnly: true,
         secure: true,
