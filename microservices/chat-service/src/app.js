@@ -1,44 +1,87 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const { renderFile } = require('ejs');
 const http = require('http');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const { renderFile } = require('ejs');
 const socketIO = require('socket.io');
-const validator = require('validator');
+const Message = require('./models/Message');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
+// MongoDB (via Docker)
+const mongoUser = process.env.MONGO_USER;
+const mongoPass = process.env.MONGO_PASSWORD;
+const mongoDb   = process.env.MONGO_DB;
+const mongoUri = `mongodb://${mongoUser}:${mongoPass}@mongodb:27017/${mongoDb}?authSource=admin`;
 
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log(' MongoDB conectado'))
+  .catch(err => console.error(' MongoDB erro:', err));
 
-app.use(express.static(path.join(__dirname, '../Implementacao_Socket_Teste')));
-app.set('views', path.join(__dirname, '../Implementacao_Socket_Teste'));
+// Diretório do frontend
+const publicDir = path.join(__dirname, '../Implementacao_Socket_Teste');
+app.use(express.static(publicDir));
+app.set('views', publicDir);
 app.engine('html', renderFile);
 app.set('view engine', 'html');
 
-app.use('/', (req, res) => {
-    res.render('index.html');
+// Multer (uploads)
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: path.join(publicDir, 'uploads'),
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  })
 });
 
-let messages = [];
+// Rotas
+app.get('/', (req, res) => {
+  res.render('index.html');
+});
 
+app.post('/upload', upload.single('file'), async (req, res) => {
+  const { author, type } = req.body;
+  const fileUrl = `/uploads/${req.file.filename}`;
+  const message = new Message({ author, type, fileUrl });
+
+  await message.save();
+  io.emit('receivedMessage', message);
+  res.json({ success: true });
+});
+
+// WebSocket
 io.on('connection', socket => {
-    console.log(`Socket connected: ${socket.id}`);
+  console.log(`ID Conectado: ${socket.id}`);
 
-    socket.on('sendMessage', data => {
-        
-        messages.push(data);
-        socket.broadcast.emit('receivedMessage', data);
+  socket.on('sendMessage', async data => {
+    const message = new Message({
+      author: data.author,
+      message: data.message,
+      type: 'text'
     });
+
+    await message.save();
+    io.emit('receivedMessage', message);
+  });
 });
 
-server.listen(3000, () => {
-    console.log('Servidor rodando na porta 3000');
-});
 
-app.get('/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
+app.get('/messages', async (req, res) => {
+    try {
+      const messages = await Message.find().sort({ timestamp: 1 }).lean();
+      res.json(messages);
+    } catch (err) {
+      console.error('Erro ao buscar mensagens:', err);
+      res.status(500).json({ error: 'Erro interno' });
+    }
+  });
+
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(` Chat rodando na porta ${PORT}`));
 
 
 // app.get('/', (req, res) => {
