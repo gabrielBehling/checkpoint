@@ -1,91 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste do WebSocket</title>
-
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <!-- Socket.IO -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
-
-    <!-- Validator.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/validator/13.9.0/validator.min.js"></script>
-
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            font-family: sans-serif;
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-        .messages {
-            border: 1px solid #ccc;
-            padding: 10px;
-            height: 300px;
-            overflow-y: scroll;
-            margin-bottom: 10px;
-        }
-        .message {
-            margin-bottom: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/validator/13.15.15/validator.min.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    .messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+    .message { margin-bottom: 10px; }
+  </style>
 </head>
-
 <body>
-    <form id="chat">
-        <input type="text" name="username" placeholder="Digite seu nome" required>
-        <div class="messages"></div>
-        <input type="text" name="message" placeholder="Digite sua mensagem" required>
-        <button type="submit">Enviar</button>
-    </form>
+  <form id="chat">
+    <input type="text" name="username" placeholder="Seu nome" required>
+    <div class="messages"></div>
+    <input type="text" name="message" placeholder="Mensagem">
+    <button type="submit">Enviar</button><br><br>
+    <input type="file" id="file" accept="image/*,audio/*">
+  </form>
 
-    <script type="text/javascript">
-        const socket = io('http://localhost:3000');
+  <script>
+    const socket = io('http://localhost:3003');
 
-        // Renderiza uma mensagem no chat
-        function RenderMessage(message) {
-            // Escapa os dados com validator
-            const safeAuthor = validator.escape(message.author);
-            const safeMessage = validator.escape(message.message);
+    function renderMessage(msg) {
+      const safeAuthor = validator.escape(msg.author || 'Anon');
+      let html = `<strong>${safeAuthor}</strong>: `;
 
-            $('.messages').append(
-                `<div class="message"><strong>${safeAuthor}</strong>: ${safeMessage}</div>`
-            );
+      if (msg.type === 'text') {
+        html += validator.escape(msg.message || '');
+      } else if (msg.type === 'image') {
+        html += `<br><img src="${msg.fileUrl}" style="max-width:200px;">`;
+      } else if (msg.type === 'audio') {
+        html += `<br><audio controls src="${msg.fileUrl}"></audio>`;
+      }
 
-            // Scroll automático
-            const messagesDiv = document.querySelector('.messages');
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
+      $('.messages').append(`<div class="message">${html}</div>`);
+      $('.messages').scrollTop($('.messages')[0].scrollHeight);
+    }
 
-        // Recebe mensagem do servidor
-        socket.on('receivedMessage', function(message) {
-            RenderMessage(message);
-        });
+    socket.on('receivedMessage', renderMessage);
 
-        // Envia mensagem
-        $('#chat').submit(function(event) {
-            event.preventDefault();
+    $('#chat').submit(function (e) {
+      e.preventDefault();
+      const author = $('input[name=username]').val().trim();
+      const message = $('input[name=message]').val().trim();
+      if (author && message) {
+        const data = { author, message };
+        socket.emit('sendMessage', data);
+  
+        $('input[name=message]').val('');
+      }
+    });
 
-            const authorRaw = $('input[name=username]').val();
-            const messageRaw = $('input[name=message]').val();
+    $('#file').on('change', function () {
+      const file = this.files[0];
+      const author = $('input[name=username]').val().trim();
+      if (!file || !author) return;
 
-            // Sanitiza (no frontend) com validator
-            const author = authorRaw.trim();
-            const message = messageRaw.trim();
+      const type = file.type.startsWith('image') ? 'image' :
+                   file.type.startsWith('audio') ? 'audio' : null;
 
-            if (author && message) {
-                const messageObject = { author, message };
-                
-                RenderMessage(messageObject); // Mostra no seu chat
-                socket.emit('sendMessage', messageObject); // Envia para o servidor
+      if (!type) return alert('Apenas imagens ou áudios são suportados.');
 
-                $('input[name=message]').val('');
-            }
-        });
-    </script>
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('author', author);
+      formData.append('type', type);
+
+      fetch('/upload', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => { if (data.success) $('#file').val(''); });
+    });
+  </script>
 </body>
 </html>
