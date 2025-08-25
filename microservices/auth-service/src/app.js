@@ -50,14 +50,14 @@ let loginInputSquema = object({
 app.post('/login', async (req, res) => {
     let input
     try {
-        input = await registerInputSquema.validate(req.body, { disableStackTrace: true });
+        input = await loginInputSquema.validate(req.body, { disableStackTrace: true });
     } catch (e) {
         return res.status(401).json({ Error: e.message })
     }
 
     const { email, password} = input
 
-    let { token } = req.cookies | null
+    const { token } = req.cookies
 
     if(token){
         return res.statusCode(409).json({ error: "User is already authenticated." })
@@ -67,20 +67,17 @@ app.post('/login', async (req, res) => {
         await sql.connect(dbConfig);
         const emailRecords = await sql.query`
             SELECT * FROM UsersNotDeleted WHERE Email = ${email};
+            
         `;
-        if (emailRecords.recordset.length > 0) {
+        if (emailRecords.recordset.length <= 0) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
-
-
         const passwordHash = emailRecords.recordset.shift();
+        console.log(passwordHash)
         const passwordIsRight = await bcrypt.compare(password, passwordHash);
+        console.log("aaa" + passwordIsRight)
 
-        const result = await sql.query`
-            INSERT INTO Users (Username, Email, PasswordHash, UserRole)
-            VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
-        `;
     } catch (err) {
         return res.status(500).json({ error: 'Database error', details: err });
     } finally {

@@ -119,12 +119,13 @@ SELECT
     UserID,
     Username,
     Email,
+    PasswordHash,
     UserRole,
     LastLogin,
     CreatedAt,
     EditedAt
 FROM dbo.Users
-WHERE DeletedAt <> NULL;
+WHERE DeletedAt is NULL;
 GO
 
 CREATE VIEW dbo.TeamsNotDeleted AS
@@ -136,7 +137,7 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Teams
-WHERE DeletedAt <> NULL;
+WHERE DeletedAt is NULL;
 GO
 
 CREATE VIEW dbo.EventsNotDeleted AS
@@ -155,7 +156,7 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Events
-WHERE DeletedAt <> NULL;
+WHERE DeletedAt is NULL;
 GO
 
 CREATE VIEW dbo.MatchesNotDeleted AS
@@ -168,5 +169,5 @@ SELECT
     CreatedAt,
     EditedAt
 FROM dbo.Matches
-WHERE DeletedAt <> NULL;
+WHERE DeletedAt is NULL;
 GO
