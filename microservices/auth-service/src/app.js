@@ -55,39 +55,53 @@ app.post('/login', async (req, res) => {
         return res.status(401).json({ Error: e.message })
     }
 
-    const { email, password} = input
+    const { email, password } = input
 
-    const { token } = req.cookies
+    const { authToken } = req.cookies
 
-    if(token){
-        return res.statusCode(409).json({ error: "User is already authenticated." })
+    if (authToken) {
+        return res.status(409).json({ error: "User is already authenticated." })
     }
 
     try {
         await sql.connect(dbConfig);
-        const emailRecords = await sql.query`
+        const userRecordbyEmail = await sql.query`
             SELECT * FROM UsersNotDeleted WHERE Email = ${email};
-            
         `;
-        if (emailRecords.recordset.length <= 0) {
+        if (userRecordbyEmail.recordset.length <= 0) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
-        const passwordHash = emailRecords.recordset.shift();
-        console.log(passwordHash)
+        const userRecord = userRecordbyEmail.recordset.shift();
+        const username = userRecord.Username;
+        const userId = userRecord.UserID;
+        const userRole = userRecord.UserRole;
+        const passwordHash = userRecord.PasswordHash;
+
         const passwordIsRight = await bcrypt.compare(password, passwordHash);
-        console.log("aaa" + passwordIsRight)
+
+        if (!passwordIsRight) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        const token = jwt.sign({ username, userId, userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        res.cookie("authToken", token, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        res.status(200).json({
+            message: `Logged in successfully as ${username}.`,
+            timestamp: new Date().toISOString()
+        });
 
     } catch (err) {
+        console.log(err)
         return res.status(500).json({ error: 'Database error', details: err });
     } finally {
         await sql.close();
     }
-
-    res.json({
-        message: 'Login endpoint',
-        timestamp: new Date().toISOString()
-    });
 });
 
 
@@ -102,7 +116,7 @@ let registerInputSquema = object({
 });
 
 app.post('/register', async (req, res) => {
-    let input
+    let input, userId
     try {
         input = await registerInputSquema.validate(req.body, { disableStackTrace: true });
     } catch (e) {
@@ -146,22 +160,24 @@ app.post('/register', async (req, res) => {
 
         const result = await sql.query`
             INSERT INTO Users (Username, Email, PasswordHash, UserRole)
+            OUTPUT Inserted.UserID
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
         `;
+        userId = result.recordset.shift().UserId // Pega o Id do usuário inserido
     } catch (err) {
         return res.status(500).json({ error: 'Database error', details: err });
     } finally {
         await sql.close();
     }
 
-    const token = jwt.sign({ username, userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ username, userId, userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
     res.cookie("authToken", token, {
         httpOnly: true,
         secure: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({
+    res.status(200).json({
         message: `User ${username} registered successfully as ${userRole}.`,
         timestamp: new Date().toISOString()
     });
