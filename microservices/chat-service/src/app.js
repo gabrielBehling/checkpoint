@@ -75,8 +75,16 @@ io.on('connection', socket => {
   });
 });
 
-
-
+// Rota para buscar as mesagens antigas do mongo
+app.get('/messages', async (req, res) => {
+  try {
+    const messages = await Message.find().sort({ timestamp: 1 });
+    res.json(messages);
+  } catch (err) {
+    console.error('Erro ao buscar mensagens:', err);
+    res.status(500).json({ error: 'Erro ao buscar mensagens' });
+  }
+});
 
 
 const PORT = process.env.PORT || 3000;

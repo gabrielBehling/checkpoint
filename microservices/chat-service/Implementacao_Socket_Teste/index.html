@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8" />
   <title>Chat</title>
@@ -8,11 +9,27 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/validator/13.15.15/validator.min.js"></script>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-    .messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
-    .message { margin-bottom: 10px; }
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .messages {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
+
 <body>
   <form id="chat">
     <input type="text" name="username" placeholder="Seu nome" required>
@@ -40,7 +57,7 @@
       $('.messages').scrollTop($('.messages')[0].scrollHeight);
     }
 
-    
+
     socket.on('receivedMessage', renderMessage);
 
     $('#chat').submit(function (e) {
@@ -61,7 +78,7 @@
       if (!file || !author) return;
 
       const type = file.type.startsWith('image') ? 'image' :
-                   file.type.startsWith('audio') ? 'audio' : null;
+        file.type.startsWith('audio') ? 'audio' : null;
 
       if (!type) return alert('Apenas imagens ou áudios são suportados.');
 
@@ -74,6 +91,18 @@
         .then(res => res.json())
         .then(data => { if (data.success) $('#file').val(''); });
     });
+
+    // Busca no app/js a função de pegar as mensagens antigas do mongo
+    fetch('http://api.localhost/chat/messages')
+      .then(res => res.json())
+      .then(messages => {
+        messages.forEach(renderMessage); 
+      })
+      .catch(err => {
+        console.error('Erro ao carregar mensagens antigas:', err);
+      });
+
   </script>
 </body>
+
 </html>
