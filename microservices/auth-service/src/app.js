@@ -57,12 +57,6 @@ app.post('/login', async (req, res) => {
 
     const { email, password } = input
 
-    const { authToken } = req.cookies
-
-    if (authToken) {
-        return res.status(409).json({ error: "User is already authenticated." })
-    }
-
     try {
         await sql.connect(dbConfig);
         const userRecordbyEmail = await sql.query`
