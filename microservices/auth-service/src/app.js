@@ -177,6 +177,11 @@ app.post('/register', async (req, res) => {
     });
 });
 
+app.post('/logout', (req, res) => {
+    res.clearCookie("authToken");
+    res.status(200).json({ message: "User successfully logged out."})
+})
+
 app.get('/me', (req, res) => {
     res.json({
         message: 'Get current user endpoint',
