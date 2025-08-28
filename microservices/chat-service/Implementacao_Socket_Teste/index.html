@@ -23,8 +23,7 @@
   </form>
 
   <script>
-    const socket = io('http://localhost:3003');
-
+    const socket = io({ path: '/chat/socket.io' });
     function renderMessage(msg) {
       const safeAuthor = validator.escape(msg.author || 'Anon');
       let html = `<strong>${safeAuthor}</strong>: `;
@@ -41,6 +40,7 @@
       $('.messages').scrollTop($('.messages')[0].scrollHeight);
     }
 
+    
     socket.on('receivedMessage', renderMessage);
 
     $('#chat').submit(function (e) {
@@ -50,7 +50,7 @@
       if (author && message) {
         const data = { author, message };
         socket.emit('sendMessage', data);
-  
+
         $('input[name=message]').val('');
       }
     });

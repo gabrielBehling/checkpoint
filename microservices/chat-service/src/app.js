@@ -10,19 +10,26 @@ const Message = require('./models/Message');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    path: '/chat',
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
 // MongoDB (via Docker)
 const mongoUser = process.env.MONGO_USER;
 const mongoPass = process.env.MONGO_PASSWORD;
-const mongoDb   = process.env.MONGO_DB;
+const mongoDb = process.env.MONGO_DB;
 const mongoUri = `mongodb://${mongoUser}:${mongoPass}@mongodb:27017/${mongoDb}?authSource=admin`;
 
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log(' MongoDB conectado'))
   .catch(err => console.error(' MongoDB erro:', err));
 
-// Diretório do frontend
+// front
 const publicDir = path.join(__dirname, '../Implementacao_Socket_Teste');
 app.use(express.static(publicDir));
 app.set('views', publicDir);
@@ -52,7 +59,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   res.json({ success: true });
 });
 
-// WebSocket
+// Sistema de chat com o soketIO
 io.on('connection', socket => {
   console.log(`ID Conectado: ${socket.id}`);
 
@@ -69,15 +76,7 @@ io.on('connection', socket => {
 });
 
 
-app.get('/messages', async (req, res) => {
-    try {
-      const messages = await Message.find().sort({ timestamp: 1 }).lean();
-      res.json(messages);
-    } catch (err) {
-      console.error('Erro ao buscar mensagens:', err);
-      res.status(500).json({ error: 'Erro interno' });
-    }
-  });
+
 
 
 const PORT = process.env.PORT || 3000;
