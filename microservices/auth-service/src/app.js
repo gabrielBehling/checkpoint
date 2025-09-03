@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 
 
 let loginInputSquema = object({
-    email: string().email(),
+    email: string().email().required(),
     password: string().required(),
 });
 app.post('/login', async (req, res) => {
@@ -102,7 +102,7 @@ app.post('/login', async (req, res) => {
 
 let registerInputSquema = object({
     username: string().required(),
-    email: string().email(),
+    email: string().email().required(),
     password: string().required(),
     userRole: string()
         .matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" })
