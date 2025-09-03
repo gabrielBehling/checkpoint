@@ -182,6 +182,39 @@ app.post('/logout', (req, res) => {
     res.status(200).json({ message: "User successfully logged out."})
 })
 
+app.delete('/delete-account', async (req, res) => {
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ error: 'Authentication token required.' });
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: '1h' });
+    } catch (err) {
+        return res.status(401).json({ error: 'Invalid or expired token.' });
+    }
+
+    const userId = decoded.userId;
+
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`
+            UPDATE Users SET DeletedAt = GETDATE() WHERE UserID = ${userId} AND DeletedAt IS NULL;
+        `;
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'User not found or already deleted.' });
+        }
+    } catch (err) {
+        return res.status(500).json({ error: 'Database error', details: err });
+    } finally {
+        await sql.close();
+    }
+
+    res.clearCookie("authToken");
+    res.status(200).json({ message: "Account deleted successfully." });
+});
+
 app.get('/me', (req, res) => {
     res.json({
         message: 'Get current user endpoint',
