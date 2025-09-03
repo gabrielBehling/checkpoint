@@ -4,8 +4,15 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const { object, string } = require('yup');
+const Redis = require('ioredis');
 
 const app = express();
+
+// Redis client setup
+const redis = new Redis({
+    host: process.env.REDIS_HOST || 'redis',
+    port: process.env.REDIS_PORT || 6379
+});
 
 require("dotenv").config({ path: '../../.env.senai' });
 
@@ -25,6 +32,47 @@ const dbConfig = {
 app.use(express.json());
 app.use(cookieParser());
 
+// Token management functions
+const generateAccessToken = (user) => {
+    return jwt.sign(
+        { username: user.username, userId: user.userId, userRole: user.userRole },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+    );
+};
+
+const generateRefreshToken = (user) => {
+    return jwt.sign(
+        { userId: user.userId },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: '7d' }
+    );
+};
+
+const storeRefreshToken = async (userId, refreshToken) => {
+    await redis.set(
+        `refresh_token:${userId}`,
+        refreshToken,
+        'EX',
+        7 * 24 * 60 * 60 // 7 days in seconds
+    );
+};
+
+const verifyRefreshToken = async (refreshToken) => {
+    try {
+        const decoded = jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET
+        );
+        const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+        if (!storedToken || storedToken !== refreshToken) {
+            throw new Error('Invalid refresh token');
+        }
+        return decoded;
+    } catch (error) {
+        throw new Error('Invalid refresh token');
+    }
+};
 
 // Rota de health check
 app.get('/health', (req, res) => {
@@ -78,11 +126,22 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
-        const token = jwt.sign({ username, userId, userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        res.cookie("authToken", token, {
+        const user = { username, userId, userRole };
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        await storeRefreshToken(userId, refreshToken);
+
+        res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: 60 * 60 * 1000, // 1 hour
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
         res.status(200).json({
@@ -157,18 +216,29 @@ app.post('/register', async (req, res) => {
             OUTPUT Inserted.UserID
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
         `;
-        userId = result.recordset.shift().UserId // Pega o Id do usuário inserido
+        userId = result.recordset.shift().UserId // Get the inserted UserID
     } catch (err) {
         return res.status(500).json({ error: 'Database error', details: err });
     } finally {
         await sql.close();
     }
 
-    const token = jwt.sign({ username, userId, userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.cookie("authToken", token, {
+    const user = { username, userId, userRole };
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    await storeRefreshToken(userId, refreshToken);
+
+    res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(200).json({
@@ -177,13 +247,87 @@ app.post('/register', async (req, res) => {
     });
 });
 
-app.post('/logout', (req, res) => {
-    res.clearCookie("authToken");
-    res.status(200).json({ message: "User successfully logged out."})
+app.post('/refresh-token', async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    const lastAccessToken = req.cookies.accessToken;
+    
+    if (!refreshToken || !lastAccessToken) {
+        return res.status(401).json({ error: 'Both refresh token and last access token are required.' });
+    }
+
+    try {
+        // First verify the structure of the last access token (even if expired)
+        let lastAccessDecoded;
+        try {
+            lastAccessDecoded = jwt.verify(lastAccessToken, process.env.JWT_SECRET, { ignoreExpiration: true });
+        } catch (err) {
+            return res.status(401).json({ error: 'Invalid access token format.' });
+        }
+
+        await sql.connect(dbConfig);
+        const decoded = await verifyRefreshToken(refreshToken);
+
+        // Verify that the tokens belong to the same user
+        if (lastAccessDecoded.userId !== decoded.userId) {
+            return res.status(401).json({ error: 'Token mismatch.' });
+        }
+
+        const userRecord = await sql.query`
+            SELECT Username, UserID, UserRole 
+            FROM UsersNotDeleted 
+            WHERE UserID = ${decoded.userId};
+        `;
+
+        if (userRecord.recordset.length === 0) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const user = userRecord.recordset[0];
+        const accessToken = generateAccessToken(user);
+        const newRefreshToken = generateRefreshToken(user);
+
+        await storeRefreshToken(user.UserID, newRefreshToken);
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 1 hour
+        });
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        res.json({ message: 'Token refreshed successfully.' });
+    } catch (error) {
+        res.status(401).json({ error: error.message });
+    }
+    finally {
+        await sql.close();
+    }
+});
+
+app.post('/logout', async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+        try {
+            const decoded = jwt.decode(refreshToken);
+            if (decoded && decoded.userId) {
+                await redis.del(`refresh_token:${decoded.userId}`);
+            }
+        } catch (error) {
+            // Ignore errors during logout
+        }
+    }
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "User successfully logged out." });
 })
 
 app.delete('/delete-account', async (req, res) => {
-    const token = req.cookies.authToken;
+    const token = req.cookies.accessToken;
     if (!token) {
         return res.status(401).json({ error: 'Authentication token required.' });
     }
@@ -205,13 +349,17 @@ app.delete('/delete-account', async (req, res) => {
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ error: 'User not found or already deleted.' });
         }
+        
+        // Delete refresh token from Redis
+        await redis.del(`refresh_token:${userId}`);
     } catch (err) {
         return res.status(500).json({ error: 'Database error', details: err });
     } finally {
         await sql.close();
     }
 
-    res.clearCookie("authToken");
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
     res.status(200).json({ message: "Account deleted successfully." });
 });
 
