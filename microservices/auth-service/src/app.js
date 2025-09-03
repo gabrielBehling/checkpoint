@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const { object, string } = require('yup');
 const Redis = require('ioredis');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 
@@ -13,6 +15,50 @@ const redis = new Redis({
     host: process.env.REDIS_HOST || 'redis',
     port: process.env.REDIS_PORT || 6379
 });
+
+// Email configuration
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: false,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
+});
+
+// Password reset helper functions
+const generateResetToken = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
+
+const storeResetToken = async (email, token) => {
+    await redis.set(
+        `pwreset:${token}`,
+        email,
+        'EX',
+        15 * 60 // 15 minutes expiration
+    );
+};
+
+const sendResetEmail = async (email, token) => {
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    
+    const mailOptions = {
+        from: process.env.SMTP_FROM || 'noreply@checkpoint.com',
+        to: email,
+        subject: 'Password Reset Request',
+        html: `
+            <h1>Password Reset Request</h1>
+            <p>You requested to reset your password. Click the link below to proceed:</p>
+            <a href="${resetUrl}">Reset Password</a>
+            <p>This link will expire in 15 minutes.</p>
+            <p>If you didn't request this, please ignore this email.</p>
+        `
+    };
+
+    await transporter.sendMail(mailOptions);
+};
 
 require("dotenv").config({ path: '../../.env.senai' });
 
@@ -368,6 +414,97 @@ app.get('/me', (req, res) => {
         message: 'Get current user endpoint',
         timestamp: new Date().toISOString()
     });
+});
+
+// Password reset request endpoint
+app.post('/request-password-reset', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ error: 'Email is required.' });
+    }
+
+    try {
+        await sql.connect(dbConfig);
+        const userResult = await sql.query`
+            SELECT Email, UserID 
+            FROM UsersNotDeleted 
+            WHERE Email = ${email};
+        `;
+
+        if (userResult.recordset.length === 0) {
+            // Return success even if email doesn't exist to prevent email enumeration
+            return res.status(200).json({
+                message: 'If your email is registered, you will receive reset instructions.'
+            });
+        }
+
+        const resetToken = generateResetToken();
+        await storeResetToken(email, resetToken);
+
+        await sendResetEmail(email, resetToken);
+
+        res.status(200).json({
+            message: 'If your email is registered, you will receive reset instructions.'
+        });
+    } catch (err) {
+        console.error('Password reset request error:', err);
+        res.status(500).json({ error: 'Failed to process password reset request.' });
+    } finally {
+        await sql.close();
+    }
+});
+
+// Reset password endpoint
+app.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ error: 'Token and new password are required.' });
+    }
+
+    try {
+        const email = await redis.get(`pwreset:${token}`);
+        if (!email) {
+            return res.status(401).json({ error: 'Invalid or expired reset token.' });
+        }
+
+        // Delete the token immediately to prevent reuse
+        await redis.del(`pwreset:${token}`);
+
+        await sql.connect(dbConfig);
+        
+        // Hash the new password
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        // Update the password
+        const result = await sql.query`
+            UPDATE Users 
+            SET PasswordHash = ${passwordHash}
+            WHERE Email = ${email} AND DeletedAt IS NULL;
+        `;
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Invalidate all refresh tokens for this user for security
+        const userResult = await sql.query`
+            SELECT UserID FROM Users WHERE Email = ${email};
+        `;
+        if (userResult.recordset.length > 0) {
+            await redis.del(`refresh_token:${userResult.recordset[0].UserID}`);
+        }
+
+        res.status(200).json({
+            message: 'Password has been reset successfully.'
+        });
+    } catch (err) {
+        console.error('Password reset error:', err);
+        res.status(500).json({ error: 'Failed to reset password.' });
+    } finally {
+        await sql.close();
+    }
 });
 
 const PORT = process.env.PORT || 3000;
