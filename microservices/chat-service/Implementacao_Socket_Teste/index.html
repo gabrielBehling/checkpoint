@@ -26,6 +26,44 @@
 
     .message {
       margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .message img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    .message-audio {
+      margin-top: 5px;
+    }
+
+    .author {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+
+    .timestamp {
+      font-size: 0.7em;
+      color: #7f8c8d;
+      margin-left: 8px;
+    }
+
+    .file-input-container {
+      margin-top: 10px;
+    }
+
+    .progress-bar {
+      height: 5px;
+      background-color: #3498db;
+      width: 0%;
+      transition: width 0.3s;
+      margin-top: 5px;
     }
   </style>
 </head>
@@ -34,51 +72,69 @@
   <form id="chat">
     <input type="text" name="username" placeholder="Seu nome" required>
     <div class="messages"></div>
-    <input type="text" name="message" placeholder="Mensagem">
-    <button type="submit">Enviar</button><br><br>
-    <input type="file" id="file" accept="image/*,audio/*">
+    <input type="text" name="message" placeholder="Mensagem" id="message-input">
+    <button type="submit">Enviar</button>
+    
+    <div class="file-input-container">
+      <label for="file">Enviar imagem ou áudio: </label>
+      <input type="file" id="file" accept="image/*,audio/*">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
   </form>
 
   <script>
     const socket = io({ path: '/chat/socket.io' });
+
+    // Função para formatar a data
+    function formatDate(date) {
+      return new Date(date).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
     function renderMessage(msg) {
       const safeAuthor = validator.escape(msg.author || 'Anon');
-      let html = `<strong>${safeAuthor}</strong>: `;
+      let html = `<div class="author">${safeAuthor}<span class="timestamp">${formatDate(msg.timestamp)}</span></div>`;
 
       if (msg.type === 'text') {
-        html += validator.escape(msg.message || '');
+        html += `<div class="message-text">${validator.escape(msg.message || '')}</div>`;
       } else if (msg.type === 'image') {
-        html += `<br><img src="${msg.fileUrl}" style="max-width:200px;">`;
+        html += `<div class="message-image"><img src="${msg.fileUrl}" alt="Imagem enviada"></div>`;
       } else if (msg.type === 'audio') {
-        html += `<br><audio controls src="${msg.fileUrl}"></audio>`;
+        html += `<div class="message-audio"><audio controls src="${msg.fileUrl}"></audio></div>`;
       }
 
       $('.messages').append(`<div class="message">${html}</div>`);
       $('.messages').scrollTop($('.messages')[0].scrollHeight);
     }
 
-
+    // Evento para receber mensagens via Socket.IO
     socket.on('receivedMessage', renderMessage);
 
+    // Envio de mensagem de texto
     $('#chat').submit(function (e) {
       e.preventDefault();
       const author = $('input[name=username]').val().trim();
       const message = $('input[name=message]').val().trim();
-      if (author && message) {
-        const data = { author, message };
-        socket.emit('sendMessage', data);
+      
+      if (!author) return alert('Por favor, informe seu nome.');
+      if (!message) return alert('Digite uma mensagem para enviar.');
 
-        $('input[name=message]').val('');
-      }
+      socket.emit('sendMessage', { author, message });
+      $('input[name=message]').val('');
+      $('#message-input').focus();
     });
 
+    // Envio de arquivos (imagens e áudios)
     $('#file').on('change', function () {
       const file = this.files[0];
       const author = $('input[name=username]').val().trim();
-      if (!file || !author) return;
+      if (!file) return;
+      if (!author) return alert('Por favor, informe seu nome antes de enviar arquivos.');
 
       const type = file.type.startsWith('image') ? 'image' :
-        file.type.startsWith('audio') ? 'audio' : null;
+                   file.type.startsWith('audio') ? 'audio' : null;
 
       if (!type) return alert('Apenas imagens ou áudios são suportados.');
 
@@ -87,21 +143,46 @@
       formData.append('author', author);
       formData.append('type', type);
 
-      fetch('/upload', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => { if (data.success) $('#file').val(''); });
+      // Mostrar barra de progresso
+      const progressBar = $('#progress-bar');
+      progressBar.width('0%');
+      
+      fetch('http://api.localhost/chat/upload', {
+        method: 'POST',
+        body: formData,
+       
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          $('#file').val('');
+          progressBar.width('100%');
+          setTimeout(() => progressBar.width('0%'), 1000);
+        } else {
+          alert('Erro ao enviar arquivo.');
+        }
+      })
+      .catch(err => {
+        console.error('Erro no upload:', err);
+        alert('Erro ao enviar arquivo.');
+        progressBar.width('0%');
+      });
     });
 
-    // Busca no app/js a função de pegar as mensagens antigas do mongo
+    // Busca mensagens antigas do MongoDB
     fetch('http://api.localhost/chat/messages')
       .then(res => res.json())
       .then(messages => {
-        messages.forEach(renderMessage); 
+        messages.forEach(renderMessage);
       })
       .catch(err => {
         console.error('Erro ao carregar mensagens antigas:', err);
       });
 
+    // Focar no campo de mensagem após carregamento
+    $(document).ready(function() {
+      $('#message-input').focus();
+    });
   </script>
 </body>
 

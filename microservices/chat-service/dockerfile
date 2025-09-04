@@ -15,7 +15,8 @@ RUN apk add --no-cache --virtual .build-deps python3 make g++ \
 COPY . .
 
 # 3.1 Cria a pasta uploads no caminho desejado
-RUN mkdir -p /app/Implementacao_Socket_Teste/uploads
+RUN mkdir -p /app/Implementacao_Socket_Teste/uploads && \
+    chown -R node:node /app/Implementacao_Socket_Teste/uploads
 
 # 4. Configurações adicionais
 USER node
