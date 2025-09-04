@@ -14,6 +14,9 @@ RUN apk add --no-cache --virtual .build-deps python3 make g++ \
 # 3. Copia o resto do código fonte
 COPY . .
 
+# 3.1 Cria a pasta uploads no caminho desejado
+RUN mkdir -p /app/Implementacao_Socket_Teste/uploads
+
 # 4. Configurações adicionais
 USER node
 EXPOSE 3000
