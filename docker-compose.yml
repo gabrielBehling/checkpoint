@@ -44,8 +44,12 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    environment:
+      REDIS_USER: "${REDIS_USER}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--loglevel", "verbose"]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
 
   # ---- Microserviços ----
   auth-service:
