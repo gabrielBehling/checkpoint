@@ -96,18 +96,14 @@ const storeRefreshToken = async (userId, refreshToken) => {
     let a = await redis.set(`refresh_token:${userId}`, refreshToken, {
         EX: 7 * 24 * 60 * 60, // 7 days expiration
     });
-    console.log("Store Refresh Token Result:", a);
 };
 
 const verifyRefreshToken = async (refreshToken) => {
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        console.log("Decoded Refresh Token:", decoded);
         let redis = await getRedis();
         const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
         if (!storedToken || storedToken !== refreshToken) {
-            console.log("Stored Token:", storedToken);
-            console.log("Provided Token:", refreshToken);
             throw new Error("Invalid refresh token");
         }
         return decoded;
@@ -190,7 +186,6 @@ app.post("/login", async (req, res) => {
             timestamp: new Date().toISOString(),
         });
     } catch (err) {
-        console.log(err);
         return res.status(500).json({ error: "Database error", details: err });
     } finally {
         await sql.close();
@@ -325,9 +320,7 @@ app.post("/refresh-token", async (req, res) => {
         const accessToken = generateAccessToken(user);
         const newRefreshToken = generateRefreshToken(user);
 
-        await storeRefreshToken(user.UserID, newRefreshToken);
-
-        console.log("New Refresh Token:", newRefreshToken);
+        await storeRefreshToken(user.userId, newRefreshToken);
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
@@ -444,7 +437,6 @@ app.post("/request-password-reset", async (req, res) => {
             message: "If your email is registered, you will receive reset instructions.",
         });
     } catch (err) {
-        console.error("Password reset request error:", err);
         res.status(500).json({ error: "Failed to process password reset request." });
     } finally {
         await sql.close();
@@ -499,7 +491,6 @@ app.post("/reset-password", async (req, res) => {
             message: "Password has been reset successfully.",
         });
     } catch (err) {
-        console.error("Password reset error:", err);
         res.status(500).json({ error: "Failed to reset password." });
     } finally {
         await sql.close();
