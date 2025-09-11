@@ -32,6 +32,7 @@ mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
 // front
 const publicDir = path.join(__dirname, '../Implementacao_Socket_Teste');
 app.use(express.static(publicDir));
+app.use('/chat/uploads', express.static(path.join(publicDir, 'uploads')));
 app.set('views', publicDir);
 app.engine('html', renderFile);
 app.set('view engine', 'html');
@@ -53,6 +54,20 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   const { author, type } = req.body;
   const fileUrl = `/uploads/${req.file.filename}`;
   const message = new Message({ author, type, fileUrl });
+
+const fs = require('fs');
+
+// Rota GET para servir arquivos da pasta uploads
+app.get('/upload/:filename', (req, res) => {
+  const filePath = path.join(publicDir, 'uploads', req.params.filename);
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).json({ error: 'Arquivo não encontrado' });
+    }
+    res.sendFile(filePath);
+  });
+});
 
   await message.save();
   io.emit('receivedMessage', message);
