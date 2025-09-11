@@ -1,12 +1,12 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=production
 
 FROM builder
 COPY . .
 RUN apk add --no-cache curl # Para health checks
-HEALTHCHECK --interval=30s --timeout=3s \
+HEALTHCHECK --interval=30s --timeout=5s \
   CMD curl -f http://localhost:3000/health || exit 1
 
 EXPOSE 3000
