@@ -33,6 +33,7 @@ let createEventSchema = object({
     Prizes: string(),
     BannerURL: string().url(),
 });
+// Create a new event
 app.post("/", authMiddleware, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
@@ -67,6 +68,7 @@ let updateEventSchema = object({
     Prizes: string(),
     BannerURL: string().url(),
 });
+// Update an event
 app.put("/:eventId", authMiddleware, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
@@ -87,7 +89,7 @@ app.put("/:eventId", authMiddleware, async (req, res) => {
             Rules = coalesce(${eventData.Rules}, Rules),
             Prizes = coalesce(${eventData.Prizes}, Prizes),
             BannerURL = coalesce(${eventData.BannerURL}, BannerURL)
-            where EventId = ${eventId} and CreatedBy = ${userId};`;
+            where EventId = ${eventId} and CreatedBy = ${userId} and DeletedAt is null;`;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ error: "Event not found or you do not have permission to update it" });
@@ -100,6 +102,7 @@ app.put("/:eventId", authMiddleware, async (req, res) => {
     }
 });
 
+// Soft delete an event
 app.delete("/:eventId", authMiddleware, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
@@ -108,7 +111,7 @@ app.delete("/:eventId", authMiddleware, async (req, res) => {
     try {
         const userId = req.user.userId;
         await sql.connect(dbConfig);
-        const result = await sql.query`delete from Events where EventId = ${eventId} and CreatedBy = ${userId};`;
+        const result = await sql.query`update Events set DeletedAt = GETDATE() where EventId = ${eventId} and CreatedBy = ${userId};`;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ error: "Event not found or you do not have permission to delete it" });
@@ -121,13 +124,77 @@ app.delete("/:eventId", authMiddleware, async (req, res) => {
     }
 });
 
+// Get all events
 app.get("/", authMiddleware, async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT * FROM Events`;
+        const result = await sql.query`SELECT * FROM EventsNotDeleted`;
         res.json(result.recordset);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+    
+});
+let createTeamSchema = object({
+    TeamName: string().required().max(100),
+    LogoURL: string().url().max(255)
+});
+// Create a new team and register it for an event
+app.post("/:eventId/teams", authMiddleware, async (req, res) => {
+    const eventId = parseInt(req.params.eventId);
+    if (isNaN(eventId)) {
+        return res.status(400).json({ error: "Invalid eventId" });
+    }
+    try {
+        const teamData = await createTeamSchema.validate(req.body);
+        const userId = req.user.userId;
+        await sql.connect(dbConfig);
+        const eventResult = await sql.query`SELECT MaxTeams FROM EventsNotDeleted WHERE EventID = ${eventId}`;
+        if (eventResult.recordset.length === 0) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        const maxTeams = eventResult.recordset[0].MaxTeams;
+        const teamCountResult = await sql.query`SELECT COUNT(*) AS TeamCount FROM EventRegistrations WHERE EventId = ${eventId} and Status = 'Approved' and DeletedAt is null`;
+        const currentTeamCount = teamCountResult.recordset[0].TeamCount;
+        if (maxTeams !== null && currentTeamCount >= maxTeams) {
+            return res.status(400).json({ error: "Maximum number of teams reached for this event" });
+        }
+        const insertResult = await sql.query`
+            INSERT INTO Teams (TeamName, LogoURL, CreatedBy)
+            OUTPUT INSERTED.TeamId
+            VALUES (${teamData.TeamName}, ${teamData.LogoURL || null}, ${userId});
+        `;
+        if (insertResult.rowsAffected[0] === 0) {
+            return res.status(500).json({ error: "Failed to create team" });
+        }
+        const teamId = insertResult.recordset[0].TeamId;
+
+        const registrationResult = await sql.query`
+            INSERT INTO EventRegistrations (EventID, TeamID)
+            VALUES (${eventId}, ${teamId});
+        `;
+        res.status(201).json({ message: "Team created successfully" });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+
+// Get all teams registered for an event
+app.get("/:eventId/teams", authMiddleware, async (req, res) => {
+    const eventId = parseInt(req.params.eventId);
+    if (isNaN(eventId)) {
+        return res.status(400).json({ error: "Invalid eventId" });
+    }
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`SELECT T.*, ER.EventID, ER.Status, ER.RegisteredAt FROM TeamsNotDeleted T INNER JOIN EventRegistrations ER as  ON T.TeamId = ER.TeamID  WHERE ER.EventID = ${eventId} AND ER.DeletedAt IS NULL`;
+        res.json(result.recordset);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
     }
 });
 
