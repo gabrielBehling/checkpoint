@@ -154,7 +154,9 @@ SELECT
     BannerURL,
     Status,
     CreatedAt,
-    EditedAt
+    EditedAt,
+    MaxParticipants,
+    MaxTeams
 FROM dbo.Events
 WHERE DeletedAt is NULL;
 GO

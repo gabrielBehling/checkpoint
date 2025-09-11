@@ -249,7 +249,7 @@ app.post("/register", async (req, res) => {
             OUTPUT Inserted.UserID
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
         `;
-        userId = result.recordset.shift().UserId; // Get the inserted UserID
+        userId = result.recordset.shift().UserID; // Get the inserted UserID
     } catch (err) {
         return res.status(500).json({ error: "Database error", details: err });
     } finally {
