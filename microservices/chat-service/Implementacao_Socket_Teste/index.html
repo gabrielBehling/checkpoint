@@ -7,7 +7,64 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/validator/13.15.15/validator.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .messages {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .message img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    .message-audio {
+      margin-top: 5px;
+    }
+
+    .author {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+
+    .timestamp {
+      font-size: 0.7em;
+      color: #7f8c8d;
+      margin-left: 8px;
+    }
+
+    .file-input-container {
+      margin-top: 10px;
+    }
+
+    .progress-bar {
+      height: 5px;
+      background-color: #3498db;
+      width: 0%;
+      transition: width 0.3s;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
   <div class="chat-header">
@@ -16,77 +73,30 @@
   </div>
 
   <form id="chat">
-    <div class="user-input">
-      <input type="text" name="username" placeholder="Seu nome" required>
-    </div>
-    <div class="messages" id="messages-container"></div>
-    <div class="input-area">
-      <div class="message-input">
-        <input type="text" name="message" placeholder="Mensagem" id="message-input">
-        <button type="submit">Enviar</button>
-      </div>
-      <div class="file-input-container">
-        <label for="file">Enviar imagem ou áudio:</label>
-        <input type="file" id="file" accept="image/*,audio/*">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
+    <input type="text" name="username" placeholder="Seu nome" required>
+    <div class="messages"></div>
+    <input type="text" name="message" placeholder="Mensagem" id="message-input">
+    <button type="submit">Enviar</button>
+    
+    <div class="file-input-container">
+      <label for="file">Enviar imagem ou áudio: </label>
+      <input type="file" id="file" accept="image/*,audio/*">
+      <div class="progress-bar" id="progress-bar"></div>
     </div>
   </form>
+
+  <div class="status" id="status">Conectando...</div>
+
+  <div class="notification" id="notification"></div>
 
   <div class="status" id="status">Conectando...</div>
   <div class="notification" id="notification"></div>
 
   <!-- Script do chat -->
   <script>
-    // Elementos da interface
-    const messagesContainer = $('#messages-container');
-    const messageInput = $('#message-input');
-    const usernameInput = $('input[name=username]');
-    const fileInput = $('#file');
-    const progressBar = $('#progress-bar');
-    const statusIndicator = $('#status');
-    const notification = $('#notification');
+    const socket = io({ path: '/chat/socket.io' });
 
-    // Estado da aplicação
-    let isConnected = false;
-    let currentUser = '';
-
-    // Inicializar Socket.IO
-    const socket = io({
-      path: '/chat/socket.io',
-      reconnectionAttempts: 5,
-      timeout: 10000
-    });
-
-    // Eventos do Socket.IO
-    socket.on('connect', () => {
-      isConnected = true;
-      updateStatus('Conectado');
-      showNotification('Conectado ao chat');
-    });
-
-    socket.on('disconnect', () => {
-      isConnected = false;
-      updateStatus('Desconectado');
-    });
-
-    socket.on('connect_error', (err) => {
-      updateStatus('Erro de conexão: ' + err.message);
-    });
-
-    socket.on('receivedMessage', renderMessage);
-
-    // Função para mostrar notificação
-    function showNotification(text) {
-      notification.text(text).fadeIn(300).delay(3000).fadeOut(300);
-    }
-
-    // Função para atualizar status
-    function updateStatus(text) {
-      statusIndicator.text(text);
-    }
-
-    // Função para formatar data/hora
+    // Função para formatar a data
     function formatDate(date) {
       return new Date(date).toLocaleTimeString('pt-BR', {
         hour: '2-digit',
@@ -94,36 +104,15 @@
       });
     }
 
-    // Renderizar mensagens
     function renderMessage(msg) {
-      const safeAuthor = validator.escape(msg.author || 'Anônimo');
-      const isOwnMessage = currentUser === msg.author;
+      const safeAuthor = validator.escape(msg.author || 'Anon');
+      let html = `<div class="author">${safeAuthor}<span class="timestamp">${formatDate(msg.timestamp)}</span></div>`;
 
-      let html = `
-        <div class="author">
-          <span>${safeAuthor}</span>
-          <span class="timestamp">${formatDate(msg.timestamp)}</span>
-        </div>
-      `;
-
-      // Texto
-      if (msg.type === 'text' && msg.message) {
-        html += `<div class="message-text">${validator.escape(msg.message)}</div>`;
-      }
-
-      // Imagem
-      if (msg.type === 'image' && msg.fileUrl) {
-        if (msg.message) {
-          html += `<div class="message-text">${validator.escape(msg.message)}</div>`;
-        }
-        html += `<div class="message-image"><img src="http://api.localhost/chat${msg.fileUrl}" alt="Imagem enviada"></div>`;
-      }
-
-      // Áudio
-      if (msg.type === 'audio' && msg.fileUrl) {
-        if (msg.message) {
-          html += `<div class="message-text">${validator.escape(msg.message)}</div>`;
-        }
+      if (msg.type === 'text') {
+        html += `<div class="message-text">${validator.escape(msg.message || '')}</div>`;
+      } else if (msg.type === 'image') {
+        html += `<div class="message-image"><img src="${msg.fileUrl}" alt="Imagem enviada"></div>`;
+      } else if (msg.type === 'audio') {
         html += `<div class="message-audio"><audio controls src="${msg.fileUrl}"></audio></div>`;
       }
 
@@ -132,46 +121,29 @@
       messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
     }
 
-    // Enviar mensagens de texto
+    // Evento para receber mensagens via Socket.IO
+    socket.on('receivedMessage', renderMessage);
+
+    // Envio de mensagem de texto
     $('#chat').submit(function (e) {
       e.preventDefault();
-
-      const author = usernameInput.val().trim();
-      const message = messageInput.val().trim();
-
-      if (!author) {
-        alert('Por favor, informe seu nome.');
-        usernameInput.focus();
-        return;
-      }
-
-      if (!message) {
-        alert('Digite uma mensagem para enviar.');
-        messageInput.focus();
-        return;
-      }
-
-      if (currentUser !== author) {
-        currentUser = author;
-      }
+      const author = $('input[name=username]').val().trim();
+      const message = $('input[name=message]').val().trim();
+      
+      if (!author) return alert('Por favor, informe seu nome.');
+      if (!message) return alert('Digite uma mensagem para enviar.');
 
       socket.emit('sendMessage', { author, message });
-
-      messageInput.val('');
-      messageInput.focus();
+      $('input[name=message]').val('');
+      $('#message-input').focus();
     });
 
     // Enviar arquivos
     $('#file').on('change', function () {
       const file = this.files[0];
-      const author = usernameInput.val().trim();
-
+      const author = $('input[name=username]').val().trim();
       if (!file) return;
-      if (!author) {
-        alert('Por favor, informe seu nome antes de enviar arquivos.');
-        usernameInput.focus();
-        return;
-      }
+      if (!author) return alert('Por favor, informe seu nome antes de enviar arquivos.');
 
       const type = file.type.startsWith('image')
         ? 'image'
@@ -189,31 +161,29 @@
       formData.append('author', author);
       formData.append('type', type);
 
-      progressBar.width('30%');
-
+      // Mostrar barra de progresso
+      const progressBar = $('#progress-bar');
+      progressBar.width('0%');
+      
       fetch('http://api.localhost/chat/upload', {
         method: 'POST',
         body: formData
       })
-        .then(response => {
-          progressBar.width('60%');
-          return response.json();
-        })
-        .then(data => {
-          if (data.success) {
-            progressBar.width('100%');
-            fileInput.val('');
-            setTimeout(() => progressBar.width('0%'), 500);
-            showNotification('Arquivo enviado com sucesso!');
-          } else {
-            throw new Error(data.error || 'Erro ao enviar arquivo.');
-          }
-        })
-        .catch(err => {
-          console.error('Erro no upload:', err);
-          alert('Erro ao enviar arquivo: ' + err.message);
-          progressBar.width('0%');
-        });
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          $('#file').val('');
+          progressBar.width('100%');
+          setTimeout(() => progressBar.width('0%'), 1000);
+        } else {
+          alert('Erro ao enviar arquivo.');
+        }
+      })
+      .catch(err => {
+        console.error('Erro no upload:', err);
+        alert('Erro ao enviar arquivo.');
+        progressBar.width('0%');
+      });
     });
 
     // Buscar mensagens antigas
@@ -228,20 +198,9 @@
         updateStatus('Não foi possível carregar mensagens antigas');
       });
 
-    // Salvar nome de usuário no localStorage
-    $(document).ready(function () {
-      usernameInput.focus();
-
-      const savedUsername = localStorage.getItem('chatUsername');
-      if (savedUsername) {
-        usernameInput.val(savedUsername);
-        currentUser = savedUsername;
-        messageInput.focus();
-      }
-
-      usernameInput.on('change', function () {
-        localStorage.setItem('chatUsername', $(this).val().trim());
-      });
+    // Focar no campo de mensagem após carregamento
+    $(document).ready(function() {
+      $('#message-input').focus();
     });
   </script>
 </body>
