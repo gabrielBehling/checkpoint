@@ -1,45 +1,137 @@
-html, body {
-    height: 100%;
-  }
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  #chat {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-  
-  input {
-    width: 600px;
-    border: 1px solid #ddd;
-    height: 50px;
-    padding: 0 20px;
-    font-size: 14px;
-  }
-  
-  button {
-    width: 600px;
-    height: 50px;
-    font-size: 14px;
-    background: #069;
-    text-align: center;
-    line-height: 50px;
-    font-weight: bold;
-    color: #FFF;
-    margin-top: 10px;
-  }
-  
-  .messages {
-    width: 600px;
-    height: 400px;
-    margin: 20px 0;
-    border: 1px solid #ddd;
-    padding: 20px;
-  }
+/* Reset básico */
+body {
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background-color: #f5f6fa;
+  color: #2c3e50;
+}
+
+/* Cabeçalho do chat */
+.chat-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 1.8em;
+}
+
+.chat-header p {
+  margin: 5px 0 0;
+  font-size: 0.95em;
+  color: #7f8c8d;
+}
+
+/* Área de mensagens */
+.messages {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+/* Cada mensagem */
+.message {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 5px;
+  background-color: #ecf0f1;
+}
+
+.message.own {
+  background-color: #dff9fb;
+}
+
+/* Autor da mensagem */
+.author {
+  font-weight: bold;
+  color: #2980b9;
+  margin-bottom: 5px;
+}
+
+/* Horário da mensagem */
+.timestamp {
+  font-size: 0.7em;
+  color: #7f8c8d;
+  margin-left: 8px;
+}
+
+/* Texto da mensagem */
+.message-text {
+  word-wrap: break-word;
+}
+
+/* Imagens */
+.message img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+/* Áudios */
+.message-audio {
+  margin-top: 5px;
+}
+
+/* Formulário */
+form#chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Campos de entrada */
+#chat input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#chat button {
+  padding: 10px;
+  background-color: #3498db;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#chat button:hover {
+  background-color: #2980b9;
+}
+
+/* Upload de arquivos */
+.file-input-container {
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+#file {
+  margin-top: 5px;
+}
+
+/* Barra de progresso */
+.progress-bar {
+  height: 5px;
+  background-color: #3498db;
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+  margin-top: 5px;
+}
+
+/* Status e notificações */
+.status,
+.notification {
+  margin-top: 10px;
+  font-size: 0.85em;
+  color: #7f8c8d;
+}
