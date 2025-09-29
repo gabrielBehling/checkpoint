@@ -1,16 +1,103 @@
-import { useState } from 'react'
-import './App.css'
+import React from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+      <header>
+        
+          <div>
+            <nav style={{ margin: 20 }}>
+              <div className="logo">
+                <Link to="/" style={{ marginRight: 10 }}>
+                  Logo
+                </Link>
+                <a className="jogo" href="#">
+                  Jogos
+                </a>
+              </div>
+              <ul>
+                <h3>
+                  <input
+                    id="pesquisa"
+                    type="text"
+                    placeholder="Pesquisa"
+                  ></input>
+                </h3>
+                <li>
+                  <a href="evento.html">Eventos</a>
+                </li>
+                <Link to="/login" style={{ marginRight: 10 }}>
+                  login
+                </Link>
+                <Link to="/cadastro" style={{ marginRight: 10 }}>
+                  cadastro
+                </Link>
+              </ul>
+            </nav>
+          </div>
+          
+        <nav className="navbar"></nav>
+
+      </header>
+
+      <section className="hero">
+        <div className="banner"></div>
+        <div className="cta">
+          <p>
+            Cadastre-se e aproveite benefícios exclusivos!
+            <br />
+            Tenha acesso a conteúdos especiais, ofertas e novidades antes de
+            todo mundo.
+            <br />É rápido, gratuito e feito pra você!
+          </p>
+          <a href="cadastro.html" className="btn">
+            Cadastre-se
+          </a>
+        </div>
+      </section>
+
+      <section className="eventos">
+        <h2>Eventos Próximos</h2>
+        <div className="evento-card">
+          <div className="imagem-evento"></div>
+          <div className="info-evento">
+            <p>
+              Evento tal
+              <br />
+              Data tal
+              <br />
+              Premiação tal
+              <br />
+              Hora tal
+            </p>
+            <a href="evento.html" className="btn">
+              Cadastrar no evento
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <ul>
+          <li>
+            <a href="#">Ajuda</a>
+          </li>
+          <li>
+            <a href="#">Contato</a>
+          </li>
+          <li>
+            <a href="#">Sobre Nós</a>
+          </li>
+        </ul>
+      </footer>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
