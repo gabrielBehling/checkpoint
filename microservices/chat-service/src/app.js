@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    path: '/chat',
+    path: 'api/chat',
     origin: "*",
     methods: ["GET", "POST"],
     credentials: true

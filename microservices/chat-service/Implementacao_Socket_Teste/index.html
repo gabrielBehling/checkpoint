@@ -53,7 +53,7 @@
 
     // Inicializar Socket.IO
     const socket = io({
-      path: '/chat/socket.io',
+      path: '/api/chat/socket.io',
       reconnectionAttempts: 5,
       timeout: 10000
     });
@@ -116,7 +116,7 @@
         if (msg.message) {
           html += `<div class="message-text">${validator.escape(msg.message)}</div>`;
         }
-        html += `<div class="message-image"><img src="http://api.localhost/chat${msg.fileUrl}" alt="Imagem enviada"></div>`;
+        html += `<div class="message-image"><img src="http://checkpoint.localhost/api/chat${msg.fileUrl}" alt="Imagem enviada"></div>`;
       }
 
       // Áudio
@@ -191,7 +191,7 @@
 
       progressBar.width('30%');
 
-      fetch('http://api.localhost/chat/upload', {
+      fetch('http://checkpoint.localhost/api/chat/upload', {
         method: 'POST',
         body: formData
       })
@@ -217,7 +217,7 @@
     });
 
     // Buscar mensagens antigas
-    fetch('http://api.localhost/chat/messages')
+    fetch('http://checkpoint.localhost/api/chat/messages')
       .then(res => res.json())
       .then(messages => {
         messages.forEach(renderMessage);
