@@ -124,17 +124,93 @@ app.delete("/:eventId", authMiddleware, async (req, res) => {
     }
 });
 
-// Get all events
+// Get events by filter
 app.get("/", authMiddleware, async (req, res) => {
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT * FROM EventsNotDeleted`;
+
+        // Pegando query params (se não informado, será undefined)
+        const {
+            game,
+            date,
+            mode,
+            ticket,
+            participationCost,
+            place,
+            groupSize,
+            status,
+            prize,
+            time,
+            language,
+            platform,
+            maxParticipants,
+            isOnline,
+            search
+        } = req.query;
+
+        // Query SQL gigante, com filtros opcionais
+        const query = `
+            SELECT e.*
+            FROM EventsNotDeleted e
+            INNER JOIN UsersNotDeleted u ON e.CreatedBy = u.UserID
+            WHERE
+                (@game IS NULL OR e.GameID = (SELECT GameID FROM Games WHERE GameName = @game))
+                AND (@date IS NULL OR @date BETWEEN e.StartDate AND e.EndDate)
+                AND (@mode IS NULL OR e.Mode = @mode)
+                AND (@ticket IS NULL OR e.Ticket = @ticket)
+                AND (@participationCost IS NULL OR e.ParticipationCost = @participationCost)
+                AND (@place IS NULL OR e.Location LIKE '%' + @place + '%')
+                AND (@groupSize IS NULL OR e.TeamSize = @groupSize)
+                AND (@status IS NULL OR e.Status = @status)
+                AND (@prize IS NULL OR e.Prizes LIKE '%' + @prize + '%')
+                AND (@time IS NULL OR CONVERT(time, e.StartDate) = @time)
+                AND (@language IS NULL OR e.Language = @language)
+                AND (@platform IS NULL OR e.Platform LIKE '%' + @platform + '%')
+                AND (@maxParticipants IS NULL OR e.MaxParticipants = @maxParticipants)
+                AND (@isOnline IS NULL OR e.IsOnline = @isOnline)
+                AND (@search IS NULL OR (
+                    e.Title LIKE '%' + @search + '%' OR 
+                    e.Description LIKE '%' + @search + '%' OR
+                    u.Username LIKE '%' + @search + '%'
+                ))
+        `;
+
+        const request = new sql.Request();
+
+        // Setando parâmetros (se não informados, passam NULL para ignorar a condição)
+        request.input('game', sql.NVarChar, game || null);
+        request.input('date', sql.DateTime, date ? new Date(date) : null);
+        request.input('mode', sql.NVarChar, mode || null);
+        request.input('ticket', sql.Decimal(10,2), ticket ? parseFloat(ticket) : null);
+        request.input('participationCost', sql.Decimal(10,2), participationCost ? parseFloat(participationCost) : null);
+        request.input('place', sql.NVarChar, place || null);
+        request.input('groupSize', sql.Int, groupSize ? parseInt(groupSize) : null);
+        request.input('status', sql.NVarChar, status || null);
+        request.input('prize', sql.NVarChar, prize || null);
+        request.input('time', sql.Time, time || null);
+        request.input('language', sql.NVarChar, language || null);
+        request.input('platform', sql.NVarChar, platform || null);
+        request.input('maxParticipants', sql.Int, maxParticipants ? parseInt(maxParticipants) : null);
+
+        // Tratando isOnline: se undefined, passa null; se 'true' ou '1' passa 1; se 'false' ou '0' passa 0
+        if (isOnline === undefined) {
+            request.input('isOnline', sql.Bit, null);
+        } else {
+            const boolVal = (isOnline === 'true' || isOnline === '1') ? 1 : 0;
+            request.input('isOnline', sql.Bit, boolVal);
+        }
+
+        request.input('search', sql.NVarChar, search || null);
+
+        const result = await request.query(query);
+
         res.json(result.recordset);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-    
 });
+
 let createTeamSchema = object({
     TeamName: string().required().max(100),
     LogoURL: string().url().max(255)
