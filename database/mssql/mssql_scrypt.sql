@@ -164,18 +164,27 @@ SELECT
     EventID,
     Title,
     Description,
+    GameID,
+    Mode,
     StartDate,
     EndDate,
     Location,
+    Ticket,
+    ParticipationCost,
+    Language,
+    Platform,
+    IsOnline,
+    CreatedAt,
+    EditedAt,
+    LastModifiedBy,
+    MaxParticipants,
+    TeamSize,
+    MaxTeams,
     CreatedBy,
     Rules,
     Prizes,
     BannerURL,
-    Status,
-    CreatedAt,
-    EditedAt,
-    MaxParticipants,
-    MaxTeams
+    Status
 FROM dbo.Events
 WHERE DeletedAt is NULL;
 GO

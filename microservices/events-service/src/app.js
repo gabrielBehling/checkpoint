@@ -1,7 +1,7 @@
 const express = require("express");
 const sql = require("mssql");
 const cookieParser = require("cookie-parser");
-const { object, string, date, number } = require("yup");
+const { object, string, date, number, boolean } = require("yup");
 const authMiddleware = require("./authMiddleware");
 
 const dbConfig = {
@@ -24,14 +24,23 @@ app.use(cookieParser());
 let createEventSchema = object({
     Title: string().required(),
     Description: string().required(),
+    GameID: number(),
+    Mode: string(),
     StartDate: date().required(),
     EndDate: date().required(),
     Location: string(),
+    Ticket: number(),
+    ParticipationCost: number(),
+    Language: string(),
+    Platform: string(),
+    IsOnline: boolean().required(),
     MaxParticipants: number(),
+    TeamSize: number(),
     MaxTeams: number(),
     Rules: string(),
     Prizes: string(),
     BannerURL: string().url(),
+    Status: string().oneOf(['Active', 'Canceled', 'Finished']).default('Active'),
 });
 // Create a new event
 app.post("/", authMiddleware, async (req, res) => {
@@ -42,10 +51,23 @@ app.post("/", authMiddleware, async (req, res) => {
 
         await sql.connect(dbConfig);
         const result = await sql.query`
-            INSERT INTO Events (Title, Description, StartDate, EndDate, Location, MaxParticipants, MaxTeams, Rules, Prizes, BannerURL, CreatedBy)
-            values (${eventData.Title}, ${eventData.Description}, ${eventData.StartDate}, ${eventData.EndDate}, ${eventData.Location || null}, 
-                    ${eventData.MaxParticipants || null}, ${eventData.MaxTeams || null}, ${eventData.Rules || null}, 
-                    ${eventData.Prizes || null}, ${eventData.BannerURL || null}, ${userId});
+            INSERT INTO Events (
+                Title, Description, GameID, Mode, StartDate, EndDate, Location, 
+                Ticket, ParticipationCost, Language, Platform, IsOnline,
+                MaxParticipants, TeamSize, MaxTeams, Rules, Prizes, BannerURL, 
+                Status, CreatedBy
+            )
+            VALUES (
+                ${eventData.Title}, ${eventData.Description}, ${eventData.GameID || null}, 
+                ${eventData.Mode || null}, ${eventData.StartDate}, ${eventData.EndDate}, 
+                ${eventData.Location || null}, ${eventData.Ticket || null}, 
+                ${eventData.ParticipationCost || null}, ${eventData.Language || null}, 
+                ${eventData.Platform || null}, ${eventData.IsOnline}, 
+                ${eventData.MaxParticipants || null}, ${eventData.TeamSize || null}, 
+                ${eventData.MaxTeams || null}, ${eventData.Rules || null}, 
+                ${eventData.Prizes || null}, ${eventData.BannerURL || null}, 
+                ${eventData.Status || 'Active'}, ${userId}
+            );
         `;
 
         res.status(201).json({ message: "Event created successfully" });
@@ -59,14 +81,23 @@ app.post("/", authMiddleware, async (req, res) => {
 let updateEventSchema = object({
     Title: string(),
     Description: string(),
+    GameID: number(),
+    Mode: string(),
     StartDate: date(),
     EndDate: date(),
     Location: string(),
+    Ticket: number(),
+    ParticipationCost: number(),
+    Language: string(),
+    Platform: string(),
+    IsOnline: boolean(),
     MaxParticipants: number(),
+    TeamSize: number(),
     MaxTeams: number(),
     Rules: string(),
     Prizes: string(),
     BannerURL: string().url(),
+    Status: string().oneOf(['Active', 'Canceled', 'Finished']),
 });
 // Update an event
 app.put("/:eventId", authMiddleware, async (req, res) => {
@@ -81,14 +112,24 @@ app.put("/:eventId", authMiddleware, async (req, res) => {
         const result = await sql.query`update Events set
             Title = coalesce(${eventData.Title}, Title),
             Description = coalesce(${eventData.Description}, Description),
+            GameID = coalesce(${eventData.GameID}, GameID),
+            Mode = coalesce(${eventData.Mode}, Mode),
             StartDate = coalesce(${eventData.StartDate}, StartDate),
             EndDate = coalesce(${eventData.EndDate}, EndDate),
             Location = coalesce(${eventData.Location}, Location),
+            Ticket = coalesce(${eventData.Ticket}, Ticket),
+            ParticipationCost = coalesce(${eventData.ParticipationCost}, ParticipationCost),
+            Language = coalesce(${eventData.Language}, Language),
+            Platform = coalesce(${eventData.Platform}, Platform),
+            IsOnline = coalesce(${eventData.IsOnline}, IsOnline),
             MaxParticipants = coalesce(${eventData.MaxParticipants}, MaxParticipants),
+            TeamSize = coalesce(${eventData.TeamSize}, TeamSize),
             MaxTeams = coalesce(${eventData.MaxTeams}, MaxTeams),
             Rules = coalesce(${eventData.Rules}, Rules),
             Prizes = coalesce(${eventData.Prizes}, Prizes),
-            BannerURL = coalesce(${eventData.BannerURL}, BannerURL)
+            BannerURL = coalesce(${eventData.BannerURL}, BannerURL),
+            Status = coalesce(${eventData.Status}, Status),
+            LastModifiedBy = ${userId}
             where EventId = ${eventId} and CreatedBy = ${userId} and DeletedAt is null;`;
 
         if (result.rowsAffected[0] === 0) {
@@ -129,7 +170,6 @@ app.get("/", authMiddleware, async (req, res) => {
     try {
         await sql.connect(dbConfig);
 
-        // Pegando query params (se não informado, será undefined)
         const {
             game,
             date,
@@ -148,7 +188,6 @@ app.get("/", authMiddleware, async (req, res) => {
             search
         } = req.query;
 
-        // Query SQL gigante, com filtros opcionais
         const query = `
             SELECT e.*
             FROM EventsNotDeleted e
@@ -207,6 +246,7 @@ app.get("/", authMiddleware, async (req, res) => {
         res.json(result.recordset);
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message });
     }
 });
