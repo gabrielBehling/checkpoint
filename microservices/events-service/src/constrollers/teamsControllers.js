@@ -75,7 +75,7 @@ router.post("/:eventId/teams", authMiddleware, async (req, res) => {
 });
 
 // Get all teams registered for an event
-router.get("/:eventId/teams", authMiddleware, async (req, res) => {
+router.get("/:eventId/teams", async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
         return res.status(400).json({ error: "Invalid eventId" });
@@ -92,7 +92,7 @@ router.get("/:eventId/teams", authMiddleware, async (req, res) => {
 });
 
 // Get details of a specific team
-router.get("/teams/:teamId", authMiddleware, async (req, res) => {
+router.get("/teams/:teamId", async (req, res) => {
     const teamId = parseInt(req.params.teamId);
     if (isNaN(teamId)) {
         return res.status(400).json({ error: "Invalid teamId" });
