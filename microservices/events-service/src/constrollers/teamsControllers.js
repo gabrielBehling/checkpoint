@@ -36,6 +36,17 @@ router.post("/:eventId/teams", authMiddleware, async (req, res) => {
             return res.status(404).json({ error: "Event not found" });
         }
         const maxTeams = eventResult.recordset[0].MaxTeams;
+
+        const existingTeamResult = await sql.query`
+            SELECT T.TeamId 
+            FROM Teams T
+            INNER JOIN EventRegistrations ER ON T.TeamId = ER.TeamID
+            WHERE ER.EventId = ${eventId} AND T.CreatedBy = ${userId} AND ER.DeletedAt IS NULL
+        `;
+        if (existingTeamResult.recordset.length > 0) {
+            return res.status(400).json({ error: "You have already created a team for this event" });
+        }
+
         const teamCountResult = await sql.query`SELECT COUNT(*) AS TeamCount FROM EventRegistrations WHERE EventId = ${eventId} and Status = 'Approved' and DeletedAt is null`;
         const currentTeamCount = teamCountResult.recordset[0].TeamCount;
         if (maxTeams !== null && currentTeamCount >= maxTeams) {
@@ -73,6 +84,30 @@ router.get("/:eventId/teams", authMiddleware, async (req, res) => {
         await sql.connect(dbConfig);
         const result = await sql.query`SELECT T.*, ER.EventID, ER.Status, ER.RegisteredAt FROM TeamsNotDeleted T INNER JOIN EventRegistrations ER as  ON T.TeamId = ER.TeamID  WHERE ER.EventID = ${eventId} AND ER.DeletedAt IS NULL`;
         res.json(result.recordset);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+
+// Get details of a specific team
+router.get("/teams/:teamId", authMiddleware, async (req, res) => {
+    const teamId = parseInt(req.params.teamId);
+    if (isNaN(teamId)) {
+        return res.status(400).json({ error: "Invalid teamId" });
+    }
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`
+        SELECT T.*, ER.EventId, ER.Status, (SELECT COUNT(*) FROM TeamMembers TM WHERE TM.TeamId = T.TeamId) AS MemberCount
+        FROM TeamsNotDeleted T
+        INNER JOIN EventRegistrations ER ON T.TeamId = ER.TeamID
+        WHERE T.TeamId = ${teamId}`;
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ error: "Team not found" });
+        }
+        res.json(result.recordset[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
     } finally {

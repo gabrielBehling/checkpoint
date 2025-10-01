@@ -154,7 +154,8 @@ SELECT
     CreatedBy,
     LogoURL,
     CreatedAt,
-    EditedAt
+    EditedAt,
+    ChatID
 FROM dbo.Teams
 WHERE DeletedAt is NULL;
 GO
