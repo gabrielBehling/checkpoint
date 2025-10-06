@@ -62,6 +62,11 @@ router.post("/:eventId/teams", authMiddleware, async (req, res) => {
         }
         const teamId = insertResult.recordset[0].TeamId;
 
+        const memberInsertResult = await sql.query`
+            INSERT INTO TeamMembers (TeamId, UserId, Role)
+            VALUES (${teamId}, ${userId}, 'Captain');
+        `;
+
         const registrationResult = await sql.query`
             INSERT INTO EventRegistrations (EventID, TeamID)
             VALUES (${eventId}, ${teamId});
@@ -82,7 +87,7 @@ router.get("/:eventId/teams", async (req, res) => {
     }
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`SELECT T.*, ER.EventID, ER.Status, ER.RegisteredAt FROM TeamsNotDeleted T INNER JOIN EventRegistrations ER as  ON T.TeamId = ER.TeamID  WHERE ER.EventID = ${eventId} AND ER.DeletedAt IS NULL`;
+        const result = await sql.query`SELECT T.*, ER.EventID, ER.Status, ER.RegisteredAt FROM TeamsNotDeleted T INNER JOIN EventRegistrations ER ON T.TeamId = ER.TeamID  WHERE ER.EventID = ${eventId} AND ER.DeletedAt IS NULL`;
         res.json(result.recordset);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -108,6 +113,45 @@ router.get("/teams/:teamId", async (req, res) => {
             return res.status(404).json({ error: "Team not found" });
         }
         res.json(result.recordset[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+
+// Join a team
+router.post("/teams/:teamId/join", authMiddleware, async (req, res) => {
+    const teamId = parseInt(req.params.teamId);
+    if (isNaN(teamId)) {
+        return res.status(400).json({ error: "Invalid teamId" });
+    }
+    try {
+        const userId = req.user.userId;
+        await sql.connect(dbConfig);
+        const teamResult = await sql.query`SELECT TeamId FROM TeamsNotDeleted WHERE TeamId = ${teamId}`;
+        if (teamResult.recordset.length === 0) {
+            return res.status(404).json({ error: "Team not found" });
+        }
+        const maxMembersResult = await sql.query`
+            SELECT E.TeamSize from EventRegistrations ER
+            INNER JOIN EventsNotDeleted E ON ER.EventId = E.EventID
+            WHERE ER.TeamID = ${teamId} AND ER.DeletedAt IS NULL 
+        `;
+        const maxMembers = maxMembersResult.recordset[0].TeamSize;
+
+        const memberCountResult = await sql.query`SELECT COUNT(*) AS MemberCount FROM TeamMembers WHERE TeamId = ${teamId} AND DeletedAt IS NULL`;
+        const currentMemberCount = memberCountResult.recordset[0].MemberCount;
+
+        if (maxMembers !== null && currentMemberCount >= maxMembers) {
+            return res.status(400).json({ error: "Team is already full" });
+        }
+        const memberResult = await sql.query`SELECT TeamMemberID FROM TeamMembers WHERE TeamId = ${teamId} AND UserId = ${userId} AND DeletedAt IS NULL`;
+        if (memberResult.recordset.length > 0) {
+            return res.status(400).json({ error: "You are already a member of this team" });
+        }
+        await sql.query`INSERT INTO TeamMembers (TeamId, UserId) VALUES (${teamId}, ${userId})`;
+        res.status(200).json({ message: "Joined team successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     } finally {
