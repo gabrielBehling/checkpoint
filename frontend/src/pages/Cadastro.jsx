@@ -1,15 +1,38 @@
-import React from "react";
+import {React, useState} from "react";
 import { useNavigate, Link } from "react-router-dom";
-
+import api from "./api"
+import { useState } from "react";
 export default function CadastroPage() {
   const navigate = useNavigate();
-
-  const handleCadastro = (e) => {
+  const [nome, setnome] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordConfirm, setPasswordConfirm] = useState("")
+  }
+  function handleEmailChange(e) {
+    setEmail(e.target.value)
+  }
+  function handlePasswordChange(e) {
+    setPassword(e.target.value)
+    }
+  function handlePasswordConfirmChange(e){
+    setPasswordConfirm(e.target.value)
+  }
+  function handleSubmit(e) {
     e.preventDefault();
-    // aqui você pode colocar lógica de validação / envio de dados
-    navigate("/"); // redireciona para home após cadastro
+    if(passwordConfirm != password){
+    alert("Tá errado")
+    return
+    }
+    api.post("/cadastro", {
+      username: nome,
+      email: email,
+      password: password,
+      userRole: "TipoDaConta" 
+    })
   };
 
+  
   return (
     <>
       {/* MENU SUPERIOR */}
@@ -37,11 +60,11 @@ export default function CadastroPage() {
             alt="CheckPoint Logo"
             className="logo-central"
           />
-          <form onSubmit={handleCadastro}>
-            <input type="text" placeholder="Username" required />
-            <input type="email" placeholder="Email" required />
-            <input type="password" placeholder="Senha" required />
-            <input type="password" placeholder="Confirmar Senha" required />
+          <form onSubmit={handleSubmit}>
+            <input type="text" name="Username" value={nome} placeholder="Username" required />
+            <input type="email" name="Email" value={email} onChange={handleEmailChange} placeholder="Email" required />
+            <input type="password" name="Password" value={password} onChange={handlePasswordChange} placeholder="Senha" required />
+            <input type="password" name="PasswordConfirm" value={passwordConfirm} onChange={handlePasswordConfirmChange} placeholder="Confirmar Senha" required />
 
             <select name="TipoDaConta" required>
               <option value="Player">Player</option>
@@ -53,12 +76,11 @@ export default function CadastroPage() {
               <input type="checkbox" /> Lembrar de mim
             </label>
 
-            <button type="submit" className="btn">
+            <input type="submit" />
               Cadastrar
-            </button>
           </form>
         </section>
       </main>
     </>
   );
-}
+

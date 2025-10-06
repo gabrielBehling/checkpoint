@@ -1,57 +1,36 @@
-import React from "react";
+import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./login.css";
+import api from "./api"
+import axios from "axios";
 export default function LoginPage() {
   const navigate = useNavigate();
-
-  const handleLogin = (e) => {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  function handleEmailChange(e) {
+    setEmail(e.target.value)
+  }
+  function handlePasswordChange(e) {
+    setPassword(e.target.value)
+  }
+  function handleSubmit(e) {
     e.preventDefault();
-    // aqui você pode colocar validação/autenticação
-    navigate("/"); // redireciona para a home
+    api.post("/login", {
+      email: email,
+      password: password
+    })
   };
 
   return (
     <>
-      {/* MENU SUPERIOR */}
-      <header className="topbar">
-        <div className="logo">
-          <Link to="/">logo</Link>
-        </div>
-        <nav>
-          <Link to="/evento">Eventos</Link>
-          <Link to="/jogos">Jogos</Link>
-        </nav>
-        <div className="auth">
-          <Link to="/login">LOGIN</Link>
-          <Link to="/cadastro" className="cadastro">
-            CADASTRO
-          </Link>
-        </div>
-      </header>
+      <form onSubmit={handleSubmit}>
 
-      {/* FORM DE LOGIN */}
-      <main className="container">
-        <section className="form-login">
-          <img
-            src="./logo.png"
-            alt="CheckPoint Logo"
-            className="logo-central"
-          />
-          <form onSubmit={handleLogin}>
-            <input type="email" placeholder="Email" required />
-            <input type="password" placeholder="Senha" required />
-
-            <label className="remember">
-              <input type="checkbox" /> Lembrar de mim
-            </label>
-
-            <button type="submit" className="btn">
-              Entrar
-            </button>
-            <style></style>
-          </form>
-        </section>
-      </main>
+        <label htmlFor="email">E-mail: </label>
+        <input type="text" value={email} onChange={handleEmailChange} name="email" />
+        <label htmlFor="password">Senha: </label>
+        <input type="text" value={password} onChange={handlePasswordChange} name="password" />
+        <input type="submit" />
+      </form>
     </>
   );
 }
