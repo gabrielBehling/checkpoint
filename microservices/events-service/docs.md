@@ -310,6 +310,39 @@ Retorna informações detalhadas de um time específico em um evento.
 
 ---
 
+### 8. Entrar em um Time
+**POST** `/teams/:teamId/join`
+
+Permite que um usuário entre em um time específico, desde que o time não esteja cheio.
+
+**Headers:**
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+- `teamId` (number) - ID do time
+
+**Resposta:**
+```json
+{
+  "message": "Joined team successfully"
+}
+```
+
+**Status Codes:**
+- `200`: Entrada no time bem-sucedida
+- `400`: Erro de validação (time cheio ou usuário já é membro)
+- `401`: Não autenticado
+- `404`: Time não encontrado
+- `500`: Erro interno do servidor
+
+**Regras de Validação:**
+- O usuário não pode entrar em um time do qual já é membro
+- O time não pode exceder o número máximo de membros definido no evento
+
+---
+
 ## 🗃️ Modelo de Dados
 
 ### Evento
