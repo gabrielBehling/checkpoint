@@ -7,9 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # 2. Instala dependências (incluindo build tools temporárias)
-RUN apk add --no-cache --virtual .build-deps python3 make g++ \
-    && npm install --production \
-    && apk del .build-deps
+RUN apk add --no-cache \
+    && npm install --production
 
 # 3. Copia o resto do código fonte
 COPY . .

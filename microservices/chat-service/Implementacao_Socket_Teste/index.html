@@ -150,11 +150,7 @@
         messageInput.focus();
         return;
       }
-
-      if (currentUser !== author) {
-        currentUser = author;
-      }
-
+  
       socket.emit('sendMessage', { author, message });
 
       messageInput.val('');

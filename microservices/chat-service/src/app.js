@@ -7,6 +7,8 @@ const multer = require('multer');
 const { renderFile } = require('ejs');
 const socketIO = require('socket.io');
 const Message = require('./models/Message');
+const authMiddleware = require('./authMiddleware');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const server = http.createServer(app);
@@ -50,24 +52,24 @@ app.get('/', (req, res) => {
   res.render('index.html');
 });
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   const { author, type } = req.body;
   const fileUrl = `/uploads/${req.file.filename}`;
   const message = new Message({ author, type, fileUrl });
 
-const fs = require('fs');
+  const fs = require('fs');
 
-// Rota GET para servir arquivos da pasta uploads
-app.get('/upload/:filename', (req, res) => {
-  const filePath = path.join(publicDir, 'uploads', req.params.filename);
+  // Rota GET para servir arquivos da pasta uploads
+  app.get('/upload/:filename', (req, res) => {
+    const filePath = path.join(publicDir, 'uploads', req.params.filename);
 
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      return res.status(404).json({ error: 'Arquivo não encontrado' });
-    }
-    res.sendFile(filePath);
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        return res.status(404).json({ error: 'Arquivo não encontrado' });
+      }
+      res.sendFile(filePath);
+    });
   });
-});
 
   await message.save();
   io.emit('receivedMessage', message);
@@ -77,10 +79,34 @@ app.get('/upload/:filename', (req, res) => {
 // Sistema de chat com o soketIO
 io.on('connection', socket => {
   console.log(`ID Conectado: ${socket.id}`);
+  socket.cookie = socket.handshake.headers.cookie || socket.request.headers.cookie
 
+  function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(socket.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+    
+  }
+  try {
+    user = jwt.verify(getCookie('acessToken'), process.env.JWT_SECRET);
+  }
+  catch (err) {
+    console.log(err)
+    return socket.disconnect();
+  }
   socket.on('sendMessage', async data => {
     const message = new Message({
-      author: data.author,
+      author: user.username,
       message: data.message,
       type: 'text'
     });
@@ -96,7 +122,7 @@ app.get('/messages', async (req, res) => {
     const messages = await Message.find().sort({ timestamp: 1 });
     res.json(messages);
   } catch (err) {
-    console.error('Erro ao buscar mensagens:', err);
+    console.log('Erro ao buscar mensagens:', err);
     res.status(500).json({ error: 'Erro ao buscar mensagens' });
   }
 });
@@ -117,3 +143,4 @@ server.listen(PORT, () => console.log(` Chat rodando na porta ${PORT}`));
 // app.listen(PORT, () => {
 //     console.log(`Chat Service is running on port ${PORT}`);
 // });
+
