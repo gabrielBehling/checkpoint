@@ -159,4 +159,31 @@ router.post("/teams/:teamId/join", authMiddleware, async (req, res) => {
     }
 });
 
+// Delete a team
+router.delete("/teams/:teamId", authMiddleware, async (req, res) => {
+    const teamId = parseInt(req.params.teamId);
+    if (isNaN(teamId)) {
+        return res.status(400).json({ error: "Invalid teamId" });
+    }
+    try {
+        const userId = req.user.userId;
+        await sql.connect(dbConfig);
+        const teamResult = await sql.query`SELECT CreatedBy FROM TeamsNotDeleted WHERE TeamId = ${teamId}`;
+        if (teamResult.recordset.length === 0) {
+            return res.status(404).json({ error: "Team not found" });
+        }
+        if (teamResult.recordset[0].CreatedBy !== userId) {
+            return res.status(403).json({ error: "You are not authorized to delete this team" });
+        }
+        await sql.query`UPDATE Teams SET DeletedAt = GETDATE() WHERE TeamId = ${teamId}`;
+        await sql.query`UPDATE EventRegistrations SET DeletedAt = GETDATE() WHERE TeamID = ${teamId} AND DeletedAt IS NULL`;
+        await sql.query`UPDATE TeamMembers SET DeletedAt = GETDATE() WHERE TeamId = ${teamId} AND DeletedAt IS NULL`;
+        res.status(200).json({ message: "Team deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+
 module.exports = router;
