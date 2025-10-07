@@ -22,7 +22,7 @@ O **Checkpoint** é uma plataforma completa para gerenciamento de eventos e comp
 | Serviço | Descrição | Docs |
 |---------|-----------|------|
 | Auth Service | Autenticação e autorização | [auth](./microservices/auth-service/docs.md) |
-| Events Service | Gerenciamento de eventos |
+| Events Service | Gerenciamento de eventos | [events](./microservices/events-service/docs.md) |
 | Chat Service | Sistema de mensagens |
 | Notification Service | Notificações e emails |
 
