@@ -172,7 +172,7 @@ app.post("/login", async (req, res) => {
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: true,
-            maxAge: 60 * 60 * 1000, // 1 hour
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
         res.cookie("refreshToken", refreshToken, {
@@ -249,7 +249,7 @@ app.post("/register", async (req, res) => {
             OUTPUT Inserted.UserID
             VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
         `;
-        userId = result.recordset.shift().UserId; // Get the inserted UserID
+        userId = result.recordset.shift().UserID; // Get the inserted UserID
     } catch (err) {
         return res.status(500).json({ error: "Database error", details: err });
     } finally {
@@ -265,7 +265,7 @@ app.post("/register", async (req, res) => {
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 60 * 1000, // 1 hour
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -325,7 +325,7 @@ app.post("/refresh-token", async (req, res) => {
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: true,
-            maxAge: 60 * 60 * 1000, // 1 hour
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
         res.cookie("refreshToken", newRefreshToken, {

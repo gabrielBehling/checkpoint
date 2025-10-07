@@ -1,14 +1,32 @@
-# Checkpoint
+# Documentação do Projeto Checkpoint
 
-## Primeiros Passos
+## 📋 Visão Geral
 
-### Obtendo o Código
+O **Checkpoint** é uma plataforma completa para gerenciamento de eventos e competições, construída com arquitetura de microserviços. O sistema permite o cadastro de usuários, criação de times, organização de eventos e gerenciamento de partidas.
 
-Clone o repositório:
-```bash
-git clone https://github.com/gabrielBehling/checkpoint.git
-cd checkpoint
-```
+## 🏗️ Arquitetura
+
+### Stack Tecnológica
+- **Frontend**: React + Vite
+- **Backend**: Node.js + Express (Microserviços)
+- **Bancos de Dados**: 
+  - SQL Server (Dados relacionais)
+  - MongoDB (Chat e dados não-relacionais)
+  - Redis (Cache e sessões)
+- **Message Broker**: Kafka (Comunicação assíncrona)
+- **Proxy**: Nginx
+- **Containerização**: Docker + Docker Compose
+
+### Estrutura de Microserviços
+
+| Serviço | Descrição | Docs |
+|---------|-----------|------|
+| Auth Service | Autenticação e autorização | [auth](./microservices/auth-service/docs.md) |
+| Events Service | Gerenciamento de eventos | [events](./microservices/events-service/docs.md) |
+| Chat Service | Sistema de mensagens |
+| Notification Service | Notificações e emails |
+
+## 🚀 Instalação e Configuração
 
 ### Pré-requisitos
 - Docker
@@ -16,31 +34,24 @@ cd checkpoint
 
 ### Configuração Inicial
 
-1. Copie o arquivo de exemplo de variáveis de ambiente:
+1. **Clone o repositório**:
+```bash
+git clone https://github.com/gabrielBehling/checkpoint.git
+cd checkpoint
+```
+
+2. **Configure as variáveis de ambiente**:
 ```bash
 cp .env.example .env
 ```
+Edite o arquivo `.env` com suas configurações.
 
-2. Edite o arquivo `.env` e configure as senhas necessárias:
-- `MONGO_PASSWORD`: Defina uma senha para o MongoDB
-- `MSSQL_PASSWORD`: Defina uma senha para o SQL Server
-
-### Iniciando a Aplicação
-
-1. Inicie os containers:
+3. **Execute a aplicação**:
 ```bash
 docker compose up --build
 ```
 
-2. A aplicação estará disponível nos seguintes endereços:
-- Frontend: http://api.localhost
-- Backend: http://api.localhost/{serviço}
-    ( Eg. http://api.localhost/auth )
-
-### Parando a Aplicação
-
-Para parar os containers:
-```bash
-docker compose down
-```
+### URLs de Acesso
+- **Frontend**: http://checkpoint.localhost
+- **API Gateway**: http://checkpoint.localhost/api/{serviço}
 

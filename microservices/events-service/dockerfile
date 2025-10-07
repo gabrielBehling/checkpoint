@@ -6,7 +6,7 @@ RUN npm ci --omit=dev
 FROM builder
 COPY . .
 RUN apk add --no-cache curl # Para health checks
-HEALTHCHECK --interval=30s --timeout=3s \
+HEALTHCHECK --interval=30s --timeout=5s \
   CMD curl -f http://localhost:3000/health || exit 1
 
 EXPOSE 3000
