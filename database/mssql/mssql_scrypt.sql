@@ -45,25 +45,44 @@ CREATE TABLE TeamMembers (
 );
 GO
 
+-- GAMES
+CREATE TABLE Games (
+    GameID INT PRIMARY KEY IDENTITY(1,1),
+    GameName NVARCHAR(100) NOT NULL UNIQUE,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    EditedAt DATETIME DEFAULT NULL,
+    DeletedAt DATETIME DEFAULT NULL
+);
+GO
+
 -- EVENTS
 CREATE TABLE Events (
     EventID INT PRIMARY KEY IDENTITY(1,1),
     Title NVARCHAR(100) NOT NULL,
     Description NVARCHAR(MAX),
+    GameID INT,
+    Mode NVARCHAR(50),
     StartDate DATETIME NOT NULL,
     EndDate DATETIME NOT NULL,
     Location NVARCHAR(255),
+    Ticket DECIMAL(10,2),
+    ParticipationCost DECIMAL(10,2),
+    Language NVARCHAR(50),
+    Platform NVARCHAR(100),
+    IsOnline BIT NOT NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
     LastModifiedBy INT NULL,
     DeletedAt DATETIME DEFAULT NULL,
     MaxParticipants INT DEFAULT NULL,
+    TeamSize INT NULL,
     MaxTeams INT DEFAULT NULL,
     CreatedBy INT NOT NULL,
     Rules NVARCHAR(MAX),
     Prizes NVARCHAR(MAX),
     BannerURL NVARCHAR(255),
     Status VARCHAR(20) DEFAULT 'Active' CHECK (Status IN ('Active', 'Canceled', 'Finished')),
+    FOREIGN KEY (GameID) REFERENCES Games(GameID),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
     FOREIGN KEY (LastModifiedBy) REFERENCES Users(UserID)
 );
@@ -135,7 +154,8 @@ SELECT
     CreatedBy,
     LogoURL,
     CreatedAt,
-    EditedAt
+    EditedAt,
+    ChatID
 FROM dbo.Teams
 WHERE DeletedAt is NULL;
 GO
@@ -145,16 +165,27 @@ SELECT
     EventID,
     Title,
     Description,
+    GameID,
+    Mode,
     StartDate,
     EndDate,
     Location,
+    Ticket,
+    ParticipationCost,
+    Language,
+    Platform,
+    IsOnline,
+    CreatedAt,
+    EditedAt,
+    LastModifiedBy,
+    MaxParticipants,
+    TeamSize,
+    MaxTeams,
     CreatedBy,
     Rules,
     Prizes,
     BannerURL,
-    Status,
-    CreatedAt,
-    EditedAt
+    Status
 FROM dbo.Events
 WHERE DeletedAt is NULL;
 GO
