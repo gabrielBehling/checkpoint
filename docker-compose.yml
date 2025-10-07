@@ -59,6 +59,7 @@ services:
       - "3001:3000"
     volumes:
       - ./microservices/auth-service/src:/app/src
+      - /app/node_modules
     depends_on:
       mssql:
         condition: service_healthy
@@ -75,6 +76,7 @@ services:
       - "3002:3000"
     volumes:
       - ./microservices/events-service/src:/app/src
+      - /app/node_modules
     depends_on:
       - mssql
       - redis
@@ -86,6 +88,7 @@ services:
       - "3003:3000"
     volumes:
       - ./microservices/chat-service/src:/app/src
+      - /app/node_modules
     depends_on:
       - mongodb
       - redis
@@ -127,6 +130,12 @@ services:
   # ---- Frontend ----
   frontend:
     build: ./frontend
+    volumes:
+      - type: bind
+        source: ./frontend/src
+        target: /app/src
+        read_only: true
+      - /app/node_modules
     depends_on:
       - auth-service
       - events-service
