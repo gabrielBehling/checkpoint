@@ -343,6 +343,43 @@ Cookie: accessToken=<jwt_token>
 
 ---
 
+### 9. Remover Membro do Time
+**DELETE** `/teams/:teamId/members/:memberId`
+
+Remove um membro específico de um time. O membro pode ser removido pelo capitão do time (CreatedBy) ou pode sair voluntariamente (quando memberId é o próprio usuário).
+
+**Headers:**
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+- `teamId` (number) - ID do time
+- `memberId` (number) - ID do usuário a ser removido
+
+**Resposta:**
+```json
+{
+  "message": "Member removed successfully"
+}
+```
+
+**Status Codes:**
+- `200`: Membro removido com sucesso
+- `400`: ID inválido
+- `401`: Não autenticado
+- `403`: Sem permissão para remover o membro
+- `404`: Time ou membro não encontrado
+- `500`: Erro interno do servidor
+
+**Regras de Negócio:**
+- Apenas o capitão do time pode remover outros membros
+- Um membro pode sair voluntariamente do time (remover a si mesmo)
+- Se o último membro sair, o time é automaticamente deletado
+- Quando um time fica sem membros, seu status é alterado para 'Cancelled'
+
+---
+
 ## 🗃️ Modelo de Dados
 
 ### Evento
