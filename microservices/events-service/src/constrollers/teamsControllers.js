@@ -105,7 +105,7 @@ router.get("/teams/:teamId", async (req, res) => {
     try {
         await sql.connect(dbConfig);
         const result = await sql.query`
-        SELECT T.*, ER.EventId, ER.Status, (SELECT COUNT(*) FROM TeamMembers TM WHERE TM.TeamId = T.TeamId) AS MemberCount
+        SELECT T.*, ER.EventId, ER.Status, (SELECT COUNT(*) FROM TeamMembers TM WHERE TM.TeamId = T.TeamId AND TM.DeletedAt IS NULL) AS MemberCount
         FROM TeamsNotDeleted T
         INNER JOIN EventRegistrations ER ON T.TeamId = ER.TeamID
         WHERE T.TeamId = ${teamId}`;
@@ -186,4 +186,41 @@ router.delete("/teams/:teamId", authMiddleware, async (req, res) => {
     }
 });
 
+// Remove a member from a team
+router.delete("/teams/:teamId/members/:memberId", authMiddleware, async (req, res) => {
+    const teamId = parseInt(req.params.teamId);
+    const memberId = parseInt(req.params.memberId);
+    if (isNaN(teamId) || isNaN(memberId)) {
+        return res.status(400).json({ error: "Invalid teamId or memberId" });
+    }
+    try {
+        const userId = req.user.userId;
+        await sql.connect(dbConfig);
+        const teamResult = await sql.query`SELECT CreatedBy FROM TeamsNotDeleted WHERE TeamId = ${teamId}`;
+        if (teamResult.recordset.length === 0) {
+            return res.status(404).json({ error: "Team not found" });
+        }
+        if (teamResult.recordset[0].CreatedBy !== userId & memberId !== userId) {
+            return res.status(403).json({ error: "You are not authorized to remove this member" });
+        }
+        const memberResult = await sql.query`SELECT TeamMemberID FROM TeamMembers WHERE TeamId = ${teamId} AND UserId = ${memberId} AND DeletedAt IS NULL`;
+        if (memberResult.recordset.length === 0) {
+            return res.status(404).json({ error: "Member not found in this team" });
+        }
+        const RemainingMembersResult = await sql.query`UPDATE TeamMembers SET DeletedAt = GETDATE() WHERE TeamId = ${teamId} AND UserId = ${memberId} AND DeletedAt IS NULL;
+            SELECT COUNT(*) AS RemainingMembers FROM TeamMembers WHERE TeamId = ${teamId} AND DeletedAt IS NULL;`;
+        const remainingMembers = RemainingMembersResult.recordset[0].RemainingMembers;
+        if (remainingMembers === 0) {
+            await sql.query`UPDATE Teams SET DeletedAt = GETDATE() WHERE TeamId = ${teamId}`;
+            await sql.query`UPDATE EventRegistrations SET Status = 'Cancelled' WHERE TeamID = ${teamId} AND DeletedAt IS NULL`;
+        }
+        res.status(200).json({ message: "Member removed successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+
+// 
 module.exports = router;
