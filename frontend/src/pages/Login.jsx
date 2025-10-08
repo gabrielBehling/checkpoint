@@ -2,7 +2,6 @@ import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./login.css";
 import api from "./api"
-import axios from "axios";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("")
@@ -15,9 +14,19 @@ export default function LoginPage() {
   }
   function handleSubmit(e) {
     e.preventDefault();
-    api.post("/login", {
+    api.post("/auth/login", {
       email: email,
       password: password
+    })
+    .then((res) => {
+      if(res.status === 200) {
+        navigate("/")
+      }
+    })
+    .catch((err) => {
+        if(err.response && err.response.status === 401) {
+          alert("Credenciais inválidas")
+        }
     })
   };
 
