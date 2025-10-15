@@ -215,9 +215,57 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio
 
 ---
 
+### 5. Buscar Evento por ID
+
+**GET** `/:eventId`
+
+Busca um evento específico pelo seu ID.
+Retorna os detalhes do evento caso encontrado e que não esteja deletado.
+
+**Parâmetros:**
+
+* `eventId` (number) - ID do evento
+
+**Resposta:**
+
+```json
+{
+  "EventID": 1,
+  "Title": "Torneio de CS2",
+  "Description": "Campeonato aberto de Counter Strike 2",
+  "GameID": 1,
+  "Mode": "5v5",
+  "StartDate": "2024-02-01T14:00:00.000Z",
+  "EndDate": "2024-02-01T18:00:00.000Z",
+  "Location": "Online",
+  "Ticket": 50.00,
+  "ParticipationCost": 100.00,
+  "Language": "Português",
+  "Platform": "PC",
+  "IsOnline": true,
+  "MaxParticipants": 100,
+  "TeamSize": 5,
+  "MaxTeams": 20,
+  "Rules": "Melhor de 3 mapas...",
+  "Prizes": "1º lugar: R$ 1000,00",
+  "BannerURL": "https://example.com/banner.jpg",
+  "Status": "Active",
+  "CreatedBy": 123
+}
+```
+
+**Status Codes:**
+
+* `200`: Evento encontrado e retornado com sucesso
+* `400`: `eventId` inválido (não numérico)
+* `404`: Evento não encontrado ou deletado
+* `500`: Erro interno do servidor
+
+---
+
 ## 👥 Gerenciamento de Times
 
-### 5. Criar Time para Evento
+### 6. Criar Time para Evento
 **POST** `/:eventId/teams`
 
 Cria um novo time e registra para um evento.
@@ -256,7 +304,7 @@ Cookie: accessToken=<jwt_token>
 
 ---
 
-### 6. Listar Times de um Evento
+### 7. Listar Times de um Evento
 **GET** `/:eventId/teams`
 
 Lista todos os times registrados em um evento.
@@ -281,7 +329,7 @@ Lista todos os times registrados em um evento.
 
 ---
 
-### 7. Buscar Informações do Time
+### 8. Buscar Informações do Time
 **GET** `/teams/:teamId`
 
 Retorna informações detalhadas de um time específico em um evento.
@@ -310,7 +358,7 @@ Retorna informações detalhadas de um time específico em um evento.
 
 ---
 
-### 8. Entrar em um Time
+### 9. Entrar em um Time
 **POST** `/teams/:teamId/join`
 
 Permite que um usuário entre em um time específico, desde que o time não esteja cheio.
@@ -343,7 +391,7 @@ Cookie: accessToken=<jwt_token>
 
 ---
 
-### 9. Remover Membro do Time
+### 10. Remover Membro do Time
 **DELETE** `/teams/:teamId/members/:memberId`
 
 Remove um membro específico de um time. O membro pode ser removido pelo capitão do time (CreatedBy) ou pode sair voluntariamente (quando memberId é o próprio usuário).

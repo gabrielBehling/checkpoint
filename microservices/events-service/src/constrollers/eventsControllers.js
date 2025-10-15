@@ -246,4 +246,26 @@ router.get("/", authMiddleware, async (req, res) => {
     }
 });
 
+// Get event by ID
+router.get("/:eventId", async (req, res) => {
+    const eventId = parseInt(req.params.eventId);
+    if (isNaN(eventId)) {
+        return res.status(400).json({ error: "Invalid eventId" });
+    }
+
+    try{
+        await sql.connect(dbConfig);
+
+        const result = await sql.query`SELECT * FROM EventsNotDeleted WHERE EventID = ${eventId}`
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        res.json(result.recordset[0])
+    } catch {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+
 module.exports = router;
