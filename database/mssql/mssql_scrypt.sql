@@ -131,6 +131,22 @@ CREATE TABLE TeamMatches (
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
 GO
+CREATE TABLE LeaderboardScores (
+    ScoreID INT PRIMARY KEY IDENTITY(1,1),
+    EventID INT NOT NULL,
+    TeamID INT NOT NULL,
+    RoundNumber INT NOT NULL,
+    Points DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    LastModifiedAt DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_LeaderboardScores_Events FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    CONSTRAINT FK_LeaderboardScores_Teams FOREIGN KEY (TeamID) REFERENCES Teams(TeamID),
+    
+    -- Garante que um time só pode ter uma pontuação por rodada em um evento
+    CONSTRAINT UQ_Event_Team_Round UNIQUE (EventID, TeamID, RoundNumber)
+);
+GO
 
 -- VIEWS
 CREATE VIEW dbo.UsersNotDeleted AS
