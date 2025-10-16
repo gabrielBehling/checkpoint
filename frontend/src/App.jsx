@@ -38,6 +38,9 @@ function App() {
                 <Link to="/cadastro" style={{ marginRight: 10 }}>
                   cadastro
                 </Link>
+                <Link to="/chat"style={{ marginRight: 10 }}>
+                Chat
+                </Link>
               </ul>
             </nav>
           </div>
