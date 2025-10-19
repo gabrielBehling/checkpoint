@@ -7,12 +7,15 @@ WORKDIR /app
 COPY package*.json ./
 
 # 2. Instala dependências (incluindo build tools temporárias)
-RUN apk add --no-cache --virtual .build-deps python3 make g++ \
-    && npm install --production \
-    && apk del .build-deps
+RUN apk add --no-cache \
+    && npm install --production
 
 # 3. Copia o resto do código fonte
 COPY . .
+
+# 3.1 Cria a pasta uploads no caminho desejado
+RUN mkdir -p /app/Implementacao_Socket_Teste/uploads && \
+    chown -R node:node /app/Implementacao_Socket_Teste/uploads
 
 # 4. Configurações adicionais
 USER node
