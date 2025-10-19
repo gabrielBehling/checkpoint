@@ -486,4 +486,187 @@ curl "http://api.localhost/api/events?game=CS2&status=Active&isOnline=true" \
   -H "Cookie: accessToken=your_jwt_token"
 ```
 
+## 🏆 Sistema de Partidas e Leaderboard
+
+O serviço de **MatchControllers** é responsável pelo gerenciamento de partidas e rankings de eventos. **.
+
+A arquitetura foi desenhada para suportar diferentes modos de evento (`Mode`)
+
+---
+
+### 🔗 Base URL
+
+```
+http://api.localhost/api/events/:eventId
+```
+
+### 🔒 Autenticação
+
+Todas as rotas de **Leaderboard** exigem autenticação via JWT (`accessToken`), exceto a rota pública de visualização do ranking.
+
+---
+
+## ⚙️ Middleware de Validação - `getEventAndValidate`
+
+Antes de qualquer rota sob `/events/:eventId/...`, é executado o middleware de validação do evento:
+
+**Funções:**
+
+* Verifica se `eventId` é válido
+* Busca o evento no banco
+* Anexa as informações ao `res.locals.event`
+* Cria e compartilha uma conexão SQL (`res.locals.db_pool`)
+* Fecha a conexão automaticamente após a resposta
+
+**Erros Possíveis:**
+
+| Código | Erro                        |
+| ------ | --------------------------- |
+| `400`  | `Invalid eventId`           |
+| `404`  | `Event not found`           |
+| `500`  | `Failed to process request` |
+
+---
+
+
+## 🎮 Leaderboard - Pontuação e Ranking
+
+### 1. Adicionar/Atualizar Pontos de uma Rodada
+
+**POST** `/:eventId/leaderboard/round/:roundNumber`
+
+Registra ou atualiza os pontos de times em uma rodada específica.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+
+| Parâmetro     | Tipo   | Descrição                                                  |
+| ------------- | ------ | ---------------------------------------------------------- |
+| `eventId`     | number | ID do evento (precisa existir e ser do tipo *Leaderboard*) |
+| `roundNumber` | number | Número da rodada (ex: 1, 2, 3...)                          |
+
+**Body:**
+
+```json
+{
+  "scores": [
+    { "teamId": 1, "points": 25 },
+    { "teamId": 2, "points": 15 },
+    { "teamId": 3, "points": 5 }
+  ]
+}
+```
+
+**Validações:**
+
+* `teamId` deve existir no evento
+* `points` deve ser numérico
+* O array `scores` não pode ser vazio
+* Apenas o criador do evento pode atualizar a pontuação
+
+**Resposta de Sucesso:**
+
+```json
+{
+  "message": "Scores for round 2 updated successfully."
+}
+```
+
+**Status Codes:**
+
+| Código | Descrição                          |
+| ------ | ---------------------------------- |
+| `200`  | Pontuação atualizada com sucesso   |
+| `400`  | Dados inválidos ou rodada inválida |
+| `401`  | Não autenticado                    |
+| `403`  | Usuário não é o criador do evento  |
+| `404`  | Evento não encontrado              |
+| `500`  | Erro interno na transação          |
+
+**Notas Técnicas:**
+
+* As atualizações utilizam o comando SQL `MERGE`, permitindo inserir ou atualizar em uma única operação.
+* Todas as operações são executadas dentro de uma **transação** SQL para garantir atomicidade.
+
+---
+
+### 2. Consultar Ranking Atual
+
+**GET** `/:eventId/leaderboard`
+
+Retorna o ranking completo de um evento, ordenado pela soma total de pontos de cada time.
+
+**Parâmetros:**
+
+| Parâmetro | Tipo   | Descrição    |
+| --------- | ------ | ------------ |
+| `eventId` | number | ID do evento |
+
+**Resposta de Sucesso:**
+
+```json
+[
+  {
+    "Rank": 1,
+    "TeamId": 12,
+    "TeamName": "Red Dragons",
+    "LogoURL": "https://example.com/logos/red.png",
+    "TotalPoints": 85
+  },
+  {
+    "Rank": 2,
+    "TeamId": 5,
+    "TeamName": "Blue Wolves",
+    "LogoURL": "https://example.com/logos/blue.png",
+    "TotalPoints": 73
+  }
+]
+```
+
+**Status Codes:**
+
+| Código | Descrição                |
+| ------ | ------------------------ |
+| `200`  | Sucesso                  |
+| `400`  | `eventId` inválido       |
+| `404`  | Evento não encontrado    |
+| `500`  | Erro interno do servidor |
+
+**Regra de Ranking:**
+
+* O ranking é calculado com `DENSE_RANK()` baseado na soma total dos pontos (`SUM(Points)`).
+* Empates recebem a mesma posição no ranking (exemplo: dois times com 50 pontos ficam ambos em 2º lugar).
+
+---
+
+### 3. Estrutura de Banco de Dados (Leaderboard)
+
+#### Tabela: `LeaderboardScores`
+
+| Campo            | Tipo          | Descrição                |
+| ---------------- | ------------- | ------------------------ |
+| `EventID`        | int           | ID do evento             |
+| `TeamID`         | int           | ID do time               |
+| `RoundNumber`    | int           | Número da rodada         |
+| `Points`         | decimal(10,2) | Pontos obtidos na rodada |
+| `CreatedAt`      | datetime      | Data de inserção         |
+| `LastModifiedAt` | datetime      | Última atualização       |
+
+**Chave Primária Composta:**
+`(EventID, TeamID, RoundNumber)`
+
+---
+
+## 📘 Observações Técnicas
+
+* Cada evento possui um **modo de jogo (`Mode`)**, que define as regras e endpoints disponíveis.
+  Exemplos: `Leaderboard`, `Elimination`, `GroupStage`, `Swiss`, entre outros.
+
+
 Esta documentação será atualizada conforme novos endpoints forem implementados no serviço de Events.
