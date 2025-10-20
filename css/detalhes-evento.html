@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Evento</title>
+    <link rel="stylesheet" href="style-detalhes.css"> 
+    <style>
+        /* Estilos básicos para demonstrar a estrutura. Use seu style-detalhes.css real */
+        .detalhes-container img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .info-section {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+        .info-section h2 {
+            margin-top: 0;
+            color: #333; /* Cor que combine com seu tema (na imagem parece ser branco/claro) */
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <div id="detalhes-evento" class="detalhes-container">
+            <h1>Carregando Detalhes...</h1>
+            <p>Se esta mensagem persistir, o evento pode não ter sido encontrado.</p>
+        </div>
+        <p><a href="index.html">Voltar para a lista de Eventos</a></p>
+    </main>
+
+    <script>
+        // Função utilitária para pegar o valor da Query String (URL)
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Simulação do Evento com base na Imagem. 
+        // Em um cenário real, esses dados viriam do seu localStorage 
+        // ou de uma API. Eu preenchi com os dados da imagem.
+        const dadosSimuladosDoEvento = {
+            nome: "CAMPEONATO DE ADEDONHA",
+            status: "ATIVO",
+            criadoPor: "fulano_234",
+            imagemUrl: "caminho/para/a/sua/imagem.jpg", // Substitua pelo caminho real
+            descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            datas: "05-03-2026 a 28-04-2026",
+            horarios: "02:34-BRT a 56:78-BRT", // Observação: Horário parece irreal na imagem. Mantive o que estava lá.
+            localizacao: "Av. Taltal de Talsafast, 3670 - Centro de Eventos ABCDe - Bairro Sla Oq",
+            pontoReferencia: "Panificadora Alpha",
+            ingressoInteira: "R$60,90",
+            ingressoMeia: "R$30,45",
+            taxaParticipacao: "R$255,57 /PESSOA",
+            maxParticipantes: "80",
+            numTimes: "20",
+            participantesPorTime: "04"
+        };
+        // NOTE: Se o evento já estiver salvo no seu `localStorage`, você deve puxá-lo.
+        // Se você estiver apenas testando, pode usar a variável `dadosSimuladosDoEvento`
+        // para renderizar os dados diretamente (comentar/modificar a lógica abaixo).
+
+
+        function carregarDetalhesDoEvento() {
+            // 1. Pega o nome do evento da URL
+            const nomeEvento = getQueryParameter('nome');
+            const container = document.getElementById('detalhes-evento');
+            let evento = null;
+            
+            // Se o nome não for passado na URL, mostra erro
+            if (!nomeEvento) {
+                // Se não tiver nome na URL, e você quiser testar com os dados simulados:
+                // evento = dadosSimuladosDoEvento; // Descomente para testar sem URL
+                if(!evento){
+                    container.innerHTML = '<h1>Erro: Evento não especificado.</h1>';
+                    return;
+                }
+            }
+
+            // 2. Busca todos os eventos no localStorage
+            const eventosSalvosString = localStorage.getItem('eventosCheckpoint');
+            const eventos = eventosSalvosString ? JSON.parse(eventosSalvosString) : [];
+
+            // 3. Encontra o evento que corresponde ao nome
+            evento = eventos.find(e => e.nome === nomeEvento) || dadosSimuladosDoEvento; // Fallback para dados simulados se não encontrar no LS
+
+            // 4. Renderiza os detalhes
+            if (evento) {
+                // Construção do HTML com os detalhes da imagem
+                container.innerHTML = `
+                    <h1>${evento.nome || "CAMPEONATO DE ADEDONHA"} <small>(${evento.status || "ATIVO"})</small></h1>
+                    
+                    <img src="${evento.imagemUrl || 'caminho/para/imagem-padrao.jpg'}" alt="Imagem do Evento ${evento.nome || "Campeonato de Adedonha"}">
+
+                    <div class="info-section">
+                        <h2>DESCRIÇÃO</h2>
+                        <p>${evento.descricao || "Descrição detalhada do evento."}</p>
+                    </div>
+
+                    <div class="info-section">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <h2>DATAS</h2>
+                                <p>${evento.datas || "00-00-0000"}</p>
+                            </div>
+                            <div>
+                                <h2>HORÁRIOS</h2>
+                                <p>${evento.horarios || "00:00-BRT"}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h2>LOCALIZAÇÃO</h2>
+                        <p><strong>Endereço:</strong> ${evento.localizacao || "Local do Evento"}</p>
+                        <p><strong>Ponto de Referência:</strong> ${evento.pontoReferencia || "Ponto de Referência"}</p>
+                    </div>
+
+                    <div class="info-section">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <h2>INGRESSO</h2>
+                                <p><strong>Inteira:</strong> ${evento.ingressoInteira || "N/A"}</p>
+                                <p><strong>Meia:</strong> ${evento.ingressoMeia || "N/A"}</p>
+                            </div>
+                            <div>
+                                <h2>TAXA DE PARTICIPAÇÃO</h2>
+                                <p>${evento.taxaParticipacao || "N/A"}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h2>PARTICIPANTES E TIMES</h2>
+                        <p><strong>Nº Máximo de Participantes:</strong> ${evento.maxParticipantes || "N/A"}</p>
+                        <p><strong>Nº de Times:</strong> ${evento.numTimes || "N/A"}</p>
+                        <p><strong>Nº de Participantes por Time:</strong> ${evento.participantesPorTime || "N/A"}</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<h1>Evento "${nomeEvento}" não encontrado.</h1>`;
+            }
+        }
+
+        // Executa a função ao carregar a página
+        document.addEventListener('DOMContentLoaded', carregarDetalhesDoEvento);
+    </script>
+</body>
+</html>

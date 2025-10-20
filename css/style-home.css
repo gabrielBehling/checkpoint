@@ -1,0 +1,313 @@
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== BASE ===== */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0a0d2a; /* fundo escuro */
+  color: #f1f1f1;
+  line-height: 1.6;
+}
+
+/* ===== NAVBAR ===== */
+header {
+  background-color: #0f1333;
+  padding: 15px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar .logo {
+  font-weight: bold;
+  font-size: 18px;
+  color: #fff;
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: #dcdcdc;
+  font-size: 15px;
+  transition: color 0.3s;
+}
+
+.navbar ul li a:hover {
+  color: #4d8eff; /* azul no hover */
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.navbar-right a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.3s;
+}
+
+.navbar-right a:hover {
+  color: #ff6b3c; /* laranja */
+}
+
+/* ===== HERO / CARROSSEL ===== */
+.carousel {
+  position: relative;
+  width: 1300px;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 2000px;
+  margin: 40px auto 30px;
+}
+
+.card {
+  position: absolute;
+  object-fit: cover;
+  border-radius: 16px;
+  background-color: #ff6b3c; /* cor placeholder */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.6s ease, opacity 0.6s ease, width 0.6s ease, height 0.6s ease;
+  opacity: 0.5;
+}
+
+/* central */
+.card.active {
+  width: 915px;
+  height: 547px;
+  transform: translateX(0) scale(1) rotateY(0);
+  opacity: 1;
+  z-index: 3;
+}
+
+/* próximo/anterior */
+.card.left,
+.card.right {
+  width: 1104px;
+  height: 519px;
+  opacity: 0.8;
+  z-index: 2;
+}
+
+.card.left {
+  transform: translateX(-300px) scale(0.9) rotateY(25deg);
+}
+
+.card.right {
+  transform: translateX(300px) scale(0.9) rotateY(-25deg);
+}
+
+/* extremidades */
+.card.left-far {
+  width: 1275px;
+  height: 489px;
+  transform: translateX(-600px) scale(0.8) rotateY(30deg);
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.card.right-far {
+  width: 1275px;
+  height: 489px;
+  transform: translateX(600px) scale(0.8) rotateY(-30deg);
+  opacity: 0.6;
+  z-index: 1;
+}
+
+/* ===== CTA (Cadastre-se) ===== */
+.cta {
+  max-width: 600px;
+  margin: 0 auto 60px;
+  text-align: center;
+  color: #fff;
+}
+
+.cta p {
+  margin-bottom: 15px;
+  font-size: 15px;
+  color: #ccc;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  background-color: #ff6b3c;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background-color: #ff875b;
+}
+
+.cta a.login-link {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+/* ===== EVENTOS ===== */
+.eventos {
+  padding: 40px 60px;
+}
+
+.eventos h2 {
+  font-size: 22px;
+  margin-bottom: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.eventos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  justify-items: center;
+}
+
+/* ===== CARD DO EVENTO ===== */
+.evento-card {
+  position: relative;
+  width: 330px;
+  height: 230px;
+  background-color: #2a2f5a;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efeito de hover geral */
+.evento-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Imagem do evento — oculta inicialmente */
+.imagem-evento {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Overlay com informações — oculto inicialmente */
+.info-evento {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 13, 42, 0.92);
+  color: #fff;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  transition: opacity 0.4s ease;
+}
+
+/* Mostra imagem e detalhes no hover */
+.evento-card:hover .imagem-evento {
+  opacity: 1;
+}
+
+.evento-card:hover .info-evento {
+  opacity: 1;
+}
+
+/* Texto dentro do overlay */
+.info-evento h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.info-evento p {
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #ddd;
+}
+
+/* Botão dentro do overlay */
+.info-evento .btn {
+  background-color: #ff6b3c;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.info-evento .btn:hover {
+  background-color: #ff875b;
+}
+
+/* ===== RODAPÉ ===== */
+footer {
+  background-color: #ff875b;
+  padding: 30px 20px;
+  text-align: center;
+  color: #aaa;
+}
+
+footer ul {
+  list-style: none;
+}
+
+footer ul li {
+  margin: 8px 0;
+}
+
+footer ul li a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+}
+
+footer ul li a:hover {
+  color: #4d8eff;
+}
+
+button {
+  align-items: center;
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  background: #333;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #555;
+}
