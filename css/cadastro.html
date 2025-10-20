@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint - Cadastro</title>
+  <link rel="stylesheet" href="style-copy.css"> 
+</head>
+<body>
+
+  <main class="container">
+    <section class="form-auth form-cadastro">
+        
+        <div class="logo-auth">
+            <div class="circle"></div>
+            <div class="text">CHECKPOINT</div>
+        </div>
+        
+        <h1>CADASTRE-SE</h1>
+        
+        <form action="index-login.html" method="POST"> 
+            <label for="email-cadastro">E-mail</label>
+            <input type="email" id="email-cadastro" placeholder="Insira seu endereço de e-mail..." required>
+            
+            <label for="nome-usuario">Nome de Usuário</label>
+            <input type="text" id="nome-usuario" placeholder="Insira seu nome de usuário..." required>
+            
+            <label for="senha-cadastro">Senha</label>
+            <input type="password" id="senha-cadastro" placeholder="Insira sua senha..." required>
+            
+            <label for="confirmar-senha">Confirmar Senha</label>
+            <input type="password" id="confirmar-senha" placeholder="Insira a senha novamente..." required>
+            
+            <div class="type-selection">
+                <p>Tipo de Conta:</p>
+                <label>
+                    <input type="radio" name="tipo-conta" value="organizador"> ORGANIZADOR
+                </label>
+                <label>
+                    <input type="radio" name="tipo-conta" value="jogador"> JOGADOR
+                </label>
+                <label>
+                    <input type="radio" name="tipo-conta" value="visitante" checked> VISITANTE
+                </label>
+            </div>
+            
+            <button type="submit" class="btn" style="margin-top: 20px;">CADASTRAR</button>
+
+            <div class="auth-bottom-link">
+                Já possui uma conta? <a href="login.html">Log-in</a>
+            </div>
+        </form>
+    </section>
+
+  </main>
+</body>
+</html>
