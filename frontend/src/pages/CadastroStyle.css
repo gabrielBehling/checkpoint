@@ -1,240 +1,215 @@
-/* ======= RESET GERAL ======= */
+/* ========================================================================= */
+/* RESET E FUNDO GERAL (Baseado no CSS de Referência HTML) */
+/* ========================================================================= */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-  }
-  
-  body {
-    background-color: #121212;
-    color: #f0f0f0;
-    min-height: 100vh;
-  }
-  
-  /* ======= MENU SUPERIOR ======= */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 40px;
-    background-color: #1f1f1f;
-    border-bottom: 2px solid #2f2f2f;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  
-  .topbar .logo a {
-    color: #ff4655;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.4rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
-  .topbar nav a {
-    color: #ddd;
-    margin: 0 15px;
-    text-decoration: none;
-    transition: 0.2s ease;
-  }
-  
-  .topbar nav a:hover {
-    color: #ff4655;
-  }
-  
-  .auth a {
-    color: #fff;
-    margin-left: 15px;
-    text-decoration: none;
-    border: 1px solid #ff4655;
-    padding: 6px 14px;
-    border-radius: 6px;
-    transition: 0.3s ease;
-    font-size: 0.9rem;
-  }
-  
-  .auth a.cadastro {
-    background-color: #ff4655;
-  }
-  
-  .auth a:hover {
-    background-color: #ff4655;
+    /* Fonte da imagem parece ser sans-serif moderna, como 'Segoe UI' ou 'Roboto' */
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    /* Fundo escuro padrão do tema */
+    background: #100C1F; 
+    color: #F0F0F0; /* Cor de texto padrão branco/claro */
+}
+
+/* ------------------------------------------------------------------------- */
+/* TOPO (TOPBAR) - Menu de Navegação (FIXO) - Mantido do CSS do JSX anterior */
+/* ------------------------------------------------------------------------- */
+.topbar {
+    background: #1C172C; 
     color: white;
-    transform: scale(1.05);
-  }
-  
-  /* ======= CONTAINER PRINCIPAL ======= */
-  .container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
-  }
-  
-  /* ======= FORMULÁRIO ======= */
-  .form-evento {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    background-color: #1a1a1a;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 0 20px rgba(255, 70, 85, 0.05);
-  }
-  
-  .form-evento label {
-    display: block;
-    font-weight: 500;
-    color: #ccc;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-  }
-  
-  .form-evento input,
-  .form-evento textarea,
-  .form-evento select {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 40px; /* Mantido 40px para maior espaçamento lateral */
+    align-items: center;
+    border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+    
+    /* CORREÇÃO: Header Fixo e altura definida */
+    position: fixed; 
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    background-color: #222;
-    color: #f0f0f0;
-    font-size: 0.95rem;
-    outline: none;
-    margin-bottom: 18px;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-  }
-  
-  .form-evento input:focus,
-  .form-evento textarea:focus,
-  .form-evento select:focus {
-    border-color: #ff4655;
-    background-color: #282828;
-  }
-  
-  textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  /* ======= COLUNAS ======= */
-  .col-esquerda,
-  .col-direita {
+    z-index: 10; 
+    height: 60px; 
+}
+
+.logo a { text-decoration: none; color: #F0F0F0; font-size: 1.6em; font-weight: 700; letter-spacing: 1px; }
+.topbar nav a, .topbar .auth a { margin-left: 30px; text-decoration: none; color: #D0D0D0; font-weight: 500; transition: color 0.3s ease; }
+.topbar nav a:hover, .topbar .auth a:hover { color: #4A90E2; }
+.topbar .cadastro { color: #4A90E2; font-weight: bold; border: 1px solid #4A90E2; padding: 5px 12px; border-radius: 4px; }
+
+
+/* ------------------------------------------------------------------------- */
+/* CONTAINER PRINCIPAL DO FORMULÁRIO - CORREÇÃO DE ESPAÇAMENTO SUPERIOR */
+/* ------------------------------------------------------------------------- */
+.container {
+    width: 100%;
+    max-width: 1500px;
+    margin: 40px auto; 
+    padding: 0 40px;
+    
+    /* CORREÇÃO: Padding superior para compensar o header fixo de 60px */
+    padding-top: 80px; 
+}
+
+/* O FORM-EVENTO é o pai flex que empilha o Título, o Wrapper de Colunas e o Botão */
+.form-evento {
+    display: flex; 
+    flex-direction: column; 
+    gap: 25px; 
+    background: #1C172C; 
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* NOVO WRAPPER PARA AS DUAS COLUNAS - Mantido do passo anterior */
+.form-columns-wrapper {
+    display: flex; /* ESSENCIAL: Lado a lado */
+    gap: 50px; 
+    width: 100%;
+}
+
+.col-esquerda, 
+.col-direita {
+    flex: 1; /* ESSENCIAL: Divide o espaço do wrapper em 50/50 */
     display: flex;
     flex-direction: column;
-  }
-  
-  .col-direita h3 {
-    color: #ff4655;
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-  }
-  
-  /* ======= UPLOADS ======= */
-  .banner-upload,
-  .upload-doc,
-  .upload {
-    width: 100%;
-    height: 120px;
-    background-color: #222;
-    border: 2px dashed #444;
-    color: #666;
-    font-size: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    margin-bottom: 16px;
-  }
-  
-  .banner-upload:hover,
-  .upload-doc:hover,
-  .upload:hover {
-    border-color: #ff4655;
-    color: #ff4655;
-    background-color: #2a2a2a;
-  }
-  
-  /* Preview da imagem do banner */
-  .preview-banner {
-    width: 100%;
-    max-height: 250px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 16px;
-    border: 2px solid #333;
-  }
-  
-  /* ======= TIPO DE EVENTO ======= */
-  .tipo-evento {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .tipo-evento label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-  
-  /* ======= BOTÃO ======= */
-  .btn {
-    background-color: #ff4655;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 8px;
-    color: #fff;
+    gap: 18px; 
+}
+
+.col-direita h3 {
+    font-size: 1.5em;
+    color: #4A90E2;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #2E274C;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* ESTILIZAÇÃO DOS CAMPOS (Inputs, Labels e Textareas) - UNINDO ESTILOS */
+/* ------------------------------------------------------------------------- */
+
+.form-evento label {
+    font-size: 0.95em;
     font-weight: 600;
+    color: #E0E0E0;
+    margin-bottom: -5px;
+}
+
+/* Aplica o estilo visual de input do CSS de referência */
+.form-evento input[type="text"],
+.form-evento input[type="number"],
+.form-evento input[type="date"],
+.form-evento select,
+textarea {
+    padding: 14px 15px; /* Um pouco mais de padding para o formulário de evento */
+    border: none; /* Remove a borda padrão do CSS anterior */
+    border-radius: 4px; /* Borda arredondada sutil */
+    background: #241D3B; /* Fundo roxo/azul escuro do input (do CSS de ref) */
+    color: #F0F0F0;
+    font-size: 16px;
+    width: 100%;
+    transition: border-color 0.3s;
+    border: 1px solid transparent; /* Borda transparente para consistência */
+}
+
+.form-evento input:focus,
+.form-evento select:focus,
+textarea:focus {
+    border-color: #4A90E2; 
+    outline: none;
+}
+
+/* PLACEHOLDERS UNIFICADOS (Como no CSS de Referência HTML) */
+input::placeholder,
+textarea::placeholder {
+    color: #A9A9A9; 
+    opacity: 1; 
+}
+input::-webkit-datetime-edit,
+input::-webkit-calendar-picker-indicator {
+    filter: invert(80%) brightness(120%); 
+}
+
+/* Estilo Checkbox - Mantido do CSS anterior (funcional) */
+.tipo-evento label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    color: #D0D0D0;
+}
+.tipo-evento input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    background-color: #3B3452;
+    border: 2px solid #4A90E2;
     cursor: pointer;
-    font-size: 1rem;
-    margin-top: 15px;
-    transition: 0.2s ease;
-  }
-  
-  .btn:hover {
-    background-color: #e23c4b;
-    transform: scale(1.03);
-  }
-  
-  /* ======= RESPONSIVIDADE ======= */
-  @media (max-width: 900px) {
-    .form-evento {
-      grid-template-columns: 1fr;
+    appearance: none;
+    border-radius: 4px;
+}
+.tipo-evento input[type="checkbox"]:checked {
+    background-color: #4A90E2;
+    border-color: #4A90E2;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+}
+
+/* ------------------------------------------------------------------------- */
+/* UPLOAD DE BANNER (Ajustado para o estilo de borda azul tracejada) */
+/* ------------------------------------------------------------------------- */
+.banner-upload {
+    background: #241D3B;
+    border: 2px dashed #4A90E2; /* Borda tracejada azul vibrante */
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 6px;
+    overflow: hidden; 
+    position: relative;
+}
+.banner-upload:hover { border-color: #78A7F4; }
+.banner-upload input[type="file"] { display: none; }
+.banner-upload + img.preview-banner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.banner-upload label { font-size: 40px; color: #4A90E2; z-index: 2; cursor: pointer; user-select: none; margin: 0; }
+.banner-upload:has(~ .preview-banner) label { display: none; }
+
+
+/* ------------------------------------------------------------------------- */
+/* BOTÃO DE SUBMISSÃO */
+/* ------------------------------------------------------------------------- */
+.btn {
+    background: #4A90E2;
+    color: white;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    border-radius: 4px; /* Borda mais sutil, como no CSS de ref */
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: background 0.3s ease, transform 0.1s;
+    margin-top: 20px; 
+    align-self: center; 
+}
+.btn:hover { background: #3B7AD1; }
+.btn:active { transform: scale(0.99); }
+
+/* ------------------------------------------------------------------------- */
+/* RESPONSIVIDADE */
+/* ------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+    .form-columns-wrapper {
+        flex-direction: column; 
+        gap: 30px;
     }
-  
-    .topbar {
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-  
-    .auth {
-      margin-top: 10px;
-    }
-  
-    .container {
-      margin: 20px auto;
-    }
-  }
-  
-  @media (max-width: 500px) {
-    .topbar {
-      flex-direction: column;
-    }
-  
-    .form-evento {
-      padding: 20px;
-    }
-  
-    .btn {
-      width: 100%;
-    }
-  }
-  
+}

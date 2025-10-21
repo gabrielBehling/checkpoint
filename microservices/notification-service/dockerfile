@@ -2,9 +2,9 @@ FROM node:22-slim
 WORKDIR /app
 
 # Instala dependências para libs de fila (ex: librdkafka)
-RUN apt-get update && apt-get install -y \
-  build-essential \
-  && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y \
+ # build-essential \
+  #&& rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 RUN npm install --production

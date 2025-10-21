@@ -1,198 +1,284 @@
+/*
+ * CORES PRINCIPAIS
+ * Fundo: #100C1F (Azul Marinho Escuro/Quase Preto)
+ * Input Background: #241D3B (Roxo/Azul Escuro)
+ * Destaque/Primária: #4A90E2 (Azul Vibrante)
+ * Texto Secundário: #F0F0F0 (Quase Branco)
+ */
+
 /* ====== RESET ====== */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte mais limpa */
 }
 
 body {
-  background: #f2f2f2;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  color: #333;
+    background: #100C1F; /* Fundo escuro */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    color: #F0F0F0; /* Cor de texto principal, quase branco */
 }
 
-/* ====== NAVBAR ====== */
+/* ====== NAVBAR (HEADER) ====== */
 header {
-  background: #2c2c2c;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 40px;
+    background: #17132B; /* Um pouco mais claro que o corpo, mas ainda escuro */
+    color: #F0F0F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    border-bottom: 1px solid rgba(74, 144, 226, 0.1); /* Linha sutil de destaque */
 }
 
 header .logo a {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #fff;
-  text-decoration: none;
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #4A90E2; /* Logo em azul vibrante */
+    text-decoration: none;
+    letter-spacing: 2px;
 }
 
 header nav a {
-  margin-left: 25px;
-  color: #ddd;
-  text-decoration: none;
-  transition: color 0.3s ease;
+    margin-left: 25px;
+    color: #909090; /* Links secundários em cinza */
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 header nav a:hover {
-  color: #fff;
+    color: #4A90E2; /* Destaque em azul vibrante no hover */
 }
 
 /* ====== PERFIL BANNER ====== */
 .perfil-banner {
-  background: linear-gradient(135deg, #a02727, #6e1c1c);
-  color: white;
-  padding: 40px 20px;
-  text-align: center;
+    /* Degradê que remete ao estilo visual, usando o azul principal */
+    background: linear-gradient(135deg, #241D3B, #17132B);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    border-bottom: 2px solid #4A90E2; /* Borda de destaque */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.perfil-banner h2 {
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+    color: #F0F0F0;
+}
+
+.perfil-banner p {
+    color: #A0A0A0;
 }
 
 .foto-perfil {
-  width: 120px;
-  height: 120px;
-  background: #444;
-  border-radius: 50%;
-  margin: 0 auto 15px auto;
-  border: 3px solid #fff;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    width: 140px;
+    height: 140px;
+    /* Fundo com a cor de background de input/cartão */
+    background: #241D3B;
+    border-radius: 50%;
+    margin: 0 auto 15px auto;
+    border: 4px solid #4A90E2; /* Borda com a cor de destaque */
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.6); /* Sombra de brilho */
+    transition: transform 0.3s ease;
+}
+
+.foto-perfil:hover {
+    transform: scale(1.05);
 }
 
 .status {
-  margin-bottom: 18px;
-  font-size: 14px;
-  opacity: 0.9;
+    margin-bottom: 18px;
+    font-size: 14px;
+    opacity: 0.9;
+    color: #A0A0A0;
 }
 
 .status .dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background: #4caf50;
-  border-radius: 50%;
-  margin-right: 6px;
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: #4caf50; /* Manter o verde para o 'online' */
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 5px #4caf50;
 }
 
 .perfil-buttons button {
-  margin: 5px;
-  padding: 10px 18px;
-  border: none;
-  background: #444;
-  color: white;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.3s ease, transform 0.2s ease;
+    margin: 5px;
+    padding: 10px 25px;
+    border: none;
+    background: #4A90E2; /* Botão primário em azul vibrante */
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
 .perfil-buttons button:hover {
-  background: #222;
-  transform: scale(1.05);
+    background: #5CA1F8; /* Azul mais claro no hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
 }
 
-/* ====== MAIN ====== */
+/* ====== MAIN CONTENT AREA ====== */
 main {
-  display: flex;
-  justify-content: space-between;
-  padding: 30px;
-  flex: 1;
-  gap: 30px;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: center; /* Centraliza o conteúdo, já que o body não está centralizando verticalmente */
+    padding: 40px;
+    flex: 1;
+    gap: 40px;
+    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .info-box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    background: #241D3B; /* Cor de fundo dos inputs/cards */
+    padding: 25px;
+    border-radius: 10px;
+    width: 300px; /* Aumentei um pouco a largura */
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Sombra de brilho sutil */
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.15);
+    border: 1px solid rgba(74, 144, 226, 0.3);
 }
 
 .info-box h3 {
-  margin-bottom: 8px;
-  color: #a02727;
+    margin-bottom: 10px;
+    color: #4A90E2; /* Títulos em azul vibrante */
+    font-size: 1.4rem;
+    border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+    padding-bottom: 5px;
+}
+
+.info-box p {
+    color: #A0A0A0; /* Texto secundário */
 }
 
 .info-box button {
-  margin-top: 5px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 5px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    font-weight: bold;
 }
 
+/* Botão Secundário (como "Editar Perfil") */
 .info-box .secondary {
-  background: #666;
-  color: white;
+    background: #444059; /* Cor secundária escura */
+    color: white;
 }
 
 .info-box .secondary:hover {
-  background: #444;
-  transform: translateY(-2px);
+    background: #5A566E;
+    transform: scale(1.02);
 }
 
+/* Link/Botão Perigo (como "Desconectar" ou "Excluir") */
 .info-box .danger a {
-  display: block;
-  text-align: center;
-  background: #e53935;
-  padding: 10px;
-  border-radius: 6px;
-  color: white;
-  text-decoration: none;
-  transition: background 0.3s ease;
+    display: block;
+    text-align: center;
+    background: #e53935; /* Vermelho padrão */
+    padding: 12px;
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+    font-weight: bold;
 }
 
 .info-box .danger a:hover {
-  background: #c62828;
+    background: #c62828;
+    transform: scale(1.02);
 }
 
+/* Participações (Área Principal) */
 .participacoes {
-  flex: 1;
+    flex: 1;
+    min-width: 60%;
+    /* Estilo de fundo do info-box para manter a coerência */
+    background: #241D3B;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.15);
+    border: 1px solid rgba(74, 144, 226, 0.3);
 }
 
 .participacoes h3 {
-  margin-bottom: 20px;
-  color: #444;
+    margin-bottom: 20px;
+    color: #4A90E2; /* Título em azul vibrante */
+    font-size: 1.6rem;
+    border-bottom: 2px solid rgba(74, 144, 226, 0.2);
+    padding-bottom: 10px;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
+    display: grid;
+    /* Adaptação com cards um pouco maiores */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
 }
 
 .grid .card {
-  background: white;
-  border: 1px solid #ccc;
-  height: 140px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease;
+    background: #17132B; /* Fundo do card mais escuro para contraste */
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    height: 160px; /* Aumentei a altura */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 15px;
+    color: #F0F0F0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .grid .card:hover {
-  transform: translateY(-4px);
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(74, 144, 226, 0.4); /* Sombra de destaque no hover */
+    background: #1E1A36; /* Levemente mais claro no hover */
 }
+
+.grid .card h4 {
+    color: #4A90E2;
+    margin-bottom: 5px;
+}
+
+.grid .card p {
+    font-size: 0.9rem;
+    color: #A0A0A0;
+}
+
 
 /* ====== FOOTER ====== */
 footer {
-  background: #2c2c2c;
-  text-align: center;
-  padding: 20px;
+    background: #17132B; /* Cor do header */
+    text-align: center;
+    padding: 20px;
+    color: #909090;
+    border-top: 1px solid rgba(74, 144, 226, 0.1);
 }
 
 footer a {
-  margin: 0 15px;
-  text-decoration: none;
-  color: #ddd;
-  transition: color 0.3s ease;
+    margin: 0 15px;
+    text-decoration: none;
+    color: #4A90E2; /* Links em azul vibrante */
+    transition: color 0.3s ease;
+    font-weight: bold;
 }
 
 footer a:hover {
-  color: #fff;
+    color: #F0F0F0;
 }
