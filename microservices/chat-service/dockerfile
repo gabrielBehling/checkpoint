@@ -1,23 +1,22 @@
-FROM node:22-alpine
-
-# Cria e define o diretório de trabalho
+# Estágio de build
+FROM node:22-alpine AS builder
 WORKDIR /app
-
-# 1. Copia APENAS os arquivos de dependências primeiro (para cache)
 COPY package*.json ./
+RUN npm ci --only=production
 
-# 2. Instala dependências (incluindo build tools temporárias)
-RUN apk add --no-cache \
-    && npm install --production
-
-# 3. Copia o resto do código fonte
+# Estágio final
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
-# 3.1 Cria a pasta uploads no caminho desejado
 RUN mkdir -p /app/Implementacao_Socket_Teste/uploads && \
     chown -R node:node /app/Implementacao_Socket_Teste/uploads
 
-# 4. Configurações adicionais
+# Configurações de segurança
+RUN apk add --no-cache tini
 USER node
 EXPOSE 3000
+
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "src/app.js"]
