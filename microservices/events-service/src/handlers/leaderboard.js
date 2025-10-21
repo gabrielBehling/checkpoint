@@ -4,7 +4,7 @@ const express = require("express");
 const router = express.Router({ mergeParams: true }); // mergeParams é crucial para acessar o :eventId do pai
 const sql = require("mssql");
 const { object, array, number } = require("yup");
-const authMiddleware = require("../../authMiddleware"); // Ajuste o caminho se necessário
+const authMiddleware = require("../authMiddleware"); // Ajuste o caminho se necessário
 
 // Schema de validação para a pontuação da rodada
 let roundScoresSchema = object({
@@ -16,9 +16,14 @@ let roundScoresSchema = object({
     ).min(1, "Scores array cannot be empty").required(),
 });
 
+
 // ROTA PARA ADICIONAR/ATUALIZAR PONTOS DE UMA RODADA
 // Path: /:eventId/leaderboard/round/:roundNumber
 router.post("/round/:roundNumber", authMiddleware, async (req, res) => {
+    if (res.locals.event.CreatedBy !== req.user.userId) {
+        res.locals.db_pool.close();
+        return res.status(403).json({ error: "You are not authorized to manage this event's matches." });
+    }
     // O eventId é acessado via req.params graças ao mergeParams
     const { eventId, roundNumber } = req.params;
     const userId = req.user.userId;
@@ -30,7 +35,7 @@ router.post("/round/:roundNumber", authMiddleware, async (req, res) => {
 
     try {
         const { scores } = await roundScoresSchema.validate(req.body);
-        
+
         // A transação acontece aqui, na lógica específica
         const transaction = new sql.Transaction(res.locals.db_pool); // Usando a pool de conexão do middleware
         await transaction.begin();
@@ -91,4 +96,22 @@ router.get("/", async (req, res) => {
     }
 });
 
+//ROTA PARA O CRIADOR DO EVENTO FINALIZAR O EVENTO 
+router.post("/finish", authMiddleware, async (req, res) =>{
+    const { eventId } = req.params
+    if(res.locals.event.CreatedBy == req.user.userId){
+    try{ 
+        const request = new sql.Request(res.locals.db_pool)
+        const finish = await request
+        .input('eventId', sql.Int, eventId)
+        .query(`Update Events set Status = 'Finished' where EventId = @eventId`)
+        res.status(200).json({ message: `Event has been finished!` });
+    }
+catch (error){
+    console.error(error);
+    res.status(500).json({error: error.message})
+}}
+    
+   
+})
 module.exports = router;

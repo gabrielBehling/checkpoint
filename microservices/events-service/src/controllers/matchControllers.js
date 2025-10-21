@@ -18,6 +18,7 @@ const dbConfig = {
 
 // Importar os handlers (pra ficar mais organizado)
 const leaderboardRouter = require("../handlers/leaderboard");
+const authMiddleware = require("../authMiddleware");
 
 // vai usar o middleware para todas as rotas do controller
 // Ele busca o evento, valida, e o anexa ao request para os sub-controllers usarem.
@@ -55,17 +56,10 @@ const getEventAndValidate = async (req, res, next) => {
 router.use("/:eventId", getEventAndValidate);
 
 // Roteamento baseado no modo do evento
-router.use("/:eventId/leaderboard", (req, res, next) => {
+router.use("/:eventId/leaderboard",authMiddleware, (req, res, next) => {
     if (res.locals.event.Mode !== 'Leaderboard') {
         res.locals.db_pool.close();
         return res.status(400).json({ error: `This endpoint is only for 'Leaderboard' events. This event is of type '${res.locals.event.Mode}'.` });
-    }
-    // Verifica se o usuário autenticado é o criador do evento para rotas POST/PUT/DELETE
-    if (req.method !== 'GET') {
-        if (res.locals.event.CreatedBy !== req.user.userId) {
-            res.locals.db_pool.close();
-            return res.status(403).json({ error: "You are not authorized to manage this event's matches." });
-        }
     }
     next();
 }, leaderboardRouter);
