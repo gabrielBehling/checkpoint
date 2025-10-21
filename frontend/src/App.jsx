@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
+import CadastroEvento from "./pages/cadastroEvento";
 import { useState } from "react";
 import "./App.css";
 
@@ -38,7 +39,13 @@ function App() {
                 <Link to="/cadastro" style={{ marginRight: 10 }}>
                   cadastro
                 </Link>
-              </ul>
+                <Link to="/chat" style={{ marginRight: 10 }}>
+                Chat
+                </Link>
+                <Link to="/cadastroEvento" style={{ marginRight: 10 }}>
+                Cadastro Evento
+                </Link>
+                </ul>
             </nav>
           </div>
           

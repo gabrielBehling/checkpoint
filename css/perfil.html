@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil do Usuário</title>
+  <link rel="stylesheet" href="style-perfil.css">
+</head>
+<body>
+
+  <!-- ====== NAVBAR ====== -->
+  <header>
+    <div class="logo">
+        <a href="index.html">Logo</a>
+    </div>
+    <nav>
+        
+      <a href="#">Eventos</a>
+      <a href="#">Jogos</a>
+    </nav>
+  </header>
+
+  <!-- ====== BANNER PERFIL ====== -->
+  <section class="perfil-banner">
+    <div class="background-img">
+      <div class="perfil-info">
+        <div class="foto-perfil"></div>
+        <div class="status">
+          <span class="dot"></span> status: online, offline
+        </div>
+        <div class="perfil-buttons">
+          <button>Nome usuário</button>
+          <button>Histórico</button>
+          <button type="submit" class="btn" onclick="window.location.href='chat.html'">Chat</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CONTEÚDO PRINCIPAL ====== -->
+  <main>
+    <aside class="info-box">
+      <h3>Informações:</h3>
+      <p><strong>Nome:</strong> Mateus R. Lino Pereira</p>
+      <p><strong>E-mail:</strong> mateus@gmail.com</p>
+      <p><strong>Tipo da conta:</strong> Organizador</p>
+      <button class="secondary">Trocar tipo da conta</button>
+
+      <h3>Configurações</h3>
+      <p><strong>Idioma:</strong> Português BR</p>
+      <p><strong>Notificações:</strong> ativadas</p>
+      <button class="secondary">Trocar notificações</button>
+
+      <div class="danger"> <a href="index.html">Sair</a> </div>
+      
+    </aside>
+
+    <section class="participacoes">
+      <h3>Participações recentes.</h3>
+      <div class="grid">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====== FOOTER ====== -->
+  <footer>
+    <a href="#">Ajuda</a>
+    <a href="#">Contato</a>
+    <a href="#">Sobre-Nós</a>
+  </footer>
+
+</body>
+</html>
