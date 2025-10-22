@@ -41,7 +41,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
         console.log("Tipo de Conta Selecionada:", type)
 
         // Ajustei a requisição para enviar os campos do CADASTRO
-        api.post("/register", { // Geralmente, cadastros vão para um endpoint /cadastro
+        api.post("/auth/register", { // Geralmente, cadastros vão para um endpoint /cadastro
             email: email,
             username: nome,
             password: password,
