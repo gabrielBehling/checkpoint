@@ -45,6 +45,9 @@ function App() {
                 <Link to="/cadastroEvento" style={{ marginRight: 10 }}>
                 Cadastro Evento
                 </Link>
+                <Link to="/perfil" style={{ marginRight: 10 }}>
+                Perfil
+                </Link>
                 </ul>
             </nav>
           </div>
