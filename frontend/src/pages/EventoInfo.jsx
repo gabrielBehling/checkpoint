@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "http://api.localhost/api/events?game=CS2&status=Active&isOnline=true"; 
+import api from "./api"; 
 import "./cadastroEvento.css"; 
 export default function EventoInfo() {
   const [evento, setEvento] = useState(null);
