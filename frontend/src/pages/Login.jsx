@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./login.css"; // O CSS que você forneceu
+import "../assets/css/login.css"; // O CSS que você forneceu
 import api from "./api";
 
 export default function LoginPage() {

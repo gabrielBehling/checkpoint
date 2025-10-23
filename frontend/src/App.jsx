@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import CadastroEvento from "./pages/cadastroEvento";
 import { useState } from "react";
-import "./App.css";
+import "./assets/css/App.css";
 
 function App() {
   return (

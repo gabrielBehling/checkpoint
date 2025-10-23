@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import api from "./api"; // seu axios configurado
-import "./CadastroStyle.css";
+import "../assets/css/CadastroStyle.css";
 
 export default function Evento() {
   const [form, setForm] = useState({
