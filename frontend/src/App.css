@@ -1,181 +1,388 @@
-/* Reset básico */
-* {
+*{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  
-}
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+  align-items: center;
 }
 
-body {
-  min-height: 100vh; /* ocupa sempre a altura da tela */
-  background: linear-gradient(to top, #080808,#161536  84%);
-  background-repeat: no-repeat;
-  background-size: cover;   /* cobre toda a área visível */
-  background-attachment: fixed; /* mantém fixo ao rolar */
-  font-family: Arial, Helvetica, sans-serif;
-  color: #111;
+body{
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0a0d2a;
+  color: #f1f1f1;
   line-height: 1.6;
+  align-items: center;
 }
 
-/* ===== NAVBAR ===== */
+
 header {
-  background-color: #666; /* cinza escuro */
-  padding: 10px 20px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: linear-gradient(to top, #080808,#161536  84%);
-  background-repeat: no-repeat;
-  background-size: cover;   /* cobre toda a área visível */
-  background-attachment: fixed; /* mantém fixo ao rolar */
+ background-color: #0f1333;
+ /* AUMENTANDO o padding horizontal (de 40px para 80px) para dar mais espaço lateral */
+ padding: 15px 500px; 
+ position: sticky;
+ top: 0;
+ z-index: 1000;
+ width: 100%;
 }
 
 .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ width: 100%; 
 }
 
 .navbar .logo {
-  font-weight: bold;
-  font-size: 18px;
-  color: #000;
+ font-weight: bold;
+ font-size: 18px;
+ color: #fff;
 }
-.navbar .logo .jogo{
-  
-  text-decoration: none;
-  color: #000;
-  font-size: 16px;
-  transition: color 0.2s;
-}
-.navbar .ul .h3{
-  align-self: center;
-}
+
 .navbar ul {
-  list-style: none;
-  display: flex;
-  gap: 20px;
+ list-style: none;
+ display: flex;
+ /* Mantendo um gap razoável para todos os links, incluindo os novos */
+ gap: 35px; /* Ajustado ligeiramente para melhor distribuição */
+ flex-wrap: nowrap;
+ line-height: 24px
 }
 
-.navbar ul li a {
+.navbar ul li a{
   text-decoration: none;
-  color: #000;
-  font-size: 16px;
-  transition: color 0.2s;
+  color: #dcdcdc;
+  font-size: 15px;
+  line-height: 24px;
+  transition: color 0.3s;
 }
 
-.navbar ul li a:hover {
-  color: #2222ff; /* azul no hover */
+.navbar ul li a:hover{
+  color: #4d8eff;
 }
 
-/* ===== HERO / BANNER ===== */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  line-height: 24px;
+}
+
+.navbar-right a {
+color: #fff;
+}
+.navbar ul li a,
+/* ... (restante dos seletores de link sem alteração) */
+.navbar ul li a,
+.navbar ul li .jogo,
+.navbar ul li a:visited,
+.navbar ul li .jogo:visited,
+.navbar .logo a,
+.navbar .logo a:visited {
+ text-decoration: none;
+ color: #dcdcdc;
+ font-size: 15px;
+ transition: color 0.3s;
+}
+
+.navbar h1 { /* Usando h1 conforme o HTML do App.js */
+ display: flex;
+ margin: 0;
+}
+
+#pesquisa {
+ padding: 8px 15px;
+ border: 1px solid #333;
+ border-radius: 20px;
+ background-color: #1a1e3e;
+ color: #f1f1f1;
+ outline: none;
+ width: 250px;
+}
+
+#pesquisa::placeholder {
+ color: #aaa;
+}
+
+.navbar ul li a:hover,
+.navbar .logo a:hover {
+ color: #4d8eff;
+}
+
+.navbar .logo .jogo {
+ margin-left: 15px;
+}
+
+/* * =================================================================
+ * MODIFICAÇÕES APLICADAS A PARTIR DAQUI: 
+ * 1. Adicionado estilo para a imagem dentro do .card
+ * 2. Adicionado a classe .error-orange
+ * =================================================================
+ */
+
+/* ===== HERO / CARROSSEL (MODIFICADO) ===== */
 .hero {
-  text-align: center;
-  padding: 40px 20px;
+ padding-bottom: 40px;
 }
 
-.hero h1 {
-  font-size: 22px;
-  background-color: #222;
-  color: #fff;
-  display: inline-block;
-  padding: 5px 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
+.carousel {
+ position: relative;
+ width: 90%; 
+ max-width: 1000px;
+ height: 400px; 
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ perspective: 2000px;
+ margin: 40px auto 30px;
 }
 
-.banner {
-  width: 80%;
-  height: 250px;
-  background-color: #666;
-  margin: 0 auto 30px;
-  border-radius: 6px;
+/* Nota: No seu HTML, a tag <img> já tem a classe .card. */
+.card {
+ position: absolute;
+ /* background-color: #ff6b3c; REMOVIDO OU AJUSTADO para que a cor laranja de fallback seja aplicada */
+    /* Deixando o background-color para ser gerenciado apenas pela classe .error-orange,
+       se o bloco não tiver imagem de fundo. No seu código React, o .card é a <img>.
+       Vamos confiar no .error-orange. */
+ border-radius: 16px;
+ box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+ transition: transform 0.6s ease, opacity 0.6s ease, width 0.6s ease, height 0.6s ease;
+ opacity: 0.5;
 }
 
+/* NOVO: Classe para quando a imagem falhar */
+.card.error-orange {
+    /* Cor de fallback laranja, conforme solicitado */
+    background-color: #ff6b3c; 
+    /* Aumenta a opacidade para garantir que a cor laranja seja visível */
+    opacity: 1 !important; 
+    /* Garante que a imagem, mesmo com erro, preencha o espaço para mostrar o fundo laranja */
+    object-fit: contain; 
+}
+
+/* NOVO: Estilo para a imagem (.card) */
+.card {
+    /* Garante que a imagem preencha todo o espaço do 'card' */
+    object-fit: cover; 
+}
+
+/* central */
+.card.active {
+ width: 700px; 
+ height: 400px; 
+ transform: translateX(0) scale(1) rotateY(0);
+ opacity: 1;
+ z-index: 3;
+}
+
+/* próximo/anterior */
+.card.left,
+.card.right {
+ width: 600px;
+ height: 380px;
+ opacity: 0.8;
+ z-index: 2;
+}
+
+.card.left {
+ transform: translateX(-200px) scale(0.9) rotateY(25deg);
+}
+
+.card.right {
+ transform: translateX(200px) scale(0.9) rotateY(-25deg);
+}
+
+/* extremidades */
+.card.left-far {
+ width: 500px;
+ height: 360px;
+ transform: translateX(-400px) scale(0.8) rotateY(30deg);
+ opacity: 0.6;
+ z-index: 1;
+}
+
+.card.right-far {
+ width: 500px;
+ height: 360px;
+ transform: translateX(400px) scale(0.8) rotateY(-30deg);
+ opacity: 0.6;
+ z-index: 1;
+}
+
+/* ===== CONTROLES DO CARROSSEL (INALTERADO) ===== */
+.controls{
+ width: 90%; 
+ max-width: 1000px; 
+ margin: 20px auto; 
+ text-align: center;
+}
+
+.controls button {
+ padding: 10px 20px;
+ margin: 0 10px;
+ border: none;
+ background: #ff6b3c;
+ color: #fff;
+ border-radius: 8px;
+ cursor: pointer;
+ transition: background 0.3s;
+}
+
+.controls button:hover {
+ background: #ff875b;
+}
+
+/* ===== CTA (Cadastre-se) (INALTERADO) ===== */
 .cta {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
+ max-width: 600px;
+ margin: 0 auto 60px;
+ text-align: center;
+ color: #fff;
 }
 
 .cta p {
-  margin-bottom: 15px;
-  font-size: 16px;
+ margin-bottom: 15px;
+ font-size: 15px;
+ color: #ccc;
 }
 
 .btn {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #222;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background 0.2s;
+ display: inline-block;
+ padding: 12px 28px;
+ background-color: #ff6b3c;
+ color: #fff;
+ text-decoration: none;
+ font-weight: 600;
+ border-radius: 25px;
+ transition: background 0.3s;
+ align-items: center;
 }
 
 .btn:hover {
-  background-color: #444;
+ background-color: #ff875b;
 }
 
-/* ===== EVENTOS ===== */
+/* ===== EVENTOS (INALTERADO) ===== */
 .eventos {
-  padding: 40px 20px;
+ padding: 40px 60px;
 }
 
 .eventos h2 {
-  font-size: 20px;
-  margin-bottom: 20px;
+ font-size: 22px;
+ margin-bottom: 30px;
+ color: #fff;
+ font-weight: bold;
+ text-transform: uppercase;
 }
 
+.eventos-container {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+ gap: 40px;
+ justify-items: center;
+}
+
+.eventos-container p {
+ grid-column: 1 / -1;
+ text-align: center;
+ font-style: italic;
+ color: #ccc;
+}
+
+/* ===== CARD DO EVENTO (INALTERADO) ===== */
 .evento-card {
-  display: flex;
-  gap: 20px;
-  background-color: #ccc;
-  padding: 20px;
-  border-radius: 6px;
-  margin-bottom: 30px;
-  align-items: center;
+ position: relative;
+ width: 330px;
+ height: 230px;
+ background-color: #2a2f5a;
+ border-radius: 12px;
+ overflow: hidden;
+ cursor: pointer;
+ transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.evento-card:hover {
+ transform: translateY(-6px);
+ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .imagem-evento {
-  width: 300px;
-  height: 200px;
-  background-color: #666;
-  border-radius: 6px;
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0; 
+  transition: opacity 0.4s ease;
 }
 
 .info-evento {
-  flex: 1;
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 13, 42, 0.92);
+  color: #fff;
+  opacity: 0;
+  display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ padding: 20px;
+ transition: opacity 0.4s ease;
 }
 
-/* ===== RODAPÉ ===== */
+.evento-card:hover .imagem-evento {
+ opacity: 1;
+}
+
+.evento-card:hover .info-evento {
+ opacity: 1;
+}
+
+.info-evento h3 {
+ font-size: 16px;
+ font-weight: bold;
+ margin-bottom: 8px;
+}
+
+.info-evento p {
+ margin-bottom: 15px;
+ font-size: 0.95rem;
+ line-height: 1.4;
+ color: #ddd;
+}
+
+.info-evento .btn {
+ padding: 8px 16px;
+ border-radius: 8px;
+ font-weight: bold;
+}
+
+
+/* ===== RODAPÉ (INALTERADO) ===== */
 footer {
-  background-color: #999;
-  padding: 30px 20px;
-  text-align: center;
+ background-color: #ff875b;
+ padding: 30px 20px;
+ text-align: center;
+ color: #aaa;
+ width: 100%;
 }
 
 footer ul {
-  list-style: none;
+ list-style: none;
+ display: flex;
+ justify-content: center;
+ gap: 25px;
+ max-width: 1400px;
+ margin: 0 auto;
 }
 
 footer ul li {
-  margin: 8px 0;
+ margin: 12px 0;
 }
 
 footer ul li a {
-  text-decoration: none;
-  color: #000;
-  font-weight: bold;
+ text-decoration: none;
+ color: #fff;
+ font-weight: 500;
 }
 
 footer ul li a:hover {
-  color: #2222ff;
+ color: #4d8eff;
 }
-
-
