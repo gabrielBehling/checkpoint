@@ -22,7 +22,6 @@ export default function Evento() {
     Rules: "",
     Prizes: "",
     BannerURL: "",
-    Status: "",
     CreatedBy: "",
   });
 
@@ -77,7 +76,6 @@ export default function Evento() {
         Rules: "",
         Prizes: "",
         BannerURL: "",
-        Status: "",
         CreatedBy: "",
       });
       setBanner(null);

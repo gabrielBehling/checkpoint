@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "./api"; 
 import "./cadastroEvento.css"; 
 
@@ -19,7 +19,7 @@ export default function EventoInfo() {
           return;
         }
 
-        const response = await api.post("/api/events/details", { id: eventId });
+        const response = await api.post("/api/events/details/", { id: eventId });
         setEvento(response);
       } catch (err) {
         console.error("Erro ao carregar evento:", err);
