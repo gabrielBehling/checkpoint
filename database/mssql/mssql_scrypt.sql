@@ -45,6 +45,24 @@ CREATE TABLE TeamMembers (
 );
 GO
 
+-- GAMES
+CREATE TABLE Games (
+    GameID INT PRIMARY KEY IDENTITY(1,1),
+    GameName NVARCHAR(100) NOT NULL UNIQUE,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    EditedAt DATETIME DEFAULT NULL,
+    DeletedAt DATETIME DEFAULT NULL
+);
+GO
+
+INSERT INTO Games (GameName) VALUES
+('The Legend of Zelda: Breath of the Wild'),
+('Minecraft'),
+('The Witcher 3: Wild Hunt'),
+('Grand Theft Auto V'),
+('Super Mario Odyssey');
+GO
+
 -- EVENTS
 CREATE TABLE Events (
     EventID INT PRIMARY KEY IDENTITY(1,1),
