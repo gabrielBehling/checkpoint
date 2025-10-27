@@ -1,215 +1,379 @@
-/* ========================================================================= */
-/* RESET E FUNDO GERAL (Baseado no CSS de Referência HTML) */
-/* ========================================================================= */
+/* RESET */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     /* Fonte da imagem parece ser sans-serif moderna, como 'Segoe UI' ou 'Roboto' */
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* -------------------------------------------------------------------------------- */
+/* ESTILOS GLOBAIS E FUNDO ESCURO (Baseado na Imagem de Login/Cadastro) */
+/* -------------------------------------------------------------------------------- */
 body {
     /* Fundo escuro padrão do tema */
     background: #100C1F; 
     color: #F0F0F0; /* Cor de texto padrão branco/claro */
 }
 
-/* ------------------------------------------------------------------------- */
-/* TOPO (TOPBAR) - Menu de Navegação (FIXO) - Mantido do CSS do JSX anterior */
-/* ------------------------------------------------------------------------- */
+/* CONTAINER GERAL */
+.container {
+    padding: 30px;
+    /* Manter display flex e gap para layout de formulário/evento */
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    width: 100%;
+    max-width: 1400px; /* Largura máxima para centralizar conteúdo em telas maiores */
+    margin: 0 auto;
+}
+
+/* -------------------------------------------------------------------------------- */
+/* TOPO (TOPBAR) - Baseado no menu da imagem do Evento */
+/* -------------------------------------------------------------------------------- */
 .topbar {
-    background: #1C172C; 
+    background: #1C172C; /* Fundo mais escuro que o body para destaque */
     color: white;
     display: flex;
     justify-content: space-between;
-    padding: 15px 40px; /* Mantido 40px para maior espaçamento lateral */
+    padding: 15px 30px; /* Padding maior */
     align-items: center;
-    border-bottom: 1px solid rgba(74, 144, 226, 0.2);
-    
-    /* CORREÇÃO: Header Fixo e altura definida */
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 10; 
-    height: 60px; 
+    border-bottom: 1px solid rgba(74, 144, 226, 0.2); /* Linha sutil azul */
 }
 
-.logo a { text-decoration: none; color: #F0F0F0; font-size: 1.6em; font-weight: 700; letter-spacing: 1px; }
-.topbar nav a, .topbar .auth a { margin-left: 30px; text-decoration: none; color: #D0D0D0; font-weight: 500; transition: color 0.3s ease; }
-.topbar nav a:hover, .topbar .auth a:hover { color: #4A90E2; }
-.topbar .cadastro { color: #4A90E2; font-weight: bold; border: 1px solid #4A90E2; padding: 5px 12px; border-radius: 4px; }
-
-
-/* ------------------------------------------------------------------------- */
-/* CONTAINER PRINCIPAL DO FORMULÁRIO - CORREÇÃO DE ESPAÇAMENTO SUPERIOR */
-/* ------------------------------------------------------------------------- */
-.container {
-    width: 100%;
-    max-width: 1500px;
-    margin: 40px auto; 
-    padding: 0 40px;
-    
-    /* CORREÇÃO: Padding superior para compensar o header fixo de 60px */
-    padding-top: 80px; 
-}
-
-/* O FORM-EVENTO é o pai flex que empilha o Título, o Wrapper de Colunas e o Botão */
-.form-evento {
-    display: flex; 
-    flex-direction: column; 
-    gap: 25px; 
-    background: #1C172C; 
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-}
-
-/* NOVO WRAPPER PARA AS DUAS COLUNAS - Mantido do passo anterior */
-.form-columns-wrapper {
-    display: flex; /* ESSENCIAL: Lado a lado */
-    gap: 50px; 
-    width: 100%;
-}
-
-.col-esquerda, 
-.col-direita {
-    flex: 1; /* ESSENCIAL: Divide o espaço do wrapper em 50/50 */
-    display: flex;
-    flex-direction: column;
-    gap: 18px; 
-}
-
-.col-direita h3 {
-    font-size: 1.5em;
-    color: #4A90E2;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #2E274C;
-}
-
-
-/* ------------------------------------------------------------------------- */
-/* ESTILIZAÇÃO DOS CAMPOS (Inputs, Labels e Textareas) - UNINDO ESTILOS */
-/* ------------------------------------------------------------------------- */
-
-.form-evento label {
-    font-size: 0.95em;
-    font-weight: 600;
-    color: #E0E0E0;
-    margin-bottom: -5px;
-}
-
-/* Aplica o estilo visual de input do CSS de referência */
-.form-evento input[type="text"],
-.form-evento input[type="number"],
-.form-evento input[type="date"],
-.form-evento select,
-textarea {
-    padding: 14px 15px; /* Um pouco mais de padding para o formulário de evento */
-    border: none; /* Remove a borda padrão do CSS anterior */
-    border-radius: 4px; /* Borda arredondada sutil */
-    background: #241D3B; /* Fundo roxo/azul escuro do input (do CSS de ref) */
+/* LOGO CHECKPOINT (Menu) */
+.logo a {
+    margin-left: 0; /* Removido o margin-left desnecessário */
+    text-decoration: none;
     color: #F0F0F0;
-    font-size: 16px;
-    width: 100%;
-    transition: border-color 0.3s;
-    border: 1px solid transparent; /* Borda transparente para consistência */
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
-.form-evento input:focus,
-.form-evento select:focus,
-textarea:focus {
-    border-color: #4A90E2; 
-    outline: none;
+/* NAVEGAÇÃO E AUTENTICAÇÃO */
+.topbar nav a, .topbar .auth a {
+    margin-left: 25px;
+    text-decoration: none;
+    color: #F0F0F0;
+    font-weight: 500; /* Peso normal/médio */
+    transition: color 0.3s;
 }
 
-/* PLACEHOLDERS UNIFICADOS (Como no CSS de Referência HTML) */
-input::placeholder,
-textarea::placeholder {
-    color: #A9A9A9; 
-    opacity: 1; 
-}
-input::-webkit-datetime-edit,
-input::-webkit-calendar-picker-indicator {
-    filter: invert(80%) brightness(120%); 
+.topbar nav a:hover, .topbar .auth a:hover {
+    color: #4A90E2; /* Hover em azul vibrante */
 }
 
-/* Estilo Checkbox - Mantido do CSS anterior (funcional) */
-.tipo-evento label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: normal;
-    color: #D0D0D0;
-}
-.tipo-evento input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    background-color: #3B3452;
-    border: 2px solid #4A90E2;
-    cursor: pointer;
-    appearance: none;
+.topbar .cadastro {
+    color: #4A90E2; /* Cadastro em azul vibrante */
+    font-weight: bold;
+    border: 1px solid #4A90E2;
+    padding: 5px 10px;
     border-radius: 4px;
 }
-.tipo-evento input[type="checkbox"]:checked {
-    background-color: #4A90E2;
-    border-color: #4A90E2;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 16px;
+
+/* -------------------------------------------------------------------------------- */
+/* ESTILOS DOS FORMULÁRIOS DE AUTENTICAÇÃO (LOGIN/CADASTRO) */
+/* -------------------------------------------------------------------------------- */
+
+/* Classe Genérica para Formulários de Autenticação (Baseado na Imagem) */
+.form-auth { 
+    background: transparent;
+    padding: 40px 60px;
+    border-radius: 8px;
+    width: 450px; /* Largura definida para cada formulário */
+    margin: 50px auto; /* Centraliza verticalmente se não estiver em um layout flex */
+    
+    /* Borda e sombra sutis para o efeito de imersão da imagem */
+    border: 1px solid rgba(196, 209, 224, 0.3); 
+    box-shadow: 0 0 50px rgba(74, 144, 226, 0.1); 
+    text-align: left;
 }
 
-/* ------------------------------------------------------------------------- */
-/* UPLOAD DE BANNER (Ajustado para o estilo de borda azul tracejada) */
-/* ------------------------------------------------------------------------- */
-.banner-upload {
-    background: #241D3B;
-    border: 2px dashed #4A90E2; /* Borda tracejada azul vibrante */
-    height: 150px;
+/* Título (LOGIN / CADASTRE-SE) */
+.form-auth h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #4A90E2; /* Cor azul vibrante */
+    letter-spacing: 5px;
+    font-weight: lighter;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+/* Logo (Estrutura do HTML: .logo-auth .circle .text) */
+.logo-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+.logo-auth .circle {
+    width: 30px;
+    height: 30px;
+    background: #F0F0F0; 
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.logo-auth .text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #F0F0F0; 
+    letter-spacing: 2px;
+}
+
+.form-auth form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    border-radius: 6px;
-    overflow: hidden; 
-    position: relative;
+    gap: 20px; /* Espaçamento entre os campos */
+    width: 100%;
+    margin: 0 auto;
 }
-.banner-upload:hover { border-color: #78A7F4; }
-.banner-upload input[type="file"] { display: none; }
-.banner-upload + img.preview-banner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
-.banner-upload label { font-size: 40px; color: #4A90E2; z-index: 2; cursor: pointer; user-select: none; margin: 0; }
-.banner-upload:has(~ .preview-banner) label { display: none; }
 
+.form-auth label {
+    font-size: 15px;
+    font-weight: normal;
+    color: #F0F0F0;
+    margin-bottom: -10px;
+}
 
-/* ------------------------------------------------------------------------- */
-/* BOTÃO DE SUBMISSÃO */
-/* ------------------------------------------------------------------------- */
+/* CAMPOS DE INPUT (para formulários de autenticação) */
+.form-auth input[type="email"],
+.form-auth input[type="text"],
+.form-auth input[type="password"],
+.form-auth input[type="text"],
+.form-auth input[type="date"] 
+{
+    padding: 15px;
+    border: none;
+    border-radius: 4px;
+    background: #241D3B; /* Fundo roxo/azul escuro do input */
+    color: #F0F0F0;
+    font-size: 16px;
+}
+
+/* Placeholder para Formulários de Autenticação */
+.form-auth ::placeholder {
+    color: #A9A9A9; 
+}
+
+/* Link de Informação (ex: "Ainda não possui uma conta?") */
+.link-info, .auth-bottom-link {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
+.link-info a, .auth-bottom-link a {
+    color: #4A90E2; 
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Tipo de Conta (Radio Buttons no Cadastro) */
+.type-selection {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+    color: #F0F0F0;
+    font-size: 14px;
+}
+.type-selection p {
+    margin-right: 10px;
+}
+
+/* -------------------------------------------------------------------------------- */
+/* DETALHES DO EVENTO (Baseado na Imagem do Campeonato de Adedonha) */
+/* -------------------------------------------------------------------------------- */
+
+/* Título e Destaque */
+.container h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #F0F0F0; /* Título em branco */
+}
+
+/* Seções de Detalhes (Datas, Horários, Localização, etc.) */
+.container h2 {
+    font-size: 1.2em;
+    color: #4A90E2; /* Títulos de seção em azul vibrante */
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #241D3B; /* Linha discreta para separar */
+    padding-bottom: 5px;
+}
+
+/* Descrição */
+.container p {
+    line-height: 1.6;
+    color: #cccccc;
+}
+
+/* Container de Informações (Datas/Horários/Ingressos) */
+.info-block {
+    display: flex;
+    justify-content: space-between;
+    gap: 50px;
+    margin-top: 20px;
+}
+.info-item {
+    flex: 1;
+}
+
+/* Destaque para números (R$60.90, 80, 20, etc.) */
+.highlight-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #4A90E2; /* Azul vibrante para os valores */
+    display: block;
+    margin-top: 5px;
+}
+/* Estilo para a taxa de participação */
+.taxa-participacao .highlight-value {
+    font-size: 1.8em;
+}
+
+/* Imagem Principal do Evento */
+.container img.main-event-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+/* -------------------------------------------------------------------------------- */
+/* BOTÕES GERAIS (Mantido o estilo para o botão padrão, mas pode ser ajustado) */
+/* -------------------------------------------------------------------------------- */
 .btn {
-    background: #4A90E2;
+    background: #4A90E2; /* Mudei para azul vibrante para harmonizar com o tema */
     color: white;
     border: none;
-    padding: 15px;
+    padding: 12px;
     cursor: pointer;
-    border-radius: 4px; /* Borda mais sutil, como no CSS de ref */
+    border-radius: 4px;
     font-weight: bold;
-    font-size: 1.1em;
-    transition: background 0.3s ease, transform 0.1s;
-    margin-top: 20px; 
-    align-self: center; 
+    transition: background 0.3s;
 }
-.btn:hover { background: #3B7AD1; }
-.btn:active { transform: scale(0.99); }
 
-/* ------------------------------------------------------------------------- */
-/* RESPONSIVIDADE */
-/* ------------------------------------------------------------------------- */
-@media (max-width: 1100px) {
-    .form-columns-wrapper {
-        flex-direction: column; 
-        gap: 30px;
-    }
+.btn:hover {
+    background: #3B7AD1;
 }
+
+/* Estilos de Formulário de Criação de Evento (Mantidos e Ajustados ao tema escuro) */
+.form-evento {
+    display: flex;
+    gap: 50px;
+    justify-content: space-between;
+}
+
+.col-esquerda, .col-direita {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* -------------------------------------------------------------------------------- */
+/* ESTILOS DE INPUT/TEXTAREA GERAIS (INCLUINDO FORMULÁRIO DE EVENTO) */
+/* -------------------------------------------------------------------------------- */
+/* Aplica o estilo de input do form-auth para todos os inputs no formulário de evento */
+.form-evento input[type="text"], 
+.form-evento input[type="number"], 
+.form-evento input[type="date"], 
+.form-evento input[type="time"] {
+    padding: 15px;
+    border: none;
+    border-radius: 4px;
+    background: #241D3B; /* Fundo roxo/azul escuro do input */
+    color: #F0F0F0;
+    font-size: 16px;
+    border: 1px solid transparent; /* Adiciona uma borda transparente para consistência */
+}
+
+/* Estilo para textarea no formulário de evento */
+textarea {
+    min-height: 100px;
+    padding: 15px; /* Ajustei o padding para ser igual ao input */
+    border-radius: 4px;
+    background: #241D3B; /* Fundo do textarea igual ao input */
+    color: #F0F0F0;
+    font-size: 16px;
+    /* Mantenha a borda azul se quiser um destaque, ou mude para o padrão do input */
+    border: 1px solid #4A90E2; 
+}
+
+
+/* >>>>>>>>>>> REGRAS DE PLACEHOLDER APLICADAS AQUI <<<<<<<<<< */
+input::placeholder,
+textarea::placeholder {
+    color: #A9A9A9; /* Cor cinza claro para o placeholder, como solicitado */
+    opacity: 1; /* Garante que a opacidade padrão do navegador não escureça */
+}
+
+/* Compatibilidade com Firefox */
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+    color: #A9A9A9;
+    opacity: 1; 
+}
+
+/* Compatibilidade com IE */
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    color: #A9A9A9;
+}
+/* >>>>>>>>>>> FIM DAS REGRAS DE PLACEHOLDER <<<<<<<<<< */
+
+.upload, .banner-upload, .upload-doc {
+    background: #241D3B; /* Fundo escuro sutil */
+    border: 2px dashed #4A90E2; /* Borda tracejada azul vibrante */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: #4A90E2; /* Texto/Ícone em azul vibrante */
+    cursor: pointer;
+}
+/* Estilos de upload... */
+.imagens-evento {
+display: flex;
+gap: 10px;
+}
+
+.upload {
+    width: 100px;
+    height: 80px;
+}
+
+.banner-upload {
+    width: 100%;
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-upload #previewBanner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
+
+.banner-upload .placeholder-text {
+    position: absolute;
+    color: #F0F0F0; /* Cor do placeholder no banner mantida em branco para o fundo escuro do banner */
+    font-size: 1.1em;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    pointer-events: none;
+    padding: 10px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.upload-doc {
+    width: 120px;
+    height: 50px;
+}   

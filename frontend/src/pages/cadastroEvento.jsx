@@ -52,7 +52,7 @@ export default function Evento() {
       Object.entries(form).forEach(([key, value]) => data.append(key, value));
       if (banner) data.append("BannerFile", banner);
 
-      const response = await api.post("/events", form);
+      const response = await api.post("/events/", form);
 
       alert("✅ Evento criado com sucesso!");
       console.log(response.data);
@@ -156,14 +156,6 @@ export default function Evento() {
               placeholder="Digite o local"
             />
 
-            <label>Criado por (CreatedBy)</label>
-            <input
-              type="text"
-              name="CreatedBy"
-              value={form.CreatedBy}
-              onChange={handleChange}
-              placeholder="ID ou nome do organizador"
-            />
 
             <label>Banner do Evento</label>
             <label className="banner-upload">
@@ -242,14 +234,7 @@ export default function Evento() {
               placeholder="Ex: Steam, PS5, Xbox..."
             />
 
-            <label>Status</label>
-            <input
-              type="text"
-              name="Status"
-              value={form.Status}
-              onChange={handleChange}
-              placeholder="Ex: Ativo, Encerrado..."
-            />
+           
 
             <label>Ingresso (Ticket)</label>
             <input

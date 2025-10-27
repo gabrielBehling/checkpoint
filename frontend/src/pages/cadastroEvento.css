@@ -1,0 +1,39 @@
+.evento-container {
+  color: #f1f1f1;
+  background-color: #1e1e1e;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+.evento-banner {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  color: #00aaff;
+  margin-bottom: 10px;
+}
+
+.evento-info p {
+  margin: 6px 0;
+}
+
+.btn-inscricao {
+  width: 100%;
+  background-color: #00aaff;
+  border: none;
+  color: white;
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-inscricao:hover {
+  background-color: #0088cc;
+}
