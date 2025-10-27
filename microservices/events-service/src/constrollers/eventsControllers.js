@@ -161,7 +161,7 @@ router.delete("/:eventId", authMiddleware, async (req, res) => {
 });
 
 // Get events by filter
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         await sql.connect(dbConfig);
 

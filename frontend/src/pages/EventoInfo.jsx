@@ -1,26 +1,26 @@
 import { useEffect, useState } from "react";
 import api from "./api"; 
 import "./cadastroEvento.css"; 
+import { useParams } from "react-router-dom";
 
 
 export default function EventoInfo() {
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
-
+  const { eventId } = useParams()
+  
   useEffect(() => {
     async function carregarEvento() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const eventId = params.get("id");
         if (!eventId) {
           setErro("Evento não encontrado.");
           setLoading(false);
           return;
         }
 
-        const response = await api.post("/api/events/details/", { id: eventId });
-        setEvento(response);
+        const response = await api.get(`/events/${eventId}/`);
+        setEvento(response.data);
       } catch (err) {
         console.error("Erro ao carregar evento:", err);
         setErro("Erro ao carregar informações do evento.");
@@ -59,8 +59,8 @@ export default function EventoInfo() {
         <p><strong>Participantes Máximos:</strong> {evento.MaxParticipants}</p>
         <p><strong>Times Máximos:</strong> {evento.MaxTeams}</p>
         <p><strong>Tamanho do Time:</strong> {evento.TeamSize}</p>
-        <p><strong>Entrada:</strong> R$ {evento.Ticket.toFixed(2)}</p>
-        <p><strong>Custo de Participação:</strong> R$ {evento.ParticipationCost.toFixed(2)}</p>
+        <p><strong>Entrada:</strong> R$ {evento.Ticket?.toFixed(2)||"0.00"}</p>
+        <p><strong>Custo de Participação:</strong> R$ {evento.ParticipationCost?.toFixed(2)||"0.00"}</p>
         <p><strong>Regras:</strong> {evento.Rules}</p>
         <p><strong>Premiação:</strong> {evento.Prizes}</p>
         <p><strong>Status:</strong> {evento.Status}</p>

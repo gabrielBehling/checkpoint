@@ -20,7 +20,7 @@ createRoot(document.getElementById("root")).render(
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/chat" element={<Chat/>}/>
 
-      <Route path="/evento" element={<EventoInfo />} />
+      <Route path="/evento/:eventId" element={<EventoInfo />} />
       
       {/* Rotas protegidas */}
       <Route element={<ProtectedRoutes />}>
