@@ -55,6 +55,14 @@ CREATE TABLE Games (
 );
 GO
 
+INSERT INTO Games (GameName) VALUES
+('The Legend of Zelda: Breath of the Wild'),
+('Minecraft'),
+('The Witcher 3: Wild Hunt'),
+('Grand Theft Auto V'),
+('Super Mario Odyssey');
+GO
+
 -- EVENTS
 CREATE TABLE Events (
     EventID INT PRIMARY KEY IDENTITY(1,1),
