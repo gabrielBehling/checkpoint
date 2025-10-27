@@ -16,7 +16,7 @@ export default function PerfilPage() {
         // This should be replaced with your actual API endpoint
         api.get("/auth/me/")
             .then(response => {
-                setUserData(response.data.user);
+                setUserData(response.data);
 
             })
             .catch(error => {

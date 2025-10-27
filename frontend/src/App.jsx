@@ -1,33 +1,11 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
-import Login from "./pages/Login";
-import Cadastro from "./pages/Cadastro";
-import CadastroEvento from "./pages/cadastroEvento";
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./assets/css/App.css";
+import api from "./pages/api";
 
-// Simulação de API
-const api = {
-    get: async (url) => {
-        await new Promise(resolve => setTimeout(resolve, 500)); 
-        const mockEvents = [
-            { id: 101, Title: "Torneio Master", BannerURL: "" },
-            { id: 102, Title: "Desafio de Código", BannerURL: "" },
-            { id: 103, Title: "Maratona RPG", BannerURL: "" },
-            { id: 104, Title: "Copa de Verão", BannerURL: "" },
-            { id: 105, Title: "Final Mundial", BannerURL: "" },
-        ];
-        
-        if (url === "/events") {
-            return { data: mockEvents };
-        }
-        return { data: [] };
-    }
-};
 
 // Imagem padrão
-const FALLBACK_IMAGE_SRC = "img/fundo.jpg"; 
+import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png"; 
 
 function App() {
     const [carouselData, setCarouselData] = useState([]); 
@@ -42,15 +20,15 @@ function App() {
         setLoading(true);
         setError(null);
         try {
-            const response = await api.get("/events"); 
+            const response = await api.get("/events/"); 
             
             const newCarouselData = response.data.map((event, index) => ({
-                id: event.id,
+                id: event.EventID,
                 src: event.BannerURL && event.BannerURL.trim() !== "" 
                     ? event.BannerURL 
                     : FALLBACK_IMAGE_SRC,
                 alt: event.Title || "Evento sem título",
-                link: `/evento-detalhe/${event.id}`
+                link: `/evento/${event.id}`
             }));
 
             setCarouselData(newCarouselData);
@@ -69,7 +47,7 @@ function App() {
 
     useEffect(() => {
         fetchCarouselData();
-        const interval = setInterval(nextSlide, 3000); 
+        const interval = setInterval(nextSlide, 15*60*1000); 
         return () => clearInterval(interval); 
     }, [totalSlides]);
 
