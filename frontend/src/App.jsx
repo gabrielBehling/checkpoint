@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; 
-import "./App.css";
+import React from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import CadastroEvento from "./pages/cadastroEvento";
+import { useState, useEffect } from "react";
+import "./assets/css/App.css";
 
 // Simulação de API
 const api = {

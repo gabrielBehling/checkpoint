@@ -1,7 +1,9 @@
+import EventoInfo from "./pages/EventoInfo";
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import "./App.css";
+import "./assets/css/App.css";
 import App from "./App.jsx";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -18,6 +20,8 @@ createRoot(document.getElementById("root")).render(
       <Route path="/cadastro" element={<Cadastro />} />
       {/* <Route path="/chat" element={<Chat/>}/> */}
 
+      <Route path="/evento" element={<EventoInfo />} />
+      
       {/* Rotas protegidas */}
       <Route element={<ProtectedRoutes />}>
         <Route path="/cadastroEvento" element={<CadastroEvento />} />

@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./login.css"; // Assumindo que este CSS agora contém os estilos fornecidos
+import "../assets/css/cadastro.css"; // Assumindo que este CSS agora contém os estilos fornecidos
 import api from "./api"
 import axios from "axios";
 
