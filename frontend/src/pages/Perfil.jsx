@@ -1,4 +1,5 @@
 import { React, useState, useEffect } from "react";
+import "./cssPerfil.css";
 import api from "./api";
 
 export default function PerfilPage() {
