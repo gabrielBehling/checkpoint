@@ -42,6 +42,10 @@ router.post("/", authMiddleware, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
 
+        if (eventData.EndDate <= eventData.StartDate) {
+            return res.status(400).json({ error: "End date must be after start date" });
+        }
+
         const userId = req.user.userId;
 
         await sql.connect(dbConfig);

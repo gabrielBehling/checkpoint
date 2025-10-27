@@ -213,6 +213,7 @@ export default function Evento() {
               name="StartDate"
               value={form.StartDate}
               onChange={handleChange}
+              min={new Date().toISOString().split("T")[0]}
             />
 
             <label>Data de Término</label>
@@ -221,6 +222,7 @@ export default function Evento() {
               name="EndDate"
               value={form.EndDate}
               onChange={handleChange}
+              min={form.StartDate}
             />
 
             <label>Plataforma</label>
