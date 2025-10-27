@@ -84,7 +84,7 @@ app.use(cookieParser());
 
 // Token management functions
 const generateAccessToken = (user) => {
-    return jwt.sign({ username: user.username, userId: user.userId, userRole: user.userRole }, process.env.JWT_SECRET, { expiresIn: "60s" });
+    return jwt.sign({ username: user.username, userId: user.userId, userRole: user.userRole }, process.env.JWT_SECRET, { expiresIn: "1h" });
 };
 
 const generateRefreshToken = (user) => {
@@ -413,15 +413,28 @@ app.get("/me", async (req, res) => {
     try {
         await sql.connect(dbConfig);
         const userRecord = await sql.query`
-            SELECT UserID, Username, Email, UserRole 
-            FROM UsersNotDeleted 
+            SELECT UserID, Username, Email, UserRole
+            FROM UsersNotDeleted
             WHERE UserID = ${decoded.userId};
         `;
         if (userRecord.recordset.length === 0) {
             return res.status(404).json({ error: "User not found." });
         }
-        const user = userRecord.recordset.shift();
-        res.status(200).json({ user });
+        const userInfo = userRecord.recordset.shift();
+
+        const historyRecords = await sql.query`
+            SELECT e.EventID, e.Title, e.Description, e.Status, e.BannerURL, g.GameName
+            FROM EventsNotDeleted e
+            JOIN Games g ON e.GameID = g.GameID
+            JOIN EventRegistrations er ON e.EventID = er.EventID
+            JOIN TeamMembers tm ON er.TeamID = tm.TeamID
+            WHERE er.UserID = ${decoded.userId} OR tm.UserID = ${decoded.userId};
+        `;
+        const user = {
+            ...userInfo,
+            eventHistory: historyRecords.recordset,
+        };
+        res.status(200).json(user);
     } catch (err) {
         return res.status(500).json({ error: "Database error", details: err });
     } finally {
