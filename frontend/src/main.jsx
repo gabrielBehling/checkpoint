@@ -18,7 +18,6 @@ createRoot(document.getElementById("root")).render(
       <Route path="/" element={<App />} />
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
-      <Route path="/chat" element={<Chat/>}/>
 
       <Route path="/evento/:eventId" element={<EventoInfo />} />
       
@@ -26,6 +25,7 @@ createRoot(document.getElementById("root")).render(
       <Route element={<ProtectedRoutes />}>
         <Route path="/cadastroEvento" element={<CadastroEvento />} />
         <Route path="/perfil" element={<PerfilPage />} />
+        <Route path="/chat" element={<Chat/>}/>
       </Route>
     </Routes>
   </BrowserRouter>
