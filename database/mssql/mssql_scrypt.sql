@@ -147,6 +147,32 @@ CREATE TABLE LeaderboardScores (
     CONSTRAINT UQ_Event_Team_Round UNIQUE (EventID, TeamID, RoundNumber)
 );
 GO
+CREATE TABLE KnockoutMatches (
+    MatchID INT PRIMARY KEY IDENTITY(1,1),
+    EventID INT NOT NULL,
+    RoundNumber INT NOT NULL,
+    MatchNumber INT NOT NULL,
+    Team1_ID INT NULL,
+    Team2_ID INT NULL,
+    Team1_Score INT NULL,
+    Team2_Score INT NULL,
+    Winner_ID INT NULL,
+    
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Pending',
+    
+    Team1_SourceMatchID INT NULL,
+    Team2_SourceMatchID INT NULL,
+
+    CONSTRAINT FK_KnockoutMatches_Events FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    CONSTRAINT FK_KnockoutMatches_Team1 FOREIGN KEY (Team1_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_KnockoutMatches_Team2 FOREIGN KEY (Team2_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_KnockoutMatches_Winner FOREIGN KEY (Winner_ID) REFERENCES Teams(TeamID),
+
+    CONSTRAINT FK_Knockout_Source1 FOREIGN KEY (Team1_SourceMatchID) REFERENCES KnockoutMatches(MatchID),
+    CONSTRAINT FK_Knockout_Source2 FOREIGN KEY (Team2_SourceMatchID) REFERENCES KnockoutMatches(MatchID),
+    CONSTRAINT UQ_Event_Round_Match UNIQUE (EventID, RoundNumber, MatchNumber)
+);
+GO
 
 -- VIEWS
 CREATE VIEW dbo.UsersNotDeleted AS
