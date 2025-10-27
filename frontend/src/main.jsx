@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import ".assets/css/App.css";
+import "./assets/css/App.css";
 import App from "./App.jsx";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
