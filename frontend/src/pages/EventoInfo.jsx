@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api from "./api"; 
 import "./cadastroEvento.css"; 
+
+
 export default function EventoInfo() {
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);

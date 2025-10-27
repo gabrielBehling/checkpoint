@@ -180,7 +180,7 @@ function App() {
                                 Premiação tal<br />
                                 Hora tal
                             </p>
-                            <Link to="/cadastroEvento" className="btn">Cadastrar no evento</Link>
+                            <Link to="/EventoInfo" className="btn">Cadastrar no evento</Link>
                         </div>
                     </div>
                 </div>
