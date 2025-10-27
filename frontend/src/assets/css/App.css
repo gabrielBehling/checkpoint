@@ -1,60 +1,62 @@
-*{
+/* ===== RESET ===== */
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  align-items: center;
 }
 
-body{
+body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #0a0d2a;
   color: #f1f1f1;
   line-height: 1.6;
-  align-items: center;
+  overflow-x: hidden;
 }
 
+/* ===== HEADER / NAVBAR ===== */
 
 header {
- background-color: #0f1333;
- /* AUMENTANDO o padding horizontal (de 40px para 80px) para dar mais espaço lateral */
- padding: 15px 500px; 
- position: sticky;
- top: 0;
- z-index: 1000;
- width: 100%;
+  background-color: #0f1333;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100vw; /* garante que o fundo vá até as bordas da tela */
+  padding: 18px 0; /* padding vertical apenas */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .navbar {
- display: flex;
- align-items: center;
- justify-content: space-between;
- width: 100%; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px; /* limita só o conteúdo */
+  margin: 0 auto;
+  padding: 0 60px; /* espaçamento lateral do conteúdo */
+  width: 100%;
 }
 
 .navbar .logo {
- font-weight: bold;
- font-size: 18px;
- color: #fff;
+  font-weight: bold;
+  font-size: 20px;
+  color: #fff;
 }
 
 .navbar ul {
- list-style: none;
- display: flex;
- /* Mantendo um gap razoável para todos os links, incluindo os novos */
- gap: 35px; /* Ajustado ligeiramente para melhor distribuição */
- flex-wrap: nowrap;
- line-height: 24px
+  list-style: none;
+  display: flex;
+  gap: 35px;
+  flex-wrap: nowrap;
 }
 
-.navbar ul li a{
+.navbar ul li a {
   text-decoration: none;
   color: #dcdcdc;
   font-size: 15px;
-  line-height: 24px;
   transition: color 0.3s;
 }
 
-.navbar ul li a:hover{
+.navbar ul li a:hover,
+.navbar .logo a:hover {
   color: #4d8eff;
 }
 
@@ -62,245 +64,198 @@ header {
   display: flex;
   align-items: center;
   gap: 25px;
-  line-height: 24px;
 }
 
 .navbar-right a {
-color: #fff;
-}
-.navbar ul li a,
-/* ... (restante dos seletores de link sem alteração) */
-.navbar ul li a,
-.navbar ul li .jogo,
-.navbar ul li a:visited,
-.navbar ul li .jogo:visited,
-.navbar .logo a,
-.navbar .logo a:visited {
- text-decoration: none;
- color: #dcdcdc;
- font-size: 15px;
- transition: color 0.3s;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s;
 }
 
-.navbar h1 { /* Usando h1 conforme o HTML do App.js */
- display: flex;
- margin: 0;
+.navbar-right a:hover {
+  color: #4d8eff;
 }
 
 #pesquisa {
- padding: 8px 15px;
- border: 1px solid #333;
- border-radius: 20px;
- background-color: #1a1e3e;
- color: #f1f1f1;
- outline: none;
- width: 250px;
+  padding: 8px 15px;
+  border: 1px solid #333;
+  border-radius: 20px;
+  background-color: #1a1e3e;
+  color: #f1f1f1;
+  outline: none;
+  width: 250px;
 }
 
 #pesquisa::placeholder {
- color: #aaa;
+  color: #aaa;
 }
 
-.navbar ul li a:hover,
-.navbar .logo a:hover {
- color: #4d8eff;
-}
-
-.navbar .logo .jogo {
- margin-left: 15px;
-}
-
-/* * =================================================================
- * MODIFICAÇÕES APLICADAS A PARTIR DAQUI: 
- * 1. Adicionado estilo para a imagem dentro do .card
- * 2. Adicionado a classe .error-orange
- * =================================================================
- */
-
-/* ===== HERO / CARROSSEL (MODIFICADO) ===== */
+/* ===== HERO / CARROSSEL ===== */
 .hero {
- padding-bottom: 40px;
+  padding: 60px 0 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .carousel {
- position: relative;
- width: 90%; 
- max-width: 1000px;
- height: 400px; 
- display: flex;
- justify-content: center;
- align-items: center;
- perspective: 2000px;
- margin: 40px auto 30px;
+  position: relative;
+  width: 90%;
+  max-width: 1100px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 2000px;
+  margin: 40px auto;
 }
 
-/* Nota: No seu HTML, a tag <img> já tem a classe .card. */
 .card {
- position: absolute;
- /* background-color: #ff6b3c; REMOVIDO OU AJUSTADO para que a cor laranja de fallback seja aplicada */
-    /* Deixando o background-color para ser gerenciado apenas pela classe .error-orange,
-       se o bloco não tiver imagem de fundo. No seu código React, o .card é a <img>.
-       Vamos confiar no .error-orange. */
- border-radius: 16px;
- box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
- transition: transform 0.6s ease, opacity 0.6s ease, width 0.6s ease, height 0.6s ease;
- opacity: 0.5;
+  position: absolute;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  object-fit: cover;
+  opacity: 0.5;
 }
 
-/* NOVO: Classe para quando a imagem falhar */
 .card.error-orange {
-    /* Cor de fallback laranja, conforme solicitado */
-    background-color: #ff6b3c; 
-    /* Aumenta a opacidade para garantir que a cor laranja seja visível */
-    opacity: 1 !important; 
-    /* Garante que a imagem, mesmo com erro, preencha o espaço para mostrar o fundo laranja */
-    object-fit: contain; 
+  background-color: #ff6b3c;
+  opacity: 1 !important;
+  object-fit: contain;
 }
 
-/* NOVO: Estilo para a imagem (.card) */
-.card {
-    /* Garante que a imagem preencha todo o espaço do 'card' */
-    object-fit: cover; 
-}
-
-/* central */
 .card.active {
- width: 700px; 
- height: 400px; 
- transform: translateX(0) scale(1) rotateY(0);
- opacity: 1;
- z-index: 3;
+  width: 700px;
+  height: 400px;
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  z-index: 3;
 }
 
-/* próximo/anterior */
 .card.left,
 .card.right {
- width: 600px;
- height: 380px;
- opacity: 0.8;
- z-index: 2;
+  width: 600px;
+  height: 380px;
+  opacity: 0.8;
+  z-index: 2;
 }
 
 .card.left {
- transform: translateX(-200px) scale(0.9) rotateY(25deg);
+  transform: translateX(-200px) scale(0.9) rotateY(25deg);
 }
 
 .card.right {
- transform: translateX(200px) scale(0.9) rotateY(-25deg);
+  transform: translateX(200px) scale(0.9) rotateY(-25deg);
 }
 
-/* extremidades */
+.card.left-far,
+.card.right-far {
+  width: 500px;
+  height: 360px;
+  opacity: 0.6;
+  z-index: 1;
+}
+
 .card.left-far {
- width: 500px;
- height: 360px;
- transform: translateX(-400px) scale(0.8) rotateY(30deg);
- opacity: 0.6;
- z-index: 1;
+  transform: translateX(-400px) scale(0.8) rotateY(30deg);
 }
 
 .card.right-far {
- width: 500px;
- height: 360px;
- transform: translateX(400px) scale(0.8) rotateY(-30deg);
- opacity: 0.6;
- z-index: 1;
+  transform: translateX(400px) scale(0.8) rotateY(-30deg);
 }
 
-/* ===== CONTROLES DO CARROSSEL (INALTERADO) ===== */
-.controls{
- width: 90%; 
- max-width: 1000px; 
- margin: 20px auto; 
- text-align: center;
+/* ===== CONTROLES ===== */
+.controls {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .controls button {
- padding: 10px 20px;
- margin: 0 10px;
- border: none;
- background: #ff6b3c;
- color: #fff;
- border-radius: 8px;
- cursor: pointer;
- transition: background 0.3s;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  background: #ff6b3c;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
 .controls button:hover {
- background: #ff875b;
+  background: #ff875b;
 }
 
-/* ===== CTA (Cadastre-se) (INALTERADO) ===== */
+/* ===== CTA ===== */
 .cta {
- max-width: 600px;
- margin: 0 auto 60px;
- text-align: center;
- color: #fff;
+  max-width: 600px;
+  margin: 60px auto;
+  text-align: center;
+  color: #fff;
 }
 
 .cta p {
- margin-bottom: 15px;
- font-size: 15px;
- color: #ccc;
+  margin-bottom: 15px;
+  font-size: 15px;
+  color: #ccc;
 }
 
 .btn {
- display: inline-block;
- padding: 12px 28px;
- background-color: #ff6b3c;
- color: #fff;
- text-decoration: none;
- font-weight: 600;
- border-radius: 25px;
- transition: background 0.3s;
- align-items: center;
+  display: inline-block;
+  padding: 12px 28px;
+  background-color: #ff6b3c;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: background 0.3s;
 }
 
 .btn:hover {
- background-color: #ff875b;
+  background-color: #ff875b;
 }
 
-/* ===== EVENTOS (INALTERADO) ===== */
+/* ===== EVENTOS ===== */
 .eventos {
- padding: 40px 60px;
+  padding: 60px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .eventos h2 {
- font-size: 22px;
- margin-bottom: 30px;
- color: #fff;
- font-weight: bold;
- text-transform: uppercase;
+  font-size: 26px;
+  margin-bottom: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 2px solid #4d8eff;
+  padding-bottom: 8px;
 }
 
 .eventos-container {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
- gap: 40px;
- justify-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  justify-items: center;
 }
 
-.eventos-container p {
- grid-column: 1 / -1;
- text-align: center;
- font-style: italic;
- color: #ccc;
-}
-
-/* ===== CARD DO EVENTO (INALTERADO) ===== */
 .evento-card {
- position: relative;
- width: 330px;
- height: 230px;
- background-color: #2a2f5a;
- border-radius: 12px;
- overflow: hidden;
- cursor: pointer;
- transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  width: 100%;
+  max-width: 330px;
+  height: 230px;
+  background-color: #2a2f5a;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .evento-card:hover {
- transform: translateY(-6px);
- box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .imagem-evento {
@@ -308,7 +263,7 @@ color: #fff;
   inset: 0;
   background-position: center;
   background-size: cover;
-  opacity: 0; 
+  opacity: 0;
   transition: opacity 0.4s ease;
 }
 
@@ -319,70 +274,129 @@ color: #fff;
   color: #fff;
   opacity: 0;
   display: flex;
- flex-direction: column;
- justify-content: center;
- align-items: center;
- text-align: center;
- padding: 20px;
- transition: opacity 0.4s ease;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  transition: opacity 0.4s ease;
 }
 
-.evento-card:hover .imagem-evento {
- opacity: 1;
-}
-
+.evento-card:hover .imagem-evento,
 .evento-card:hover .info-evento {
- opacity: 1;
+  opacity: 1;
 }
 
 .info-evento h3 {
- font-size: 16px;
- font-weight: bold;
- margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .info-evento p {
- margin-bottom: 15px;
- font-size: 0.95rem;
- line-height: 1.4;
- color: #ddd;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  color: #ddd;
 }
 
-.info-evento .btn {
- padding: 8px 16px;
- border-radius: 8px;
- font-weight: bold;
-}
-
-
-/* ===== RODAPÉ (INALTERADO) ===== */
+/* ===== RODAPÉ ===== */
 footer {
- background-color: #ff875b;
- padding: 30px 20px;
- text-align: center;
- color: #aaa;
- width: 100%;
+  background-color: #ff875b;
+  padding: 30px 0; /* padding vertical */
+  text-align: center;
+  color: #fff;
+  width: 100vw; /* ocupa a tela toda */
+}
+
+footer .footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px; /* padding lateral interno */
 }
 
 footer ul {
- list-style: none;
- display: flex;
- justify-content: center;
- gap: 25px;
- max-width: 1400px;
- margin: 0 auto;
-}
-
-footer ul li {
- margin: 12px 0;
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 footer ul li a {
- text-decoration: none;
- color: #fff;
- font-weight: 500;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: color 0.3s;
 }
 
 footer ul li a:hover {
- color: #4d8eff;
+  color: #0a0d2a;
+}
+
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1100px) {
+  header {
+    padding: 15px 30px;
+  }
+
+  .navbar ul {
+    gap: 20px;
+  }
+
+  .carousel {
+    height: 300px;
+  }
+
+  .card.active {
+    width: 90%;
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    padding: 15px 20px;
+  }
+
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .navbar ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .carousel {
+    height: 250px;
+  }
+
+  .card.active {
+    width: 100%;
+    height: 250px;
+  }
+
+  .eventos {
+    padding: 40px 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  #pesquisa {
+    width: 180px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  footer ul {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

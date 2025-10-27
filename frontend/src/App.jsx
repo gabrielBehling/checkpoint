@@ -7,25 +7,16 @@ import CadastroEvento from "./pages/cadastroEvento";
 import { useState, useEffect } from "react";
 import "./assets/css/App.css";
 
-// IMPORTANTE: Você precisa importar a instância do seu axios configurado.
-// Assumindo que o arquivo está no mesmo lugar que no seu componente Evento:
-// import api from "./api"; 
-
-// Se não tiver o arquivo api, use uma função de busca simulada.
-// Para este exemplo, vou simular o api.
+// Simulação de API
 const api = {
     get: async (url) => {
-        // Simulação de delay de rede
         await new Promise(resolve => setTimeout(resolve, 500)); 
-
-        // Dados simulados de eventos, com o campo BannerURL
         const mockEvents = [
-            { id: 101, Title: "Torneio Master", BannerURL: "https://tse4.mm.bing.net/th/id/OIP.qCE3DeX2b_cgIU-FDgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" },
-            { id: 102, Title: "Desafio de Código", BannerURL: "https://tse1.mm.bing.net/th/id/OIP.FA1CkUQCdyFNwV-WF6AHaEc?rs=1&pid=ImgDetMain&o=7&rm=3" },
-            // URL inválida de propósito para testar o fallback/laranja
-            { id: 103, Title: "Maratona RPG", BannerURL: "https://url.invalida/para.erro.jpg" }, 
-            { id: 104, Title: "Copa de Verão", BannerURL: "https://tse2.mm.bing.net/th/id/OIP.JzeHi06Unntj-6nBLwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" },
-            { id: 105, Title: "Final Mundial", BannerURL: "https://th.bing.com/th/id/OIP.x3ZVAv_pr7xVgHaEK?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3" },
+            { id: 101, Title: "Torneio Master", BannerURL: "" },
+            { id: 102, Title: "Desafio de Código", BannerURL: "" },
+            { id: 103, Title: "Maratona RPG", BannerURL: "" },
+            { id: 104, Title: "Copa de Verão", BannerURL: "" },
+            { id: 105, Title: "Final Mundial", BannerURL: "" },
         ];
         
         if (url === "/events") {
@@ -34,50 +25,40 @@ const api = {
         return { data: [] };
     }
 };
-// FIM DA SIMULAÇÃO DE API
 
-// Fonte de fallback
-const FALLBACK_IMAGE_SRC = "img/minha_magem.jpg"; 
+// Imagem padrão
+const FALLBACK_IMAGE_SRC = "img/fundo.jpg"; 
 
 function App() {
-    // ESTADO ATUALIZADO: Inicializa o carrosselData como array vazio, será preenchido pela API
-    const [carouselData, setCarouselData] = useState([]); 
+    const [carouselData, setCarouselData] = useState([]); 
     const totalSlides = carouselData.length;
-
-    // **1. Estado para a imagem ativa**
-    const [activeIndex, setActiveIndex] = useState(0);
-    
-    // NOVO: Estado para rastrear fontes que falharam e aplicar o estilo laranja
-    const [errorSources, setErrorSources] = useState({});
-
-    // NOVO: Estado para carregamento e erro da API
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [errorSources, setErrorSources] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-
-    // Função para carregar os dados da API (usando o BannerURL)
+    // 🔧 Corrigido: aplica imagem padrão se não tiver URL
     const fetchCarouselData = async () => {
         setLoading(true);
         setError(null);
         try {
-            // Supondo que o endpoint para listar eventos é /events
             const response = await api.get("/events"); 
             
-            // Mapeia os dados do evento para o formato que o carrossel espera
             const newCarouselData = response.data.map((event, index) => ({
                 id: event.id,
-                src: event.BannerURL, // Usa o BannerURL como a fonte da imagem
-                alt: event.Title,      // Usa o Título como o texto alternativo
-                link: `/evento-detalhe/${event.id}` // Opcional: link para o detalhe do evento
+                src: event.BannerURL && event.BannerURL.trim() !== "" 
+                    ? event.BannerURL 
+                    : FALLBACK_IMAGE_SRC,
+                alt: event.Title || "Evento sem título",
+                link: `/evento-detalhe/${event.id}`
             }));
 
             setCarouselData(newCarouselData);
-            setActiveIndex(0); // Reinicia o carrossel
-            setErrorSources({}); // Limpa os erros anteriores
+            setActiveIndex(0);
+            setErrorSources({});
         } catch (err) {
             console.error("Erro ao carregar banners dos eventos:", err);
             setError("Não foi possível carregar os eventos. Tente novamente.");
-            // Opcional: Se a API falhar completamente, você pode usar um array padrão de fallback
             setCarouselData([
                 { id: 99, src: FALLBACK_IMAGE_SRC, alt: "Erro de carregamento" }
             ]);
@@ -86,173 +67,135 @@ function App() {
         }
     };
 
-    // **3. Troca automática e Carregamento de Dados (useEffect)**
-    useEffect(() => {
-        fetchCarouselData(); // Carrega os dados na montagem
+    useEffect(() => {
+        fetchCarouselData();
+        const interval = setInterval(nextSlide, 3000); 
+        return () => clearInterval(interval); 
+    }, [totalSlides]);
+
+    const nextSlide = () => {
+        setActiveIndex((prevIndex) => (prevIndex + 1) % totalSlides);
+    };
+
+    const prevSlide = () => {
+        setActiveIndex((prevIndex) => 
+            (prevIndex - 1 + totalSlides) % totalSlides
+        );
+    };
+
+    // 🔇 Versão silenciosa (sem console.error)
+    const handleImageError = (index, currentSrc) => {
+        setErrorSources(prev => ({ ...prev, [index]: true }));
+        // Nenhum log — apenas troca silenciosa para imagem padrão
+    };
+
+    const getSlideClasses = (index) => {
+        let classes = "card";
+        const relativeIndex = index - activeIndex;
+        const distance = (relativeIndex + totalSlides + totalSlides / 2) % totalSlides - totalSlides / 2;
+
+        if (distance === 0) classes += " active";
+        else if (distance === 1 || distance === -totalSlides + 1) classes += " right";
+        else if (distance === -1 || distance === totalSlides - 1) classes += " left";
+        else if (distance === 2 || distance === -totalSlides + 2) classes += " right-far";
+        else if (distance === -2 || distance === totalSlides - 2) classes += " left-far";
         
-        // Roda nextSlide a cada 3 segundos
-        const interval = setInterval(nextSlide, 3000); 
-        
-        // Limpa o intervalo ao desmontar o componente
-        return () => clearInterval(interval); 
-    }, [totalSlides]); // Depende de totalSlides para redefinir se os dados mudarem
+        if (errorSources[index]) classes += " error-orange";
+        return classes;
+    };
 
-    // **2. Funções de navegação** (Inalteradas)
-    const nextSlide = () => {
-        setActiveIndex((prevIndex) => (prevIndex + 1) % totalSlides);
-    };
-
-    const prevSlide = () => {
-        setActiveIndex((prevIndex) => 
-            (prevIndex - 1 + totalSlides) % totalSlides
-        );
-    };
-
-    // NOVO: Função para lidar com o erro de carregamento da imagem (Inalterada)
-    const handleImageError = (index, currentSrc) => {
-        // 1. Define o bloco como "laranja" no estado de erro
-        setErrorSources(prev => ({ ...prev, [index]: true }));
-        console.error(`Erro ao carregar a imagem do slide ${index}: ${currentSrc}. Aplicando cor laranja.`);
-    };
-
-    // **4. Lógica para aplicar as classes CSS 3D** (Inalterada)
-    const getSlideClasses = (index) => {
-        let classes = "card";
-        const relativeIndex = index - activeIndex;
-
-        // Calcula a distância relativa de forma cíclica
-        const distance = (relativeIndex + totalSlides + totalSlides / 2) % totalSlides - totalSlides / 2;
-
-        if (distance === 0) {
-            classes += " active";
-        } 
-        else if (distance === 1 || distance === -totalSlides + 1) { 
-            classes += " right";
-        } 
-        else if (distance === -1 || distance === totalSlides - 1) { 
-            classes += " left";
-        }
-        else if (distance === 2 || distance === -totalSlides + 2) { 
-            classes += " right-far";
-        }
-        else if (distance === -2 || distance === totalSlides - 2) { 
-            classes += " left-far";
-        }
-        
-        // Se a imagem falhou, adicione a classe de cor laranja
-        if (errorSources[index]) {
-            classes += " error-orange";
-        }
-
-        return classes;
-    };
-
-
-    return (
-        <>
-            {/* O restante do código HTML do cabeçalho permanece inalterado */}
-            <header>
-                <nav className="navbar">
-                    {/* ... (código da navbar) ... */}
+    return (
+        <>
+            <header>
+                <nav className="navbar">
                     <div className="logo"><Link to="/">logo</Link></div>
-                    <h1><input id="pesquisa" type="text" placeholder="Pesquisa"></input></h1>
+                    <h1><input id="pesquisa" type="text" placeholder="Pesquisa" /></h1>
                     <ul>
-                        <li><Link to="/eventos">Eventos</Link></li> 
-                        <li><a href="#">Jogos</a></li> 
-                        <li><Link to="/login">Login</Link></li>
-                        <li><Link to="/cadastro">Cadastre-se</Link></li>
-                        <li><Link to="/chat">Chat</Link></li>
-                        <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
-                        <li><Link to="/perfil">Perfil</Link></li>
-                    </ul>
-                </nav>
-            </header>
-            
-            {/* ===== HERO / CARROSSEL - Renderização Dinâmica ===== */}
-            <section className="hero">
+                        <li><Link to="/eventos">Eventos</Link></li> 
+                        <li><a href="#">Jogos</a></li> 
+                        <li><Link to="/login">Login</Link></li>
+                        <li><Link to="/cadastro">Cadastre-se</Link></li>
+                        <li><Link to="/chat">Chat</Link></li>
+                        <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
+                        <li><Link to="/perfil">Perfil</Link></li>
+                    </ul>
+                </nav>
+            </header>
+            
+            <section className="hero">
                 {loading && <div className="loading-message">Carregando banners de eventos...</div>}
                 {error && <div className="error-message">Erro: {error}</div>}
                 
-                <div className="carousel">
-                    {/* Renderiza apenas se houver dados e não estiver carregando (ou com erro total) */}
+                <div className="carousel">
                     {!loading && carouselData.length > 0 ? (
-                        carouselData.map((item, index) => {
-                            const currentSrc = errorSources[index] ? FALLBACK_IMAGE_SRC : item.src;
-                            
-                            return (
-                                <img 
-                            key={item.id}
-                            className={getSlideClasses(index)} 
-                            src={currentSrc} 
-                            alt={item.alt}
-                            onError={(e) => {
-                                if (e.target.src !== FALLBACK_IMAGE_SRC) {
-                                    handleImageError(index, item.src);
-                                    e.target.src = FALLBACK_IMAGE_SRC; 
-                                } else {
-                                    handleImageError(index, FALLBACK_IMAGE_SRC);
-                                }
-                            }}
-                            />
-                            );
-                        })
+                        carouselData.map((item, index) => {
+                            const currentSrc = errorSources[index] ? FALLBACK_IMAGE_SRC : item.src;
+                            return (
+                                <img 
+                                    key={item.id}
+                                    className={getSlideClasses(index)} 
+                                    src={currentSrc} 
+                                    alt={item.alt}
+                                    onError={(e) => {
+                                        if (e.target.src !== FALLBACK_IMAGE_SRC) {
+                                            handleImageError(index, item.src);
+                                            e.target.src = FALLBACK_IMAGE_SRC; 
+                                        } else {
+                                            handleImageError(index, FALLBACK_IMAGE_SRC);
+                                        }
+                                    }}
+                                />
+                            );
+                        })
                     ) : (
-                        // Renderiza o placeholder se não houver dados, mas não está em erro grave
                         !loading && !error && <div className="placeholder-card card active">Nenhum evento encontrado para o carrossel.</div>
                     )}
-                </div>
+                </div>
 
-                {/* Controles do Carrossel com eventos onClick */}
-                <div className="controls">
-                    <button id="prev" onClick={prevSlide}>◀</button>
-                    <button id="next" onClick={nextSlide}>▶</button>
-                </div>
-                
-                {/* CTA - Call to Action */}
-                <div className="cta">
-                    <p>
-                        Cadastre-se e aproveite benefícios exclusivos!<br />
-                        Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.<br />
-                        É rápido, gratuito e feito pra você!
-                    </p>
-                    <Link to="/cadastro" className="btn">Cadastre-se</Link>
-                </div>
-            </section>
+                <div className="controls">
+                    <button id="prev" onClick={prevSlide}>◀</button>
+                    <button id="next" onClick={nextSlide}>▶</button>
+                </div>
+                
+                <div className="cta">
+                    <p>
+                        Cadastre-se e aproveite benefícios exclusivos!<br />
+                        Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.<br />
+                        É rápido, gratuito e feito pra você!
+                    </p>
+                    <Link to="/cadastro" className="btn">Cadastre-se</Link>
+                </div>
+            </section>
 
-            {/* ===== EVENTOS - Estrutura do HTML: h2, lista-eventos/eventos-container ===== */}
-            <section className="eventos">
-                <h2>Eventos Próximos (Cadastrados)</h2>
-                
-                <div id="lista-eventos" className="eventos-container">
-                    <p>Carregando eventos...</p>
+            <section className="eventos">
+                <h2>Eventos Próximos (Cadastrados)</h2>
+                <div id="lista-eventos" className="eventos-container">
+                    <p>Carregando eventos...</p>
+                    <div className="evento-card">
+                        <div className="imagem-evento"></div>
+                        <div className="info-evento">
+                            <p>
+                                Evento tal<br />
+                                Data tal<br />
+                                Premiação tal<br />
+                                Hora tal
+                            </p>
+                            <Link to="/cadastroEvento" className="btn">Cadastrar no evento</Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    {/* Simulação de um Card de Evento */}
-                    <div className="evento-card">
-                        <div className="imagem-evento"></div>
-                        <div className="info-evento">
-                            <p>
-                                Evento tal<br />
-                                Data tal<br />
-                                Premiação tal<br />
-                                Hora tal
-                            </p>
-                            <Link to="/cadastroEvento" className="btn">Cadastrar no evento</Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* ===== RODAPÉ - Estrutura do HTML: ul/links ===== */}
-            <footer>
-                <ul>
-                    <li><a href="#">Ajuda</a></li>
-                    <li><a href="#">Contato</a></li>
-                    <li><a href="#">Sobre Nós</a></li>
-                    <li><a href="#">Termos</a></li>
-                    </ul>
-            </footer>
-        </>
-    );
+            <footer>
+                <ul>
+                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="#">Contato</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                    <li><a href="#">Termos</a></li>
+                </ul>
+            </footer>
+        </>
+    );
 }
 
 export default App;
