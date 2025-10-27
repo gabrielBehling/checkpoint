@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import validator from 'validator';
+import "../assets/css/chat.css"
 
 
 // Single-file React component (default export)
