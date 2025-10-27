@@ -17,7 +17,8 @@ const io = socketIO(server, {
     origin: "*",
     methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  cookie: true
 });
 
 // MongoDB (via Docker)
@@ -96,10 +97,14 @@ io.on('connection', socket => {
     return "";
     
   }
+  let user;
   try {
-    user = jwt.verify(getCookie('acessToken'), process.env.JWT_SECRET);
+    user = jwt.verify(getCookie('accessToken'), process.env.JWT_SECRET, { maxAge: "1h" });
   }
   catch (err) {
+    if(err instanceof jwt.TokenExpiredError){
+      return socket.disconnect();
+    }
     console.log(err)
     return socket.disconnect();
   }
