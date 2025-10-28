@@ -174,6 +174,41 @@ CREATE TABLE KnockoutMatches (
 );
 GO
 
+CREATE TABLE EventSettings_RoundRobin (
+    EventID INT PRIMARY KEY,
+    PointsPerWin DECIMAL(5, 2) NOT NULL DEFAULT 3,
+    PointsPerDraw DECIMAL(5, 2) NOT NULL DEFAULT 1,
+    PointsPerLoss DECIMAL(5, 2) NOT NULL DEFAULT 0,
+    
+    CONSTRAINT FK_RoundRobinSettings_Events FOREIGN KEY (EventID) REFERENCES Events(EventID)
+        ON DELETE CASCADE -- Se o evento for deletado, as configurações também são
+);
+GO
+
+/* Tabela 2: Armazena todas as partidas da agenda
+*/
+CREATE TABLE RoundRobinMatches (
+    MatchID INT PRIMARY KEY IDENTITY(1,1),
+    EventID INT NOT NULL,
+    Team1_ID INT NOT NULL,
+    Team2_ID INT NOT NULL,
+    Team1_Score INT NULL,
+    Team2_Score INT NULL,
+    Winner_ID INT NULL,           -- NULL em caso de empate
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Pending', -- Pending, Finished
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    LastModifiedAt DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_RoundRobinMatches_Events FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    CONSTRAINT FK_RoundRobinMatches_Team1 FOREIGN KEY (Team1_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_RoundRobinMatches_Team2 FOREIGN KEY (Team2_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_RoundRobinMatches_Winner FOREIGN KEY (Winner_ID) REFERENCES Teams(TeamID),
+    
+    -- Garante que o par (Time A vs Time B) seja único por evento
+    CONSTRAINT UQ_RoundRobin_Match UNIQUE (EventID, Team1_ID, Team2_ID)
+);
+GO
+
 -- VIEWS
 CREATE VIEW dbo.UsersNotDeleted AS
 SELECT 

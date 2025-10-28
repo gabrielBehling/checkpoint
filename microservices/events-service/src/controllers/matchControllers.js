@@ -18,7 +18,8 @@ const dbConfig = {
 
 // Importar os handlers (pra ficar mais organizado)
 const leaderboardRouter = require("../handlers/leaderboard");
-const singleEliminationRouter = require("../handlers/singleElimination"); 
+const singleEliminationRouter = require("../handlers/singleElimination");
+const roundRobinRouter = require("../handlers/roundRobin");
 const authMiddleware = require("../authMiddleware");
 
 // vai usar o middleware para todas as rotas do controller
@@ -76,16 +77,33 @@ router.use("/:eventId/single-elimination", authMiddleware, (req, res, next) => {
         res.locals.db_pool.close();
         return res.status(400).json({ error: `This endpoint is only for 'Single Elimination' events. This event is of type '${res.locals.event.Mode}'.` });
     }
-    
+
     // 2. Validar Status do Evento para rotas POST (gerar bracket, atualizar partida, finalizar)
     if (req.method === 'POST') {
-        if (res.locals.event.status === 'Finished') { 
+        if (res.locals.event.status === 'Finished') {
             res.locals.db_pool.close();
             return res.status(400).json({ error: "Cannot modify a completed event." });
         }
     }
     next();
 }, singleEliminationRouter);
+
+router.use("/:eventId/round-robin", authMiddleware, (req, res, next) => {
+    // 1. Validar Modo
+    if (res.locals.event.Mode !== 'Round Robin') { // Use esta string exata
+        res.locals.db_pool.close();
+        return res.status(400).json({ error: `This endpoint is only for 'Round Robin' events. This event is of type '${res.locals.event.Mode}'.` });
+    }
+
+    // 2. Validar Status do Evento para rotas POST
+    if (req.method === 'POST') {
+        if (res.locals.event.Status === 'Finished') {
+            res.locals.db_pool.close();
+            return res.status(400).json({ error: "Cannot modify a completed event." });
+        }
+    }
+    next();
+}, roundRobinRouter);
 
 // Middleware para fechar a conexão após a resposta ser enviada
 router.use("/:eventId", (req, res, next) => {
