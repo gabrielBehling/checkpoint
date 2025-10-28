@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./assets/css/App.css";
 import api from "./pages/api";
+import { useAuth } from "./contexts/AuthContext";
+
 
 // Imagem padrão
 import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png"; 
@@ -13,6 +15,7 @@ function App() {
     const [errorSources, setErrorSources] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user, logout } = useAuth();
 
     // 🔧 Corrigido: aplica imagem padrão se não tiver URL
     const fetchCarouselData = async () => {
@@ -86,6 +89,7 @@ function App() {
         if (errorSources[index]) classes += " error-orange";
         return classes;
     };
+    
 
     return (
         <>
@@ -96,11 +100,28 @@ function App() {
                     <ul>
                         <li><Link to="/eventos">Eventos</Link></li> 
                         <li><a href="#">Jogos</a></li> 
-                        <li><Link to="/login">Login</Link></li>
-                        <li><Link to="/cadastro">Cadastre-se</Link></li>
-                        <li><Link to="/chat">Chat</Link></li>
-                        <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
-                        <li><Link to="/perfil">Perfil</Link></li>
+                        {!user ? (
+                            <>
+                                <li><Link to="/login">Login</Link></li>
+                                <li><Link to="/cadastro">Cadastre-se</Link></li>
+                            </>
+                        ) : (
+                            <>
+                                <li><Link to="/chat">Chat</Link></li>
+                                <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
+                                <li><Link to="/perfil">Perfil</Link></li>
+                                <li>
+                                    <button onClick={logout} className="logout-btn">
+                                        Logout
+                                    </button>
+                                </li>
+                                <li>
+                                    <span className="user-welcome">
+                                        Olá, {user.Username}
+                                    </span>
+                                </li>
+                            </>
+                        )}
                     </ul>
                 </nav>
             </header>

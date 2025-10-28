@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import validator from 'validator';
 import "../assets/css/chat.css"
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 
 // Single-file React component (default export)
@@ -13,12 +14,12 @@ import "../assets/css/chat.css"
 
 export default function App() {
   const [messages, setMessages] = useState([]);
-  const [username, setUsername] = useState(() => localStorage.getItem('chatUsername') || '');
   const [messageText, setMessageText] = useState('');
   const [status, setStatus] = useState('Conectando...');
   const [notification, setNotification] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const { user } = useAuth();
 
   const messagesContainerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -80,11 +81,6 @@ export default function App() {
       });
   }, []);
 
-  useEffect(() => {
-    // persist username
-    localStorage.setItem('chatUsername', username.trim());
-  }, [username]);
-
   function showNotification(text) {
     setNotification(text);
     setTimeout(() => setNotification(''), 3000);
@@ -104,8 +100,8 @@ export default function App() {
   }
 
   function renderMessageElement(msg, idx) {
-    const safeAuthor = validator.escape(msg.author || 'Anônimo');
-    const isOwn = (username && username === msg.author);
+    const safeAuthor = validator.escape(msg.author);
+    const isOwn = (user.Username && user.Username === msg.author);
 
     return (
       <div className={`message ${isOwn ? 'own' : ''}`} key={idx}>
@@ -142,20 +138,15 @@ export default function App() {
 
   function handleSend(e) {
     e.preventDefault();
-    const author = username.trim();
     const msg = messageText.trim();
 
-    if (!author) {
-      alert('Por favor, informe seu nome.');
-      return;
-    }
     if (!msg) {
       alert('Digite uma mensagem para enviar.');
       return;
     }
 
     if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit('sendMessage', { author, message: msg });
+      socketRef.current.emit('sendMessage', { message: msg });
       setMessageText('');
     } else {
       alert('Socket não conectado. Tente novamente.');
@@ -164,13 +155,8 @@ export default function App() {
 
   function handleFileChange(ev) {
     const file = ev.target.files[0];
-    const author = username.trim();
 
     if (!file) return;
-    if (!author) {
-      alert('Por favor, informe seu nome antes de enviar arquivos.');
-      return;
-    }
 
     const type = file.type.startsWith('image') ? 'image' : file.type.startsWith('audio') ? 'audio' : null;
     if (!type) {
@@ -180,7 +166,6 @@ export default function App() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('author', author);
     formData.append('type', type);
 
     setUploadProgress(30);
@@ -218,16 +203,6 @@ export default function App() {
       </header>
 
       <form id="chat" onSubmit={handleSend} className="chat-form">
-        <div className="user-input">
-          <input
-            type="text"
-            name="username"
-            placeholder="Seu nome"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
 
         <div className="messages" id="messages-container" ref={messagesContainerRef}>
           {messages.map((m, i) => renderMessageElement(m, i))}
