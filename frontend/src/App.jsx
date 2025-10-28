@@ -96,7 +96,6 @@ function App() {
                         <li><Link to="/chat">Chat</Link></li>
                         <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
                         <li><Link to="/perfil">Perfil</Link></li>
-                        <li><Link to="/EventoInfo">Perfil</Link></li>
 
                     </ul>
                 </nav>
