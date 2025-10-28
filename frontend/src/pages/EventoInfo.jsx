@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "./api"; 
-import "./cadastroEvento.css"; 
+import "../assets/css/EventoInfo.css"; 
 import { useParams } from "react-router-dom";
 
 
