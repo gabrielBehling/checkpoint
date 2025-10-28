@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import "./assets/css/App.css";
 import api from "./pages/api";
 
-
 // Imagem padrão
 import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png"; 
 
@@ -46,6 +45,14 @@ function App() {
     };
 
     useEffect(() => {
+        // Aplica estilos globais no body
+        document.body.style.overflowX = "auto";
+        document.body.style.overflowY = "auto";
+        document.body.style.minHeight = "100vh";
+        document.body.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+        document.body.style.backgroundColor = "#0a0d2a";
+        document.body.style.color = "#f1f1f1";
+
         fetchCarouselData();
         const interval = setInterval(nextSlide, 15*60*1000); 
         return () => clearInterval(interval); 
@@ -61,10 +68,8 @@ function App() {
         );
     };
 
-    // 🔇 Versão silenciosa (sem console.error)
     const handleImageError = (index, currentSrc) => {
         setErrorSources(prev => ({ ...prev, [index]: true }));
-        // Nenhum log — apenas troca silenciosa para imagem padrão
     };
 
     const getSlideClasses = (index) => {
@@ -96,7 +101,6 @@ function App() {
                         <li><Link to="/chat">Chat</Link></li>
                         <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
                         <li><Link to="/perfil">Perfil</Link></li>
-
                     </ul>
                 </nav>
             </header>
@@ -105,7 +109,7 @@ function App() {
                 {loading && <div className="loading-message">Carregando banners de eventos...</div>}
                 {error && <div className="error-message">Erro: {error}</div>}
                 
-                <div className="carousel">
+                <div className="carousel" style={{ overflowX: "auto" }}>
                     {!loading && carouselData.length > 0 ? (
                         carouselData.map((item, index) => {
                             const currentSrc = errorSources[index] ? FALLBACK_IMAGE_SRC : item.src;
@@ -146,7 +150,7 @@ function App() {
                 </div>
             </section>
 
-            <section className="eventos">
+            <section className="eventos" style={{ overflowX: "auto" }}>
                 <h2>Eventos Próximos (Cadastrados)</h2>
                 <div id="lista-eventos" className="eventos-container">
                     <p>Carregando eventos...</p>
@@ -163,7 +167,7 @@ function App() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> 
 
             <footer>
                 <ul>
