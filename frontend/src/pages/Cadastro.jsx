@@ -1,11 +1,12 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../assets/css/cadastro.css"; // Assumindo que este CSS agora contém os estilos fornecidos
 import api from "./api"
-import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function CadastroPage() { // Mudei o nome para CadastroPage, pois a estrutura é de cadastro
     const navigate = useNavigate();
+    const { checkAuth } = useAuth()
 
     // Estados adaptados para os campos do formulário de CADASTRO
     const [nome, setNome] = useState("");
@@ -45,6 +46,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
             userRole: type,
         }).then(function (response) {
             alert("Cadastro realizado com sucesso!");
+            checkAuth();
             navigate("/"); 
         }).catch(function (error) {
             console.error("Erro no cadastro:", error);

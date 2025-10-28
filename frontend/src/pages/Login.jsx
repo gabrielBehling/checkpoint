@@ -2,11 +2,13 @@ import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../assets/css/login.css"; // O CSS que você forneceu
 import api from "./api";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { checkAuth } = useAuth();
 
   function handleEmailChange(e) {
     setEmail(e.target.value);
@@ -18,13 +20,13 @@ export default function LoginPage() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    api.post("/auth/login", {
+    api.post("/auth/login/", {
       email: email,
       password: password
     })
     .then((res) => {
       if (res.status === 200) {
-        // Idealmente, você salvaria o token/dados de autenticação aqui
+        checkAuth();
         navigate("/");
       }
     })
