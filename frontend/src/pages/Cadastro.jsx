@@ -103,6 +103,8 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         value={password}
                         onChange={handlePasswordChange}
                         name="password"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\.])[A-Za-z\d@$!%*?&\.]{8,}$"
+                        title="A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial."
                     />
 
                     {/* Confirmação de Senha */}
