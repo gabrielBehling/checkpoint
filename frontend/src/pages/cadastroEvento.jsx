@@ -107,7 +107,7 @@ export default function Evento() {
       {/* FORM DE EVENTO */}
       <main className="container">
         <form className="form-evento" onSubmit={handleSubmit}>
-          {/* COLUNA ESQUERDA */}
+          {/* COLUNA ESQUERDA - FOCO EM INFORMAÇÕES BÁSICAS */}
           <div className="col-esquerda">
             <label>Título do Evento</label>
             <input
@@ -154,7 +154,6 @@ export default function Evento() {
               placeholder="Digite o local"
             />
 
-
             <label>Banner do Evento</label>
             <label className="banner-upload">
               +
@@ -174,30 +173,37 @@ export default function Evento() {
             )}
           </div>
 
-          {/* COLUNA DIREITA */}
+          {/* COLUNA DIREITA - FOCO EM CONFIGURAÇÕES E DETALHES */}
           <div className="col-direita">
             <h3>Configurações do evento</h3>
 
-            <label>Premiações</label>
-            <input
-              type="text"
-              name="Prizes"
-              value={form.Prizes}
-              onChange={handleChange}
-              placeholder="[ESCREVA]"
-            />
+            {/* Linha 1: Premiações e Idioma */}
+            <div className="form-group-row">
+              <div className="form-field-group">
+                <label>Premiações</label>
+                <input
+                  type="text"
+                  name="Prizes"
+                  value={form.Prizes}
+                  onChange={handleChange}
+                  placeholder="[ESCREVA]"
+                />
+              </div>
 
-            <label>Idioma</label>
-            <select
-              name="Language"
-              value={form.Language}
-              onChange={handleChange}
-            >
-              <option value="">Selecione</option>
-              <option value="Português">Português</option>
-              <option value="Inglês">Inglês</option>
-            </select>
-
+              <div className="form-field-group">
+                <label>Idioma</label>
+                <select
+                  name="Language"
+                  value={form.Language}
+                  onChange={handleChange}
+                >
+                  <option value="">Selecione</option>
+                  <option value="Português">Português</option>
+                  <option value="Inglês">Inglês</option>
+                </select>
+              </div>
+            </div>
+            
             <label>Regras</label>
             <input
               type="text"
@@ -206,24 +212,31 @@ export default function Evento() {
               onChange={handleChange}
               placeholder="[ESCREVA]"
             />
+            
+            {/* Linha 2: Datas */}
+            <div className="form-group-row">
+              <div className="form-field-group">
+                <label>Data de Início</label>
+                <input
+                  type="date"
+                  name="StartDate"
+                  value={form.StartDate}
+                  onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0]}
+                />
+              </div>
 
-            <label>Data de Início</label>
-            <input
-              type="date"
-              name="StartDate"
-              value={form.StartDate}
-              onChange={handleChange}
-              min={new Date().toISOString().split("T")[0]}
-            />
-
-            <label>Data de Término</label>
-            <input
-              type="date"
-              name="EndDate"
-              value={form.EndDate}
-              onChange={handleChange}
-              min={form.StartDate}
-            />
+              <div className="form-field-group">
+                <label>Data de Término</label>
+                <input
+                  type="date"
+                  name="EndDate"
+                  value={form.EndDate}
+                  onChange={handleChange}
+                  min={form.StartDate}
+                />
+              </div>
+            </div>
 
             <label>Plataforma</label>
             <input
@@ -234,25 +247,29 @@ export default function Evento() {
               placeholder="Ex: Steam, PS5, Xbox..."
             />
 
-           
-
-            <label>Ingresso (Ticket)</label>
-            <input
-              type="text"
-              name="Ticket"
-              value={form.Ticket}
-              onChange={handleChange}
-              placeholder="Preço ou descrição do ingresso"
-            />
-
-            <label>Custo de Participação</label>
-            <input
-              type="number"
-              name="ParticipationCost"
-              value={form.ParticipationCost}
-              onChange={handleChange}
-              placeholder="Valor de inscrição (se houver)"
-            />
+            {/* Linha 3: Ticket e Custo */}
+            <div className="form-group-row">
+              <div className="form-field-group">
+                <label>Ingresso (Ticket)</label>
+                <input
+                  type="text"
+                  name="Ticket"
+                  value={form.Ticket}
+                  onChange={handleChange}
+                  placeholder="Preço ou descrição do ingresso"
+                />
+              </div>
+              <div className="form-field-group">
+                <label>Custo de Participação</label>
+                <input
+                  type="number"
+                  name="ParticipationCost"
+                  value={form.ParticipationCost}
+                  onChange={handleChange}
+                  placeholder="Valor de inscrição (se houver)"
+                />
+              </div>
+            </div>
 
             <label>Evento Online?</label>
             <div className="tipo-evento">
@@ -267,32 +284,41 @@ export default function Evento() {
               </label>
             </div>
 
-            <label>Máximo de Participantes</label>
-            <input
-              type="number"
-              name="MaxParticipants"
-              value={form.MaxParticipants}
-              onChange={handleChange}
-              placeholder="Número máximo"
-            />
+            {/* Linha 4: Participantes, Tam. Equipe e Máximo de Equipes */}
+            <div className="form-group-row three-cols">
+              <div className="form-field-group">
+                <label>Máx. Participantes</label>
+                <input
+                  type="number"
+                  name="MaxParticipants"
+                  value={form.MaxParticipants}
+                  onChange={handleChange}
+                  placeholder="Número máximo"
+                />
+              </div>
 
-            <label>Tamanho da Equipe</label>
-            <input
-              type="number"
-              name="TeamSize"
-              value={form.TeamSize}
-              onChange={handleChange}
-              placeholder="Ex: 5"
-            />
+              <div className="form-field-group">
+                <label>Tamanho da Equipe</label>
+                <input
+                  type="number"
+                  name="TeamSize"
+                  value={form.TeamSize}
+                  onChange={handleChange}
+                  placeholder="Ex: 5"
+                />
+              </div>
 
-            <label>Máximo de Equipes</label>
-            <input
-              type="number"
-              name="MaxTeams"
-              value={form.MaxTeams}
-              onChange={handleChange}
-              placeholder="Ex: 8"
-            />
+              <div className="form-field-group">
+                <label>Máximo de Equipes</label>
+                <input
+                  type="number"
+                  name="MaxTeams"
+                  value={form.MaxTeams}
+                  onChange={handleChange}
+                  placeholder="Ex: 8"
+                />
+              </div>
+            </div>
 
             <button type="submit" className="btn">
               Criar Evento

@@ -1,50 +1,47 @@
-/* ======= RESET E BASE ======= */
+/* ===== RESET & BASE GLOBALS ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  background: #0e0b16;
-  color: #f5f5f5;
-  min-height: 100vh;
+  background: #100c1f; /* Fundo principal */
+  color: #f0f0f0;      /* Cor do texto principal */
   overflow-x: hidden;
 }
 
-/* ======= HEADER ======= */
+/* * ==============================================
+* NOVO BLOCO: HEADER NO TOPO (.topbar)
+* ==============================================
+*/
 .topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  background: #1a142a;
-  padding: 18px 60px;
+  background: #1c172c; 
+  padding: 15px 40px; 
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Distribui logo/nav/auth */
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 100;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+  /* Posicionamento no topo */
+  position: sticky; 
+  top: 0;
+  z-index: 1000;
 }
 
 .topbar .logo a {
-  color: #4a90e2;
-  font-size: 1.8rem;
+  font-size: 1.8em;
   font-weight: bold;
+  color: #4a90e2;
   text-decoration: none;
-  letter-spacing: 1px;
-}
-
-.topbar nav {
-  display: flex;
-  gap: 30px;
 }
 
 .topbar nav a {
-  color: #ddd;
+  color: #f0f0f0;
   text-decoration: none;
-  font-weight: 500;
+  margin-left: 30px;
+  font-size: 1em;
   transition: color 0.3s;
 }
 
@@ -53,182 +50,211 @@ body {
 }
 
 .topbar .auth a {
-  color: #ddd;
+  background: transparent;
+  color: #f0f0f0;
+  padding: 8px 15px;
+  border-radius: 5px;
   text-decoration: none;
-  font-weight: 500;
-  margin-left: 20px;
-  transition: color 0.3s;
+  margin-left: 15px;
+  transition: background 0.3s;
 }
 
 .topbar .auth .cadastro {
-  color: #4a90e2;
-  font-weight: bold;
-}
-
-.topbar .auth a:hover {
-  color: #fff;
-}
-
-/* ======= CONTAINER DO FORM ======= */
-.container {
-  padding-top: 130px; /* espaço pro header fixo */
-  padding-bottom: 80px;
-  display: flex;
-  justify-content: center;
-  background: #141025;
-  min-height: 100vh;
-}
-
-/* ======= FORM ======= */
-.form-evento {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 50px;
-  background: #1f1934;
-  border-radius: 12px;
-  padding: 50px;
-  width: 90%;
-  max-width: 1200px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-}
-
-/* ======= COLUNAS ======= */
-.col-esquerda,
-.col-direita {
-  display: flex;
-  flex-direction: column;
-}
-
-.col-direita h3 {
-  color: #4a90e2;
-  margin-bottom: 20px;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-/* ======= CAMPOS ======= */
-label {
-  font-weight: 500;
-  color: #ccc;
-  margin-top: 15px;
-  margin-bottom: 6px;
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 6px;
-  border: none;
-  background: #2a2342;
-  color: #f5f5f5;
-  font-size: 1rem;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  background: #342a52;
-  outline: none;
-  box-shadow: 0 0 0 2px #4a90e2;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* ======= BANNER UPLOAD ======= */
-.banner-upload {
-  display: inline-block;
-  width: 100%;
-  background: #2a2342;
-  color: #888;
-  text-align: center;
-  padding: 30px 0;
-  border-radius: 6px;
-  font-size: 2rem;
-  cursor: pointer;
-  border: 2px dashed #4a90e2;
-  transition: background 0.3s, color 0.3s;
-}
-
-.banner-upload:hover {
-  background: #342a52;
-  color: #4a90e2;
-}
-
-.preview-banner {
-  margin-top: 15px;
-  width: 100%;
-  max-height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #4a90e2;
-}
-
-/* ======= CHECKBOX ======= */
-.tipo-evento {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 5px;
-}
-
-.tipo-evento label {
-  font-size: 0.95rem;
-  color: #ddd;
-}
-
-/* ======= BOTÃO ======= */
-.btn {
-  margin-top: 30px;
-  padding: 12px 20px;
   background: #4a90e2;
   color: white;
-  font-weight: bold;
+}
+
+.topbar .auth .cadastro:hover {
+  background: #3b7ad1;
+}
+
+/* * ==============================================
+* CONTAINER PRINCIPAL (Centralizado)
+* ==============================================
+*/
+.container {
+  max-width: 1400px;
+  margin: 30px auto 40px auto; /* CENTRALIZA HORIZONTALMENTE e espaça do header */
+  padding: 40px;
+  background: #1c172c;
+  border-radius: 10px;
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 50px rgba(74, 144, 226, 0.1);
+}
+
+/* Título */
+.col-direita h3 {
+  color: #f0f0f0;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  /* Garante o alinhamento do texto 'Configurações do evento' com a coluna */
+  text-align: left; 
+}
+
+
+/* * ==============================================
+* LAYOUT E COLUNAS
+* ==============================================
+*/
+.form-evento {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.col-esquerda,
+.col-direita {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Espaço entre os inputs/grupos */
+  min-width: 45%;
+}
+
+/* Linha de Grupos de Formulário (Premiações/Idioma, Datas, etc.) */
+.form-group-row {
+  display: flex;
+  gap: 20px; /* Espaço entre os campos na mesma linha */
+  width: 100%;
+}
+
+/* Grupo de campo individual dentro da linha */
+.form-field-group {
+  flex: 1; /* Garante que os campos na linha dividam o espaço igualmente */
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Espaço entre label e input */
+}
+
+.form-group-row.three-cols .form-field-group {
+    flex: 1 1 30%; /* Ajusta para 3 colunas */
+}
+
+
+/* * ==============================================
+* ELEMENTOS DO FORMULÁRIO
+* ==============================================
+*/
+
+/* Labels */
+.col-esquerda label,
+.col-direita label {
+  font-size: 0.9em;
+  margin-bottom: -15px; /* Para ajustar o espaçamento devido ao 'gap: 20px' */
+  color: #d9d9d9;
+}
+
+/* Inputs, Select e Textarea (100% de largura para alinhamento limpo) */
+.col-esquerda input,
+.col-esquerda textarea,
+.col-direita input,
+.col-direita textarea,
+.col-direita select {
+  width: 100%; /* Centraliza o texto e ocupa toda a largura da coluna */
+  padding: 15px;
   border: none;
   border-radius: 6px;
+  background: #241d3b;
+  color: #f0f0f0;
+  font-size: 16px;
+  border: 1px solid transparent;
+}
+
+.col-direita select {
+    appearance: none; /* Remove o estilo padrão do select */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23f0f0f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+}
+
+.col-esquerda textarea,
+.col-direita textarea {
+  min-height: 100px;
+  border: 1px solid #4a90e2;
+}
+
+/* Checkbox */
+.tipo-evento {
+  /* Substitui o gap do flex para o checkbox que não tem label */
+  margin-top: -10px; 
+}
+.tipo-evento label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+.tipo-evento input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+
+/* Banner Upload */
+.banner-upload {
+  background: #241d3b;
+  border: 2px dashed #4a90e2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #4a90e2;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  border-radius: 6px;
+  font-size: 18px;
+  width: 100%;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Imagem de Preview (Adicionada no seu JSX) */
+.preview-banner {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-top: -15px; /* Ajusta o espaçamento */
+}
+
+
+/* Botão */
+.btn {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  align-self: flex-start; /* Alinha o botão à esquerda dentro da coluna */
+  margin-top: 10px; /* Adiciona espaçamento acima do botão */
+  width: 200px; /* Define uma largura fixa para o botão */
 }
 
 .btn:hover {
-  background: #3578d4;
-  transform: scale(1.02);
+  background: #3b7ad1;
 }
 
-/* ======= RESPONSIVIDADE ======= */
-@media (max-width: 1024px) {
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 900px) {
   .form-evento {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 40px;
-  }
-
-  .container {
-    padding-top: 140px;
-  }
-}
-
-@media (max-width: 600px) {
-  .topbar {
     flex-direction: column;
-    padding: 20px;
   }
-
-  .topbar nav {
+  .col-esquerda,
+  .col-direita {
+    min-width: 100%;
+  }
+  .form-group-row {
+    flex-direction: column; /* Empilha campos que estavam em linha */
     gap: 15px;
-    margin: 10px 0;
   }
-
-  .form-evento {
-    padding: 25px;
+  .topbar {
+    padding: 15px 20px;
   }
-
-  .btn {
-    width: 100%;
+  .container {
+    padding: 20px;
   }
 }
