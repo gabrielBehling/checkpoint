@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckPoint - Cadastro de Evento</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="logo">
+            <a href="index.html">logo</a>
+        </div>
+        <nav>
+            <a href="evento.html">Eventos</a>
+            <a href="#">Jogos</a>
+        </nav>
+
+    </header>
+
+    <main class="container">
+        <form id="formCadastroEvento" class="form-evento"> 
+            
+            <div class="col-esquerda">
+                <label for="nomeEvento">Nome do Evento</label>
+                <input type="text" id="nomeEvento" placeholder="Digite o nome" required>
+                
+                <label for="descricaoEvento">Descrição</label>
+                <textarea id="descricaoEvento" placeholder="Descrição"></textarea>
+                
+                <label for="urlImagem">Imagem do Banner (URL)</label>
+                <input type="text" id="urlImagem" placeholder="Cole a URL da Imagem Principal" required>
+
+                <div class="banner-upload">
+                    <img id="previewBanner" src="" alt="Pré-visualização do Banner" style="display: none;">
+                    <span class="placeholder-text">+ Cole a URL da imagem aqui para pré-visualizar</span>
+                </div>
+            </div>
+            
+            <div class="col-direita">
+                <h3>Configurações do evento</h3>
+                
+                <label for="premioEvento">Premiações</label>
+                <input type="text" id="premioEvento" placeholder="Ex: R$500 e Troféu" required>
+                
+                <label>Período do Evento. Inicio e Fim</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="date" id="dataInicioEvento"> 
+                    <input type="date" id="dataFimEvento">
+                </div>
+                
+                <label>Horário</label>
+                <input type="time" id="horaInicioEvento">
+                
+
+                <label for="plataforma">Plataforma</label>
+                <input type="text" id="plataforma" placeholder="Ex: Online, Presencial, Twitch">
+
+                <label for="localizacaoEvento">Localização (Se presencial)</label>
+                <input type="text" id="localizacaoEvento" placeholder="Av. Principal, 123">
+
+                <label for="pontoReferenciaEvento">Ponto de Referência</label>
+                <input type="text" id="pontoReferenciaEvento" placeholder="Próximo ao Shopping X">
+                
+                <hr>
+
+                <h3>Detalhes de Participação</h3>
+                <label for="ingressoInteira">Valor Ingresso (Inteira)</label>
+                <input type="text" id="ingressoInteira" placeholder="R$60,90">
+
+                <label for="ingressoMeia">Valor Ingresso (Meia)</label>
+                <input type="text" id="ingressoMeia" placeholder="R$30,45">
+
+                <label for="taxaParticipacao">Taxa de Participação</label>
+                <input type="text" id="taxaParticipacao" placeholder="R$255,57 /PESSOA">
+
+                <label for="maxParticipantes">Nº Máximo de Participantes</label>
+                <input type="number" id="maxParticipantes" min="1" placeholder="80">
+
+                <label for="numTimes">Nº de Times</label>
+                <input type="number" id="numTimes" min="1" placeholder="20">
+
+                <label for="participantesPorTime">Participantes por Time</label>
+                <input type="number" id="participantesPorTime" min="1" placeholder="4">
+
+                <p>Anexar Documentos</p>
+                <div class="upload-doc">+</div>
+
+                <button type="submit" class="btn">Criar Evento</button> 
+            </div>
+            
+        </form>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('urlImagem');
+            const previewBanner = document.getElementById('previewBanner');
+            const placeholderText = document.querySelector('.banner-upload .placeholder-text');
+            const bannerUploadDiv = document.querySelector('.banner-upload');
+            const form = document.getElementById('formCadastroEvento');
+
+            // --- Lógica de Pré-visualização da Imagem (Opção 1) ---
+            const updatePreview = () => {
+                const url = urlInput.value.trim();
+                if (url) {
+                    previewBanner.src = url;
+                } else {
+                    previewBanner.src = '';
+                    previewBanner.style.display = 'none';
+                    placeholderText.style.display = 'block';
+                    bannerUploadDiv.classList.remove('has-image');
+                }
+            };
+            urlInput.addEventListener('input', updatePreview);
+            previewBanner.addEventListener('load', () => {
+                previewBanner.style.display = 'block';
+                placeholderText.style.display = 'none';
+                bannerUploadDiv.classList.add('has-image');
+            });
+            previewBanner.addEventListener('error', () => {
+                 if (urlInput.value.trim()) {
+                    previewBanner.src = '';
+                    previewBanner.style.display = 'none';
+                    placeholderText.style.display = 'block';
+                    bannerUploadDiv.classList.remove('has-image');
+                    alert('A URL da imagem não é válida ou acessível. Por favor, verifique.');
+                }
+            });
+
+
+            // --- Lógica de Salvamento e Redirecionamento ---
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+
+                const novoEvento = {
+                    nome: document.getElementById('nomeEvento').value.trim(),
+                    descricao: document.getElementById('descricaoEvento').value.trim(),
+                    imagemUrl: document.getElementById('urlImagem').value.trim(),
+                    
+                    status: "ATIVO", 
+                    criadoPor: "Usuário Logado", 
+                    
+                    premiacoes: document.getElementById('premioEvento').value.trim(),
+                    plataforma: document.getElementById('plataforma').value.trim(),
+                    
+                    // Datas e Horários
+                    dataInicio: document.getElementById('dataInicioEvento').value,
+                    dataFim: document.getElementById('dataFimEvento').value,
+                    horaInicio: document.getElementById('horaInicioEvento').value,
+                    
+                    // Localização
+                    localizacao: document.getElementById('localizacaoEvento').value.trim(),
+                    pontoReferencia: document.getElementById('pontoReferenciaEvento').value.trim(),
+                    
+                    // Participação e Preços
+                    ingressoInteira: document.getElementById('ingressoInteira').value.trim(),
+                    ingressoMeia: document.getElementById('ingressoMeia').value.trim(),
+                    taxaParticipacao: document.getElementById('taxaParticipacao').value.trim(),
+                    maxParticipantes: document.getElementById('maxParticipantes').value.trim(),
+                    numTimes: document.getElementById('numTimes').value.trim(),
+                    participantesPorTime: document.getElementById('participantesPorTime').value.trim()
+                };
+
+                // 2. ARMAZENAMENTO NO LOCALSTORAGE
+                const eventosSalvosString = localStorage.getItem('eventosCheckpoint');
+                const eventos = eventosSalvosString ? JSON.parse(eventosSalvosString) : [];
+
+                eventos.push(novoEvento);
+                localStorage.setItem('eventosCheckpoint', JSON.stringify(eventos));
+
+                alert('Evento "' + novoEvento.nome + '" cadastrado com sucesso!');
+
+                // 3. REDIRECIONAMENTO
+                const nomeCodificado = encodeURIComponent(novoEvento.nome);
+                window.location.href = `detalhes.html?nome=${nomeCodificado}`; 
+            });
+        });
+    </script>
+    
+    </body>
+</html>

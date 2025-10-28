@@ -21,8 +21,8 @@ let createEventSchema = object({
     Description: string().required(),
     GameID: number(),
     Mode: string(),
-    StartDate: date().required(),
-    EndDate: date().required(),
+    StartDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "Start date must be in the future").required(),
+    EndDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "End date must be in the future").required(),
     Location: string(),
     Ticket: number(),
     ParticipationCost: number(),
@@ -41,6 +41,10 @@ let createEventSchema = object({
 router.post("/", authMiddleware, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
+
+        if (eventData.EndDate <= eventData.StartDate) {
+            return res.status(400).json({ error: "End date must be after start date" });
+        }
 
         const userId = req.user.userId;
 
@@ -161,7 +165,7 @@ router.delete("/:eventId", authMiddleware, async (req, res) => {
 });
 
 // Get events by filter
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         await sql.connect(dbConfig);
 

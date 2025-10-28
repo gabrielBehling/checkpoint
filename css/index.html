@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint - Página Principal</title>
+  <link rel="stylesheet" href="style-home.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <a href="index.html">logo</a>
+      </div>
+      <h1>
+        <input type="text" placeholder="Pesquisa"></input>
+      </h1>
+      <ul>
+        <li><a href="evento.html">Eventos</a></li>
+        <li><a href="#">Jogos</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="cadastro.html">Cadastre-se</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    
+    <div class="carousel">
+      <img class="card" 
+      src="img/minha_magem.jpg" 
+      alt="Imagem 1"
+      onerror="this.src='img/fundo.png'">
+    
+      <img class="card" 
+          src="https://tse4.mm.bing.net/th/id/OIP.qCE3DeX2b_cgIU-FDgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" 
+          alt="Imagem 2"
+          onerror="this.src='img/fundo.png'">
+    
+      <img class="card" 
+          src="https://tse1.mm.bing.net/th/id/OIP.FA1CkUQCdyFNwV-WF6AHaEc?rs=1&pid=ImgDetMain&o=7&rm=3" 
+          alt="Imagem 3"
+          onerror="this.src='img/fundo.png'">
+    
+      <img class="card" 
+          src="https://th.bing.com/th/id/OIP.x3ZVAv_pr7xVgHaEK?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3" 
+          alt="Imagem 4"
+          onerror="this.src='img/fundo.png'">
+    
+      <img class="card" 
+          src="https://tse2.mm.bing.net/th/id/OIP.JzeHi06Unntj-6nBLwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" 
+          alt="Imagem 5"
+          onerror="this.src='img/fundo.png'">
+    </div>
+
+    <div class="controls">
+      <button id="prev">◀</button>
+      <button id="next">▶</button>
+    </div>
+
+    <div class="cta">
+      <p>
+        Cadastre-se e aproveite benefícios exclusivos!<br>
+        Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.<br>
+        É rápido, gratuito e feito pra você!
+      </p>
+      <a href="cadastro.html" class="btn">Cadastre-se</a>
+    </div>
+  </section>
+
+  <section class="eventos">
+    <h2>Eventos Próximos (Cadastrados)</h2>
+    
+    <div id="lista-eventos" class="eventos-container">
+      <p>Carregando eventos...</p>
+    </div>
+  </section>
+
+  <footer>
+    <ul>
+      <li><a href="#">Ajuda</a></li>
+      <li><a href="#">Contato</a></li>
+      <li><a href="#">Sobre Nós</a></li>
+    </ul>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

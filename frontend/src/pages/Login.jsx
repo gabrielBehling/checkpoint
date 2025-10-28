@@ -1,17 +1,21 @@
 import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "./login.css";
-import api from "./api"
+import "../assets/css/login.css"; // O CSS que você forneceu
+import api from "./api";
+
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   function handleEmailChange(e) {
-    setEmail(e.target.value)
+    setEmail(e.target.value);
   }
+
   function handlePasswordChange(e) {
-    setPassword(e.target.value)
+    setPassword(e.target.value);
   }
+
   function handleSubmit(e) {
     e.preventDefault();
     api.post("/auth/login", {
@@ -19,27 +23,69 @@ export default function LoginPage() {
       password: password
     })
     .then((res) => {
-      if(res.status === 200) {
-        navigate("/")
+      if (res.status === 200) {
+        // Idealmente, você salvaria o token/dados de autenticação aqui
+        navigate("/");
       }
     })
     .catch((err) => {
         if(err.response && err.response.status === 401) {
-          alert("Credenciais inválidas")
+          alert("Credenciais inválidas");
+        } else {
+            // Tratar outros erros (ex: rede, servidor)
+            console.error("Erro ao fazer login:", err);
+            alert("Ocorreu um erro ao tentar fazer login.");
         }
-    })
+    });
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
+    // A estrutura agora espelha o <body> do seu HTML: <main class="container">
+    <main className="container">
+      <section className="form-auth form-login">
+        
+        <div className="logo-auth">
+            <div className="circle"></div>
+            <div className="text">CHECKPOINT</div>
+        </div>
+        
+        <h1>LOG-IN</h1>
+        
+        {/* O formulário agora utiliza o onSubmit para chamar handleSubmit */}
+        <form onSubmit={handleSubmit}>
+            
+            {/* Campo E-mail */}
+            <label htmlFor="email-login">E-mail</label>
+            <input 
+                type="email" 
+                id="email-login" 
+                placeholder="Insira seu endereço de e-mail..." 
+                value={email} 
+                onChange={handleEmailChange} 
+                required 
+            />
+            
+            {/* Campo Senha */}
+            <label htmlFor="senha-login">Senha</label>
+            <input 
+                type="password" // Mudei para 'password' para esconder a digitação
+                id="senha-login" 
+                placeholder="Insira sua senha..." 
+                value={password} 
+                onChange={handlePasswordChange} 
+                required 
+            />
+            
+            {/* Botão de Submissão */}
+            <button type="submit" className="btn" style={{ marginTop: '30px' }}>ENTRAR</button>
 
-        <label htmlFor="email">E-mail: </label>
-        <input type="text" value={email} onChange={handleEmailChange} name="email" />
-        <label htmlFor="password">Senha: </label>
-        <input type="text" value={password} onChange={handlePasswordChange} name="password" />
-        <input type="submit" />
-      </form>
-    </>
+            <div className="link-info" style={{ marginTop: '50px' }}>
+                Ainda não possui uma conta? <Link to="/cadastro">Cadastre-se</Link>
+            </div>
+            {/* Nota: Mudei href="cadastro.html" para Link to="/cadastro" que é o padrão em React Router */}
+
+        </form>
+      </section>
+    </main>
   );
 }

@@ -9,13 +9,13 @@ api.interceptors.response.use(
   function onFulfilled(response) {
     return response;
   },
-  function onRejected(error) {
-
+  async function onRejected(error) {
     const status = error?.response?.status;
-    if (status === 403) {
-      return axios.post("http://checkpoint.localhost/api/auth/refresh-token", { withCredentials: true })
+    if (status === 401) {
+      return await axios
+        .post("http://checkpoint.localhost/api/auth/refresh-token")
         .then((res) => {
-          if(res.status === 200) {
+          if (res.status === 200) {
             // Retry the original request with the error config
             const originalRequest = error.config;
             return axios(originalRequest);

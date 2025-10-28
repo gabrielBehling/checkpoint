@@ -195,7 +195,7 @@ app.post("/login", async (req, res) => {
 let registerInputSquema = object({
     username: string().required().max(50),
     email: string().email().required().max(100),
-    password: string().required(),
+    password: string().required().matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character."),
     userRole: string()
         .matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" })
         .default("Visitor"),
@@ -398,11 +398,48 @@ app.delete("/delete-account", async (req, res) => {
     res.status(200).json({ message: "Account deleted successfully." });
 });
 
-app.get("/me", (req, res) => {
-    res.json({
-        message: "Get current user endpoint",
-        timestamp: new Date().toISOString(),
-    });
+app.get("/me", async (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!token) {
+        return res.status(401).json({ error: "Authentication token required." });
+    }
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: "1h" });
+    } catch (err) {
+        return res.status(401).json({ error: "Invalid or expired token." });
+    }
+
+    try {
+        await sql.connect(dbConfig);
+        const userRecord = await sql.query`
+            SELECT UserID, Username, Email, UserRole
+            FROM UsersNotDeleted
+            WHERE UserID = ${decoded.userId};
+        `;
+        if (userRecord.recordset.length === 0) {
+            return res.status(404).json({ error: "User not found." });
+        }
+        const userInfo = userRecord.recordset.shift();
+
+        const historyRecords = await sql.query`
+            SELECT e.EventID, e.Title, e.Description, e.Status, e.BannerURL, g.GameName
+            FROM EventsNotDeleted e
+            JOIN Games g ON e.GameID = g.GameID
+            JOIN EventRegistrations er ON e.EventID = er.EventID
+            JOIN TeamMembers tm ON er.TeamID = tm.TeamID
+            WHERE er.UserID = ${decoded.userId} OR tm.UserID = ${decoded.userId};
+        `;
+        const user = {
+            ...userInfo,
+            eventHistory: historyRecords.recordset,
+        };
+        res.status(200).json(user);
+    } catch (err) {
+        return res.status(500).json({ error: "Database error", details: err });
+    } finally {
+        await sql.close();
+    }
 });
 
 // Password reset request endpoint
