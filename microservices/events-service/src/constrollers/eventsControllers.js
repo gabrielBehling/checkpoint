@@ -3,6 +3,7 @@ const router = express.Router();
 const sql = require("mssql");
 const { object, string, date, number, boolean } = require("yup");
 const authMiddleware = require("../authMiddleware");
+const { transformEvent, transformEventList, createPagination } = require("../utils/dataTransformers");
 
 const dbConfig = {
     server: process.env.MSSQL_SERVER,
@@ -37,10 +38,15 @@ let createEventSchema = object({
     BannerURL: string().url(),
     Status: string().oneOf(['Active', 'Canceled', 'Finished']).default('Active'),
 });
+
 // Create a new event
 router.post("/", authMiddleware, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
+
+        if (eventData.EndDate <= eventData.StartDate) {
+            return res.error("End date must be after start date", "INVALID_DATE_RANGE", 400);
+        }
 
         const userId = req.user.userId;
 
@@ -52,6 +58,7 @@ router.post("/", authMiddleware, async (req, res) => {
                 MaxParticipants, TeamSize, MaxTeams, Rules, Prizes, BannerURL, 
                 Status, CreatedBy
             )
+            OUTPUT INSERTED.EventID, INSERTED.CreatedAt
             VALUES (
                 ${eventData.Title}, ${eventData.Description}, ${eventData.GameID || null}, 
                 ${eventData.Mode || null}, ${eventData.StartDate}, ${eventData.EndDate}, 
@@ -65,9 +72,26 @@ router.post("/", authMiddleware, async (req, res) => {
             );
         `;
 
-        res.status(201).json({ message: "Event created successfully" });
+        if (result.recordset.length === 0) {
+            return res.error("Failed to create event", "CREATE_FAILED", 500);
+        }
+
+        const eventId = result.recordset[0].EventID;
+        const createdAt = result.recordset[0].CreatedAt;
+
+        return res.success(
+            {
+                eventId,
+                createdAt
+            },
+            "Event created successfully",
+            201
+        );
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        if (error.name === 'ValidationError') {
+            return res.error(error.message, "VALIDATION_ERROR", 400);
+        }
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     } finally {
         await sql.close();
     }
@@ -94,15 +118,17 @@ let updateEventSchema = object({
     BannerURL: string().url(),
     Status: string().oneOf(['Active', 'Canceled', 'Finished']),
 });
+
 // Update an event
 router.put("/:eventId", authMiddleware, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
-        return res.status(400).json({ error: "Invalid eventId" });
+        return res.error("Invalid eventId", "INVALID_EVENT_ID", 400);
     }
     try {
         const eventData = await updateEventSchema.validate(req.body);
         const userId = req.user.userId;
+        
         await sql.connect(dbConfig);
         const result = await sql.query`update Events set
             Title = coalesce(${eventData.Title}, Title),
@@ -124,15 +150,24 @@ router.put("/:eventId", authMiddleware, async (req, res) => {
             Prizes = coalesce(${eventData.Prizes}, Prizes),
             BannerURL = coalesce(${eventData.BannerURL}, BannerURL),
             Status = coalesce(${eventData.Status}, Status),
-            LastModifiedBy = ${userId}
+            LastModifiedBy = ${userId},
+            EditedAt = GETDATE()
             where EventId = ${eventId} and CreatedBy = ${userId} and DeletedAt is null;`;
 
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ error: "Event not found or you do not have permission to update it" });
+            return res.error("Event not found or you do not have permission to update it", "EVENT_NOT_FOUND", 404);
         }
-        res.status(200).json({ message: "Event updated successfully" });
+        
+        return res.success(
+            { eventId },
+            "Event updated successfully",
+            200
+        );
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        if (error.name === 'ValidationError') {
+            return res.error(error.message, "VALIDATION_ERROR", 400);
+        }
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     } finally {
         await sql.close();
     }
@@ -142,7 +177,7 @@ router.put("/:eventId", authMiddleware, async (req, res) => {
 router.delete("/:eventId", authMiddleware, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
-        return res.status(400).json({ error: "Invalid eventId" });
+        return res.error("Invalid eventId", "INVALID_EVENT_ID", 400);
     }
     try {
         const userId = req.user.userId;
@@ -150,20 +185,27 @@ router.delete("/:eventId", authMiddleware, async (req, res) => {
         const result = await sql.query`update Events set DeletedAt = GETDATE() where EventId = ${eventId} and CreatedBy = ${userId};`;
 
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ error: "Event not found or you do not have permission to delete it" });
+            return res.error("Event not found or you do not have permission to delete it", "EVENT_NOT_FOUND", 404);
         }
-        res.status(200).json({ message: "Event deleted successfully" });
+        
+        return res.success(
+            { eventId },
+            "Event deleted successfully",
+            200
+        );
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     } finally {
         await sql.close();
     }
 });
 
 // Get events by filter
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
+    let connection;
     try {
         await sql.connect(dbConfig);
+        connection = sql;
 
         const {
             game,
@@ -180,11 +222,14 @@ router.get("/", authMiddleware, async (req, res) => {
             platform,
             maxParticipants,
             isOnline,
-            search
+            search,
+            page = 1,
+            limit = 10
         } = req.query;
 
-        const query = `
-            SELECT e.*
+        // Query para contar total (para paginação)
+        const countQuery = `
+            SELECT COUNT(*) AS Total
             FROM EventsNotDeleted e
             INNER JOIN UsersNotDeleted u ON e.CreatedBy = u.UserID
             WHERE
@@ -209,9 +254,51 @@ router.get("/", authMiddleware, async (req, res) => {
                 ))
         `;
 
+        // Query para buscar eventos com dados relacionados
+        const query = `
+            SELECT 
+                e.*,
+                u.Username AS OrganizerUsername,
+                g.GameName,
+                (SELECT COUNT(DISTINCT TM.UserID) 
+                 FROM EventRegistrations ER
+                 INNER JOIN Teams T ON ER.TeamID = T.TeamID
+                 INNER JOIN TeamMembers TM ON T.TeamID = TM.TeamID
+                 WHERE ER.EventID = e.EventID AND ER.DeletedAt IS NULL AND TM.DeletedAt IS NULL) AS CurrentParticipants,
+                (SELECT COUNT(*) 
+                 FROM EventRegistrations ER
+                 WHERE ER.EventID = e.EventID AND ER.Status = 'Approved' AND ER.DeletedAt IS NULL) AS TeamCount
+            FROM EventsNotDeleted e
+            INNER JOIN UsersNotDeleted u ON e.CreatedBy = u.UserID
+            LEFT JOIN Games g ON e.GameID = g.GameID
+            WHERE
+                (@game IS NULL OR e.GameID = (SELECT GameID FROM Games WHERE GameName = @game))
+                AND (@date IS NULL OR @date BETWEEN e.StartDate AND e.EndDate)
+                AND (@mode IS NULL OR e.Mode = @mode)
+                AND (@ticket IS NULL OR e.Ticket = @ticket)
+                AND (@participationCost IS NULL OR e.ParticipationCost = @participationCost)
+                AND (@place IS NULL OR e.Location LIKE '%' + @place + '%')
+                AND (@groupSize IS NULL OR e.TeamSize = @groupSize)
+                AND (@status IS NULL OR e.Status = @status)
+                AND (@prize IS NULL OR e.Prizes LIKE '%' + @prize + '%')
+                AND (@time IS NULL OR CONVERT(time, e.StartDate) = @time)
+                AND (@language IS NULL OR e.Language = @language)
+                AND (@platform IS NULL OR e.Platform LIKE '%' + @platform + '%')
+                AND (@maxParticipants IS NULL OR e.MaxParticipants = @maxParticipants)
+                AND (@isOnline IS NULL OR e.IsOnline = @isOnline)
+                AND (@search IS NULL OR (
+                    e.Title LIKE '%' + @search + '%' OR 
+                    e.Description LIKE '%' + @search + '%' OR
+                    u.Username LIKE '%' + @search + '%'
+                ))
+            ORDER BY e.StartDate ASC
+            OFFSET @offset ROWS
+            FETCH NEXT @limit ROWS ONLY
+        `;
+
         const request = new sql.Request();
 
-        // Setando parâmetros (se não informados, passam NULL para ignorar a condição)
+        // Setando parâmetros
         request.input('game', sql.NVarChar, game || null);
         request.input('date', sql.DateTime, date ? new Date(date) : null);
         request.input('mode', sql.NVarChar, mode || null);
@@ -226,7 +313,7 @@ router.get("/", authMiddleware, async (req, res) => {
         request.input('platform', sql.NVarChar, platform || null);
         request.input('maxParticipants', sql.Int, maxParticipants ? parseInt(maxParticipants) : null);
 
-        // Tratando isOnline: se undefined, passa null; se 'true' ou '1' passa 1; se 'false' ou '0' passa 0
+        // Tratando isOnline
         if (isOnline === undefined) {
             request.input('isOnline', sql.Bit, null);
         } else {
@@ -236,13 +323,54 @@ router.get("/", authMiddleware, async (req, res) => {
 
         request.input('search', sql.NVarChar, search || null);
 
-        const result = await request.query(query);
+        // Configurar paginação
+        const pageNum = parseInt(page) || 1;
+        const limitNum = parseInt(limit) || 10;
+        const offsetNum = (pageNum - 1) * limitNum;
 
-        res.json(result.recordset);
+        request.input('offset', sql.Int, offsetNum);
+        request.input('limit', sql.Int, limitNum);
 
+        // Executar queries
+        const [eventsResult, countResult] = await Promise.all([
+            request.query(query),
+            request.query(countQuery)
+        ]);
+
+        const total = countResult.recordset[0].Total;
+        const events = transformEventList(eventsResult.recordset, { 
+            includeOrganizer: true, 
+            includeGame: true 
+        });
+
+        // Enriquecer eventos com estatísticas
+        const enrichedEvents = events.map(event => {
+            const eventObj = { ...event };
+            if (eventObj.maxParticipants && eventObj.CurrentParticipants !== undefined) {
+                eventObj.currentParticipants = eventObj.CurrentParticipants || 0;
+                eventObj.availableSpots = eventObj.maxParticipants - eventObj.currentParticipants;
+            }
+            if (eventObj.maxTeams && eventObj.TeamCount !== undefined) {
+                eventObj.teamCount = eventObj.TeamCount || 0;
+                eventObj.availableTeamSlots = eventObj.maxTeams - eventObj.teamCount;
+            }
+            // Limpar campos temporários
+            delete eventObj.CurrentParticipants;
+            delete eventObj.TeamCount;
+            return eventObj;
+        });
+
+        return res.success({
+            data: enrichedEvents,
+            pagination: createPagination(page, limit, total)
+        }, "Events retrieved successfully");
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message });
+        console.error("Error fetching events:", error);
+        return res.error(error.message, "INTERNAL_ERROR", 500);
+    } finally {
+        if (connection) {
+            await sql.close();
+        }
     }
 });
 
@@ -250,21 +378,98 @@ router.get("/", authMiddleware, async (req, res) => {
 router.get("/:eventId", async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
-        return res.status(400).json({ error: "Invalid eventId" });
+        return res.error("Invalid eventId", "INVALID_EVENT_ID", 400);
     }
 
-    try{
+    let connection;
+    try {
         await sql.connect(dbConfig);
+        connection = sql;
 
-        const result = await sql.query`SELECT * FROM EventsNotDeleted WHERE EventID = ${eventId}`
-        if (result.recordset.length === 0) {
-            return res.status(404).json({ error: "Event not found" });
+        // Buscar evento com dados relacionados
+        const eventQuery = `
+            SELECT 
+                e.*,
+                u.UserID AS OrganizerUserID,
+                u.Username AS OrganizerUsername,
+                u.UserRole AS OrganizerRole,
+                g.GameID AS GameGameID,
+                g.GameName,
+                (SELECT COUNT(DISTINCT TM.UserID) 
+                 FROM EventRegistrations ER
+                 INNER JOIN Teams T ON ER.TeamID = T.TeamID
+                 INNER JOIN TeamMembers TM ON T.TeamID = TM.TeamID
+                 WHERE ER.EventID = e.EventID AND ER.DeletedAt IS NULL AND TM.DeletedAt IS NULL) AS CurrentParticipants,
+                (SELECT COUNT(*) 
+                 FROM EventRegistrations ER
+                 WHERE ER.EventID = e.EventID AND ER.Status = 'Approved' AND ER.DeletedAt IS NULL) AS TeamCount
+            FROM EventsNotDeleted e
+            INNER JOIN UsersNotDeleted u ON e.CreatedBy = u.UserID
+            LEFT JOIN Games g ON e.GameID = g.GameID
+            WHERE e.EventID = @eventId
+        `;
+
+        const request = new sql.Request();
+        request.input('eventId', sql.Int, eventId);
+        const eventResult = await request.query(eventQuery);
+
+        if (eventResult.recordset.length === 0) {
+            return res.error("Event not found", "EVENT_NOT_FOUND", 404);
         }
-        res.json(result.recordset[0])
-    } catch {
-        res.status(500).json({ error: error.message });
+
+        const eventData = eventResult.recordset[0];
+        
+        // Verificar se usuário está registrado (se autenticado)
+        let isRegistered = false;
+        if (req.user && req.user.userId) {
+            const registrationQuery = `
+                SELECT COUNT(*) AS IsRegistered
+                FROM EventRegistrations ER
+                INNER JOIN Teams T ON ER.TeamID = T.TeamID
+                INNER JOIN TeamMembers TM ON T.TeamID = TM.TeamID
+                WHERE ER.EventID = @eventId 
+                AND TM.UserID = @userId
+                AND ER.DeletedAt IS NULL 
+                AND TM.DeletedAt IS NULL
+            `;
+            const regRequest = new sql.Request();
+            regRequest.input('eventId', sql.Int, eventId);
+            regRequest.input('userId', sql.Int, req.user.userId);
+            const regResult = await regRequest.query(registrationQuery);
+            isRegistered = regResult.recordset[0].IsRegistered > 0;
+        }
+
+        // Transformar evento
+        const transformedEvent = transformEvent(eventData, {
+            organizer: {
+                UserID: eventData.OrganizerUserID,
+                Username: eventData.OrganizerUsername,
+                UserRole: eventData.OrganizerRole
+            },
+            game: eventData.GameGameID ? {
+                GameID: eventData.GameGameID,
+                GameName: eventData.GameName
+            } : null,
+            stats: {
+                currentParticipants: eventData.CurrentParticipants || 0,
+                teamCount: eventData.TeamCount || 0
+            },
+            isRegistered,
+            metadata: {
+                CreatedAt: eventData.CreatedAt,
+                EditedAt: eventData.EditedAt,
+                LastModifiedBy: eventData.LastModifiedBy
+            }
+        });
+
+        return res.success(transformedEvent, "Event retrieved successfully");
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     } finally {
-        await sql.close();
+        if (connection) {
+            await sql.close();
+        }
     }
 });
 
