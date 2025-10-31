@@ -1,5 +1,6 @@
 const express = require("express");
 const sql = require("mssql");
+const jwt = require("jsonwebtoken");
 const { object, string } = require("yup");
 const authMiddleware = require("../authMiddleware");
 const { transformTeam, toCamelCase } = require("../utils/dataTransformers");
@@ -125,7 +126,8 @@ router.get("/:eventId/teams", async (req, res) => {
         await sql.connect(dbConfig);
         connection = sql;
 
-        const userId = req.user?.userId || null;
+        const accessToken = req.cookies?.accessToken;
+        const userId = accessToken ? jwt.verify(accessToken, process.env.JWT_SECRET)?.userId || null : null;
 
         // Buscar times com informações do capitão e estatísticas
         let teamsQuery;
