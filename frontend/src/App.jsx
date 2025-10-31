@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./assets/css/App.css";
 import api from "./pages/api";
@@ -9,6 +9,7 @@ import { useAuth } from "./contexts/AuthContext";
 import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png"; 
 
 function App() {
+    const navigate = useNavigate();
     const [carouselData, setCarouselData] = useState([]); 
     const totalSlides = carouselData.length;
     const [activeIndex, setActiveIndex] = useState(0);
@@ -30,7 +31,7 @@ function App() {
                     ? event.BannerURL 
                     : FALLBACK_IMAGE_SRC,
                 alt: event.Title || "Evento sem título",
-                link: `/evento/${event.id}`
+                link: `/evento/${event.EventID}/`
             }));
 
             setCarouselData(newCarouselData);
@@ -148,6 +149,7 @@ function App() {
                                             handleImageError(index, FALLBACK_IMAGE_SRC);
                                         }
                                     }}
+                                    onClick={() => navigate(item.link)}
                                 />
                             );
                         })

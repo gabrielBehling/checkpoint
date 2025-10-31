@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api"; 
 import "../assets/css/EventoInfo.css"; 
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 
 export default function EventoInfo() {
@@ -66,12 +66,9 @@ export default function EventoInfo() {
         <p><strong>Status:</strong> {evento.Status}</p>
       </section>
 
-      <button
-        className="btn-inscricao"
-        onClick={() => alert("Função de inscrição em breve!")}
-      >
-        Inscrever-se
-      </button>
+      <Link to={`/evento/${evento.EventID}/inscricao`}>
+      <button className="btn-inscricao">Inscrever-se</button>
+      </Link>
     </main>
   );
 }

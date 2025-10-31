@@ -3,31 +3,38 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import "./assets/css/App.css";
 import App from "./App.jsx";
-import Login from "./pages/Login";
-import Cadastro from "./pages/Cadastro";
-import Chat from "./pages/chat"
-import CadastroEvento from "./pages/cadastroEvento";
-import PerfilPage from "./pages/Perfil";
-import ProtectedRoutes from "./components/ProtectedRoute";
-import EventoInfo from "./pages/EventoInfo";
+import React, { Suspense } from "react";
+const Login = React.lazy(() => import("./pages/Login"));
+const Cadastro = React.lazy(() => import("./pages/Cadastro"));
+const Chat = React.lazy(() => import("./pages/chat"));
+const CadastroEvento = React.lazy(() => import("./pages/cadastroEvento"));
+const PerfilPage = React.lazy(() => import("./pages/Perfil"));
+const ProtectedRoutes = React.lazy(() => import("./components/ProtectedRoute"));
+const EventoInfo = React.lazy(() => import("./pages/EventoInfo"));
+const InscricaoEvento = React.lazy(() => import("./pages/InscricaoEvento"));
+const CriarTime = React.lazy(() => import("./pages/CriarTime"));
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/cadastro" element={<Cadastro />} />
+      <Suspense fallback={<div>Carregando...</div>}>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} />
 
-        <Route path="/evento/:eventId" element={<EventoInfo />} />
-        
-        {/* Rotas protegidas */}
-        <Route element={<ProtectedRoutes />}>
-          <Route path="/cadastroEvento" element={<CadastroEvento />} />
-          <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="/chat" element={<Chat/>}/>
-        </Route>
-      </Routes>
+          <Route path="/evento/:eventId" element={<EventoInfo />} />
+
+          {/* Rotas protegidas */}
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/cadastroEvento" element={<CadastroEvento />} />
+            <Route path="/perfil" element={<PerfilPage />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/evento/:eventId/inscricao" element={<InscricaoEvento />} />
+            <Route path="/evento/:eventId/criarTime" element={<CriarTime />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </AuthProvider>
   </BrowserRouter>
 );
