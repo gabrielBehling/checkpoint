@@ -7,6 +7,7 @@ const { object, string } = require("yup");
 const { createClient } = require("redis");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const responseMiddleware = require("./responseMiddleware");
 
 const app = express();
 
@@ -81,6 +82,7 @@ const dbConfig = {
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(responseMiddleware);
 
 // Token management functions
 const generateAccessToken = (user) => {
@@ -114,18 +116,12 @@ const verifyRefreshToken = async (refreshToken) => {
 
 // Rota de health check
 app.get("/health", (req, res) => {
-    res.json({
-        status: "OK",
-        timestamp: new Date().toISOString(),
-    });
+    res.success({ status: "OK" }, "Service is healthy");
 });
 
 // Rota raiz
 app.get("/", (req, res) => {
-    res.json({
-        status: "OK",
-        message: "Auth Service is running",
-    });
+    res.success({ status: "OK" }, "Auth Service is running");
 });
 
 let loginInputSquema = object({
@@ -137,7 +133,7 @@ app.post("/login", async (req, res) => {
     try {
         input = await loginInputSquema.validate(req.body, { disableStackTrace: true });
     } catch (e) {
-        return res.status(401).json({ Error: e.message });
+        return res.error(e.message, "VALIDATION_ERROR", 401);
     }
 
     const { email, password } = input;
@@ -148,7 +144,7 @@ app.post("/login", async (req, res) => {
             SELECT * FROM UsersNotDeleted WHERE Email = ${email};
         `;
         if (userRecordbyEmail.recordset.length <= 0) {
-            return res.status(401).json({ error: "Invalid email or password." });
+            return res.error("Invalid email or password.", "INVALID_CREDENTIALS", 401);
         }
 
         const userRecord = userRecordbyEmail.recordset.shift();
@@ -160,7 +156,7 @@ app.post("/login", async (req, res) => {
         const passwordIsRight = await bcrypt.compare(password, passwordHash);
 
         if (!passwordIsRight) {
-            return res.status(401).json({ error: "Invalid email or password." });
+            return res.error("Invalid email or password.", "INVALID_CREDENTIALS", 401);
         }
 
         const user = { username, userId, userRole };
@@ -181,12 +177,16 @@ app.post("/login", async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
-        res.status(200).json({
-            message: `Logged in successfully as ${username}.`,
-            timestamp: new Date().toISOString(),
-        });
+        return res.success(
+            {
+                userId,
+                username,
+                userRole
+            },
+            `Logged in successfully as ${username}.`
+        );
     } catch (err) {
-        return res.status(500).json({ error: "Database error", details: err });
+        return res.error("Database error", "DATABASE_ERROR", 500, err.message);
     } finally {
         await sql.close();
     }
@@ -206,23 +206,23 @@ app.post("/register", async (req, res) => {
     try {
         input = await registerInputSquema.validate(req.body, { disableStackTrace: true });
     } catch (e) {
-        return res.status(401).json({ error: e.message });
+        return res.error(e.message, "VALIDATION_ERROR", 401);
     }
 
     const { username, email, password, userRole } = input;
     if (userRole === "Administrator") {
         let { token } = req.cookies;
         if (!token) {
-            return res.status(400).json({ error: "Token is required for Administrator role." });
+            return res.error("Token is required for Administrator role.", "ADMIN_TOKEN_REQUIRED", 400);
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: "1h" });
-        if (!decoded) {
-            return res.status(401).json({ error: "Invalid or expired token." });
-        }
-
-        if (decoded.userRole !== "Administrator") {
-            return res.status(401).json({ error: "User is not an Administrator." });
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: "1h" });
+            if (decoded.userRole !== "Administrator") {
+                return res.error("User is not an Administrator.", "UNAUTHORIZED", 401);
+            }
+        } catch (err) {
+            return res.error("Invalid or expired token.", "INVALID_TOKEN", 401);
         }
     }
 
@@ -232,14 +232,14 @@ app.post("/register", async (req, res) => {
             SELECT * FROM UsersNotDeleted WHERE Username = ${username};
         `;
         if (usernameExists.recordset.length > 0) {
-            return res.status(400).json({ error: "Username already exists." });
+            return res.error("Username already exists.", "USERNAME_EXISTS", 400);
         }
 
         const emailExists = await sql.query`
             SELECT * FROM UsersNotDeleted WHERE Email = ${email};
         `;
         if (emailExists.recordset.length > 0) {
-            return res.status(400).json({ error: "Email already exists." });
+            return res.error("Email already exists.", "EMAIL_EXISTS", 400);
         }
 
         const PasswordHash = await bcrypt.hash(password, 10);
@@ -251,7 +251,7 @@ app.post("/register", async (req, res) => {
         `;
         userId = result.recordset.shift().UserID; // Get the inserted UserID
     } catch (err) {
-        return res.status(500).json({ error: "Database error", details: err });
+        return res.error("Database error", "DATABASE_ERROR", 500, err.message);
     } finally {
         await sql.close();
     }
@@ -274,10 +274,14 @@ app.post("/register", async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.status(200).json({
-        message: `User ${username} registered successfully as ${userRole}.`,
-        timestamp: new Date().toISOString(),
-    });
+    return res.success(
+        {
+            userId,
+            username,
+            userRole
+        },
+        `User ${username} registered successfully as ${userRole}.`
+    );
 });
 
 app.post("/refresh-token", async (req, res) => {
@@ -285,7 +289,7 @@ app.post("/refresh-token", async (req, res) => {
     const lastAccessToken = req.cookies.accessToken;
 
     if (!refreshToken || !lastAccessToken) {
-        return res.status(401).json({ error: "Both refresh token and last access token are required." });
+        return res.error("Both refresh token and last access token are required.", "TOKENS_REQUIRED", 401);
     }
 
     try {
@@ -294,7 +298,7 @@ app.post("/refresh-token", async (req, res) => {
         try {
             lastAccessDecoded = jwt.verify(lastAccessToken, process.env.JWT_SECRET, { ignoreExpiration: true });
         } catch (err) {
-            return res.status(401).json({ error: "Invalid access token format." });
+            return res.error("Invalid access token format.", "INVALID_TOKEN_FORMAT", 401);
         }
 
         await sql.connect(dbConfig);
@@ -302,7 +306,7 @@ app.post("/refresh-token", async (req, res) => {
 
         // Verify that the tokens belong to the same user
         if (lastAccessDecoded.userId !== decoded.userId) {
-            return res.status(401).json({ error: "Token mismatch." });
+            return res.error("Token mismatch.", "TOKEN_MISMATCH", 401);
         }
 
         const userRecord = await sql.query`
@@ -312,10 +316,10 @@ app.post("/refresh-token", async (req, res) => {
         `;
 
         if (userRecord.recordset.length === 0) {
-            return res.status(404).json({ error: "User not found." });
+            return res.error("User not found.", "USER_NOT_FOUND", 404);
         }
 
-        userFields = userRecord.recordset.shift();
+        const userFields = userRecord.recordset.shift();
         const user = { username: userFields.Username, userId: userFields.UserID, userRole: userFields.UserRole };
         const accessToken = generateAccessToken(user);
         const newRefreshToken = generateRefreshToken(user);
@@ -334,9 +338,16 @@ app.post("/refresh-token", async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 
-        res.json({ message: "Token refreshed successfully." });
+        return res.success(
+            {
+                userId: user.userId,
+                username: user.username,
+                userRole: user.userRole
+            },
+            "Token refreshed successfully."
+        );
     } catch (error) {
-        res.status(401).json({ error: error.message });
+        return res.error(error.message, "REFRESH_TOKEN_ERROR", 401);
     } finally {
         await sql.close();
     }
@@ -357,20 +368,20 @@ app.post("/logout", async (req, res) => {
     }
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
-    res.status(200).json({ message: "User successfully logged out." });
+    return res.success(null, "User successfully logged out.");
 });
 
 app.delete("/delete-account", async (req, res) => {
     const token = req.cookies.accessToken;
     if (!token) {
-        return res.status(401).json({ error: "Authentication token required." });
+        return res.error("Authentication token required.", "TOKEN_REQUIRED", 401);
     }
 
     let decoded;
     try {
         decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: "1h" });
     } catch (err) {
-        return res.status(401).json({ error: "Invalid or expired token." });
+        return res.error("Invalid or expired token.", "INVALID_TOKEN", 401);
     }
 
     const userId = decoded.userId;
@@ -381,28 +392,42 @@ app.delete("/delete-account", async (req, res) => {
             UPDATE Users SET DeletedAt = GETDATE() WHERE UserID = ${userId} AND DeletedAt IS NULL;
         `;
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ error: "User not found or already deleted." });
+            return res.error("User not found or already deleted.", "USER_NOT_FOUND", 404);
         }
 
         // Delete refresh token from Redis
         let redis = await getRedis();
         await redis.del(`refresh_token:${userId}`);
     } catch (err) {
-        return res.status(500).json({ error: "Database error", details: err });
+        return res.error("Database error", "DATABASE_ERROR", 500, err.message);
     } finally {
         await sql.close();
     }
 
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
-    res.status(200).json({ message: "Account deleted successfully." });
+    return res.success(null, "Account deleted successfully.");
 });
 
 app.get("/me", (req, res) => {
-    res.json({
-        message: "Get current user endpoint",
-        timestamp: new Date().toISOString(),
-    });
+    const token = req.cookies.accessToken;
+    if (!token) {
+        return res.error("Authentication token required.", "TOKEN_REQUIRED", 401);
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        return res.success(
+            {
+                userId: decoded.userId,
+                username: decoded.username,
+                userRole: decoded.userRole
+            },
+            "User information retrieved successfully"
+        );
+    } catch (err) {
+        return res.error("Invalid or expired token.", "INVALID_TOKEN", 401);
+    }
 });
 
 // Password reset request endpoint
@@ -410,7 +435,7 @@ app.post("/request-password-reset", async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-        return res.status(400).json({ error: "Email is required." });
+        return res.error("Email is required.", "EMAIL_REQUIRED", 400);
     }
 
     try {
@@ -423,9 +448,7 @@ app.post("/request-password-reset", async (req, res) => {
 
         if (userResult.recordset.length === 0) {
             // Return success even if email doesn't exist to prevent email enumeration
-            return res.status(200).json({
-                message: "If your email is registered, you will receive reset instructions.",
-            });
+            return res.success(null, "If your email is registered, you will receive reset instructions.");
         }
 
         const resetToken = generateResetToken();
@@ -433,11 +456,9 @@ app.post("/request-password-reset", async (req, res) => {
 
         await sendResetEmail(email, resetToken);
 
-        res.status(200).json({
-            message: "If your email is registered, you will receive reset instructions.",
-        });
+        return res.success(null, "If your email is registered, you will receive reset instructions.");
     } catch (err) {
-        res.status(500).json({ error: "Failed to process password reset request." });
+        return res.error("Failed to process password reset request.", "RESET_REQUEST_FAILED", 500);
     } finally {
         await sql.close();
     }
@@ -448,14 +469,14 @@ app.post("/reset-password", async (req, res) => {
     const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
-        return res.status(400).json({ error: "Token and new password are required." });
+        return res.error("Token and new password are required.", "TOKEN_AND_PASSWORD_REQUIRED", 400);
     }
 
     try {
         let redis = await getRedis();
         const email = await redis.get(`pwreset:${token}`);
         if (!email) {
-            return res.status(401).json({ error: "Invalid or expired reset token." });
+            return res.error("Invalid or expired reset token.", "INVALID_RESET_TOKEN", 401);
         }
 
         // Delete the token immediately to prevent reuse
@@ -475,7 +496,7 @@ app.post("/reset-password", async (req, res) => {
         `;
 
         if (result.rowsAffected[0] === 0) {
-            return res.status(404).json({ error: "User not found." });
+            return res.error("User not found.", "USER_NOT_FOUND", 404);
         }
 
         // Invalidate all refresh tokens for this user for security
@@ -487,11 +508,9 @@ app.post("/reset-password", async (req, res) => {
             await redis.del(`refresh_token:${userResult.recordset[0].UserID}`);
         }
 
-        res.status(200).json({
-            message: "Password has been reset successfully.",
-        });
+        return res.success(null, "Password has been reset successfully.");
     } catch (err) {
-        res.status(500).json({ error: "Failed to reset password." });
+        return res.error("Failed to reset password.", "RESET_PASSWORD_FAILED", 500);
     } finally {
         await sql.close();
     }

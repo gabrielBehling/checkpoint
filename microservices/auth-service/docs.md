@@ -1,11 +1,80 @@
+# 🔐 API de Autenticação - Checkpoint
+
 ## Base URL
 ```
 http://checkpoint.localhost/api/auth
 ```
 
+## 📋 Formato de Resposta Padronizado
+
+A API utiliza um formato padronizado para todas as respostas:
+
+### Resposta de Sucesso
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { /* dados específicos */ },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+### Resposta de Erro
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "error": "ERROR_CODE",
+  "details": { /* detalhes adicionais (opcional) */ },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Códigos de Erro Comuns:**
+- `VALIDATION_ERROR` - Erro de validação de dados
+- `INVALID_CREDENTIALS` - Email ou senha inválidos
+- `INVALID_TOKEN` - Token inválido ou expirado
+- `TOKEN_REQUIRED` - Token de autenticação necessário
+- `TOKEN_MISMATCH` - Tokens não correspondem
+- `INVALID_TOKEN_FORMAT` - Formato de token inválido
+- `REFRESH_TOKEN_ERROR` - Erro ao renovar token
+- `USERNAME_EXISTS` - Nome de usuário já existe
+- `EMAIL_EXISTS` - Email já existe
+- `USER_NOT_FOUND` - Usuário não encontrado
+- `ADMIN_TOKEN_REQUIRED` - Token de administrador necessário para criar conta de admin
+- `UNAUTHORIZED` - Sem permissão para a operação
+- `EMAIL_REQUIRED` - Email é obrigatório
+- `TOKEN_AND_PASSWORD_REQUIRED` - Token e nova senha são obrigatórios
+- `INVALID_RESET_TOKEN` - Token de reset inválido ou expirado
+- `RESET_REQUEST_FAILED` - Falha ao processar solicitação de reset
+- `RESET_PASSWORD_FAILED` - Falha ao resetar senha
+- `DATABASE_ERROR` - Erro no banco de dados
+- `INTERNAL_ERROR` - Erro interno do servidor
+
+---
+
 ## 🔐 Endpoints de Autenticação
 
-### 1. Login
+### 1. Health Check
+**GET** `/health`
+
+Verifica o status do serviço.
+
+**Resposta de Sucesso:**
+```json
+{
+  "success": true,
+  "message": "Service is healthy",
+  "data": {
+    "status": "OK"
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+---
+
+### 2. Login
 **POST** `/login`
 
 Autentica um usuário e retorna tokens de acesso.
@@ -18,10 +87,16 @@ Autentica um usuário e retorna tokens de acesso.
 }
 ```
 
-**Resposta**:
+**Resposta de Sucesso:**
 ```json
 {
+  "success": true,
   "message": "Logged in successfully as username.",
+  "data": {
+    "userId": 123,
+    "username": "usuario",
+    "userRole": "Player"
+  },
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
@@ -30,9 +105,23 @@ Autentica um usuário e retorna tokens de acesso.
 - `accessToken`: JWT válido por 1 hora
 - `refreshToken`: JWT válido por 7 dias
 
+**Status Codes:**
+- `200`: Login bem-sucedido
+- `401`: Credenciais inválidas ou erro de validação
+
+**Resposta de Erro:**
+```json
+{
+  "success": false,
+  "message": "Invalid email or password.",
+  "error": "INVALID_CREDENTIALS",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
 ---
 
-### 2. Registro
+### 3. Registro
 **POST** `/register`
 
 Cria uma nova conta de usuário.
@@ -49,17 +138,54 @@ Cria uma nova conta de usuário.
 
 **Roles Disponíveis**: `Visitor`, `Player`, `Organizer`, `Administrator`
 
-**Resposta**:
+**Nota**: Para criar uma conta com role `Administrator`, é necessário enviar um token de administrador válido no cookie `token`.
+
+**Resposta de Sucesso:**
 ```json
 {
+  "success": true,
   "message": "User novousuario registered successfully as Player.",
+  "data": {
+    "userId": 456,
+    "username": "novousuario",
+    "userRole": "Player"
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Cookies Set**:
+- `accessToken`: JWT válido por 1 hora
+- `refreshToken`: JWT válido por 7 dias
+
+**Status Codes:**
+- `200`: Registro bem-sucedido
+- `400`: Dados inválidos, username ou email já existente
+- `401`: Erro de validação, token inválido ou sem permissão
+
+**Resposta de Erro (Username Existente):**
+```json
+{
+  "success": false,
+  "message": "Username already exists.",
+  "error": "USERNAME_EXISTS",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (Email Existente):**
+```json
+{
+  "success": false,
+  "message": "Email already exists.",
+  "error": "EMAIL_EXISTS",
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
 ---
 
-### 3. Refresh Token
+### 4. Refresh Token
 **POST** `/refresh-token`
 
 Renova os tokens de acesso usando o refresh token.
@@ -68,52 +194,153 @@ Renova os tokens de acesso usando o refresh token.
 - `refreshToken`
 - `accessToken` (último token expirado)
 
-**Resposta**:
+**Resposta de Sucesso:**
 ```json
 {
-  "message": "Token refreshed successfully."
+  "success": true,
+  "message": "Token refreshed successfully.",
+  "data": {
+    "userId": 123,
+    "username": "usuario",
+    "userRole": "Player"
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Cookies Updated**:
+- `accessToken`: Novo JWT válido por 1 hora
+- `refreshToken`: Novo JWT válido por 7 dias
+
+**Status Codes:**
+- `200`: Tokens renovados com sucesso
+- `401`: Tokens inválidos, ausentes ou não correspondem
+
+**Resposta de Erro:**
+```json
+{
+  "success": false,
+  "message": "Invalid refresh token",
+  "error": "REFRESH_TOKEN_ERROR",
+  "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
 ---
 
-### 4. Logout
+### 5. Logout
 **POST** `/logout`
 
 Realiza logout do usuário, invalidando os tokens.
 
-**Resposta**:
+**Cookies Opcionais**:
+- `refreshToken` (se presente, será removido do Redis)
+
+**Resposta de Sucesso:**
 ```json
 {
-  "message": "User successfully logged out."
+  "success": true,
+  "message": "User successfully logged out.",
+  "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
+**Cookies Cleared**:
+- `accessToken`
+- `refreshToken`
+
+**Status Codes:**
+- `200`: Logout bem-sucedido
+
 ---
 
-### 5. Deletar Conta
+### 6. Deletar Conta
 **DELETE** `/delete-account`
 
-Remove permanentemente a conta do usuário.
+Remove permanentemente a conta do usuário (soft delete).
 
 **Headers**:
 ```
 Cookie: accessToken=<token>
 ```
 
-**Resposta**:
+**Resposta de Sucesso:**
 ```json
 {
-  "message": "Account deleted successfully."
+  "success": true,
+  "message": "Account deleted successfully.",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Cookies Cleared**:
+- `accessToken`
+- `refreshToken`
+
+**Status Codes:**
+- `200`: Conta deletada com sucesso
+- `401`: Token inválido ou ausente
+- `404`: Usuário não encontrado ou já deletado
+- `500`: Erro no banco de dados
+
+**Resposta de Erro:**
+```json
+{
+  "success": false,
+  "message": "User not found or already deleted.",
+  "error": "USER_NOT_FOUND",
+  "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
 ---
 
-### 6. Recuperação de Senha
+### 7. Obter Informações do Usuário Atual
+**GET** `/me`
 
-#### Solicitar Reset
+Retorna informações do usuário autenticado baseado no token.
+
+**Headers**:
+```
+Cookie: accessToken=<token>
+```
+
+**Resposta de Sucesso:**
+```json
+{
+  "success": true,
+  "message": "User information retrieved successfully",
+  "data": {
+    "userId": 123,
+    "username": "usuario",
+    "userRole": "Player"
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Status Codes:**
+- `200`: Informações retornadas com sucesso
+- `401`: Token inválido ou ausente
+
+**Resposta de Erro:**
+```json
+{
+  "success": false,
+  "message": "Authentication token required.",
+  "error": "TOKEN_REQUIRED",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+---
+
+### 8. Recuperação de Senha
+
+#### 8.1 Solicitar Reset
 **POST** `/request-password-reset`
+
+Envia um email com link para resetar a senha.
 
 **Body**:
 ```json
@@ -122,15 +349,36 @@ Cookie: accessToken=<token>
 }
 ```
 
-**Resposta**:
+**Resposta de Sucesso:**
 ```json
 {
-  "message": "If your email is registered, you will receive reset instructions."
+  "success": true,
+  "message": "If your email is registered, you will receive reset instructions.",
+  "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
-#### Resetar Senha
+**Nota**: A resposta sempre retorna sucesso, mesmo se o email não existir, para prevenir enumeração de emails.
+
+**Status Codes:**
+- `200`: Solicitação processada (sempre retorna sucesso)
+- `400`: Email não fornecido
+- `500`: Erro ao processar solicitação
+
+**Resposta de Erro:**
+```json
+{
+  "success": false,
+  "message": "Email is required.",
+  "error": "EMAIL_REQUIRED",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 8.2 Resetar Senha
 **POST** `/reset-password`
+
+Reseta a senha usando o token recebido por email.
 
 **Body**:
 ```json
@@ -140,22 +388,62 @@ Cookie: accessToken=<token>
 }
 ```
 
-**Resposta**:
+**Resposta de Sucesso:**
 ```json
 {
-  "message": "Password has been reset successfully."
+  "success": true,
+  "message": "Password has been reset successfully.",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Nota**: Após o reset bem-sucedido, todos os refresh tokens do usuário são invalidados por segurança.
+
+**Status Codes:**
+- `200`: Senha resetada com sucesso
+- `400`: Token ou nova senha não fornecidos
+- `401`: Token de reset inválido ou expirado
+- `404`: Usuário não encontrado
+- `500`: Erro ao resetar senha
+
+**Resposta de Erro (Token Inválido):**
+```json
+{
+  "success": false,
+  "message": "Invalid or expired reset token.",
+  "error": "INVALID_RESET_TOKEN",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (Campos Obrigatórios):**
+```json
+{
+  "success": false,
+  "message": "Token and new password are required.",
+  "error": "TOKEN_AND_PASSWORD_REQUIRED",
+  "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
 ---
 
-### 7. Health Check
-**GET** `/health`
+## 🚨 Tratamento de Erros
 
-**Resposta**:
+### Códigos de Status HTTP
+- `200`: Sucesso
+- `400`: Dados inválidos ou validação falhou
+- `401`: Token inválido, não fornecido ou credenciais inválidas
+- `404`: Recurso não encontrado
+- `500`: Erro interno do servidor
+
+### Exemplo de Resposta de Erro com Detalhes:
 ```json
 {
-  "status": "OK",
+  "success": false,
+  "message": "Database error",
+  "error": "DATABASE_ERROR",
+  "details": "Connection timeout",
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
@@ -168,13 +456,100 @@ Cookie: accessToken=<token>
 - **Access Token**: 1 hora de validade
 - **Refresh Token**: 7 dias de validade
 - **Algoritmo**: HS256
+- **Armazenamento**: Cookies HTTP-only e Secure
 
 ### Hash de Senhas
 - **Biblioteca**: bcrypt
 - **Salt Rounds**: 10
+
+### Reset de Senha
+- **Validade do Token**: 15 minutos
+- **Uso Único**: Token é deletado após uso
+- **Segurança**: Todos os refresh tokens são invalidados após reset
 
 ### Proteções
 - Rate limiting no Nginx
 - Tokens armazenados em Redis
 - Validação de entrada com Yup
 - Cookies HTTP-only e Secure
+- Prevenção de enumeração de emails no reset de senha
+
+---
+
+## 📊 Exemplos de Uso
+
+### Login
+```bash
+curl -X POST http://checkpoint.localhost/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "usuario@email.com",
+    "password": "senha123"
+  }'
+```
+
+### Registro
+```bash
+curl -X POST http://checkpoint.localhost/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "novousuario",
+    "email": "novo@email.com",
+    "password": "senha123",
+    "userRole": "Player"
+  }'
+```
+
+### Refresh Token
+```bash
+curl -X POST http://checkpoint.localhost/api/auth/refresh-token \
+  -H "Cookie: accessToken=old_token; refreshToken=refresh_token"
+```
+
+### Obter Informações do Usuário
+```bash
+curl http://checkpoint.localhost/api/auth/me \
+  -H "Cookie: accessToken=your_token"
+```
+
+### Solicitar Reset de Senha
+```bash
+curl -X POST http://checkpoint.localhost/api/auth/request-password-reset \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "usuario@email.com"
+  }'
+```
+
+### Resetar Senha
+```bash
+curl -X POST http://checkpoint.localhost/api/auth/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "token_recebido_no_email",
+    "newPassword": "nova_senha_segura"
+  }'
+```
+
+### Logout
+```bash
+curl -X POST http://checkpoint.localhost/api/auth/logout \
+  -H "Cookie: refreshToken=your_refresh_token"
+```
+
+---
+
+## 📝 Notas Importantes
+
+1. **Cookies**: Os tokens são automaticamente gerenciados via cookies HTTP-only, o que oferece maior segurança contra ataques XSS.
+
+2. **Autenticação**: A maioria dos endpoints requer autenticação via cookie `accessToken`. O endpoint `/me` também requer autenticação.
+
+3. **Refresh Token**: O refresh token deve ser usado antes do access token expirar. Após a expiração, é necessário fazer login novamente.
+
+4. **Reset de Senha**: O token de reset é enviado por email e expira em 15 minutos. Após o uso, o token é invalidado.
+
+5. **Roles de Administrador**: Apenas usuários com role `Administrator` podem criar novas contas de administrador.
+
+6. **Timestamp**: Todas as respostas incluem um campo `timestamp` com a data/hora da resposta em formato ISO 8601.
+
