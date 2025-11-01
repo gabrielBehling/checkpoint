@@ -52,10 +52,21 @@ app.get('/', (req, res) => {
   res.render('index.html');
 });
 
+// FRONT: A rota de upload precisa ser adaptada para 'teamId'
+
 app.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
-  const { author, type } = req.body;
+  const { author, type, teamId } = req.body; // <-- ALTERAÇÃO: Receber teamId
+  if (!teamId) {
+    return res.status(400).json({ error: 'TeamId é obrigatório' });
+  }
+
   const fileUrl = `/uploads/${req.file.filename}`;
-  const message = new Message({ author, type, fileUrl });
+  const message = new Message({
+    author,
+    type,
+    fileUrl,
+    teamId: teamId // Salvar teamId
+  });
 
   const fs = require('fs');
 
@@ -72,7 +83,7 @@ app.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   });
 
   await message.save();
-  io.emit('receivedMessage', message);
+  io.to(teamId).emit('receivedMessage', message); // <-- ALTERAÇÃO: Emitir apenas para a sala
   res.json({ success: true });
 });
 
@@ -95,8 +106,8 @@ io.on('connection', socket => {
       }
     }
     return "";
-    
   }
+
   let user;
   try {
     user = jwt.verify(getCookie('accessToken'), process.env.JWT_SECRET, { maxAge: "1h" });
@@ -108,22 +119,47 @@ io.on('connection', socket => {
     console.log(err)
     return socket.disconnect();
   }
+
+  // <-- ALTERAÇÃO 1: Adicionar evento para entrar na sala -->
+  socket.on('joinTeam', (teamId) => {
+    if (teamId) {
+      socket.join(teamId);
+      console.log(`Usuário ${user.username} (ID: ${socket.id}) entrou na sala ${teamId}`);
+    }
+  });
+
+  // <-- ALTERAÇÃO 2: Modificar evento de enviar mensagem -->
   socket.on('sendMessage', async data => {
+    // 'data' agora deve ser { message: "...", teamId: "..." }
+    if (!data.teamId || !data.message) {
+      console.log('Mensagem ou teamId faltando');
+      return;
+    }
+
     const message = new Message({
       author: user.username,
       message: data.message,
-      type: 'text'
+      type: 'text',
+      teamId: data.teamId // <-- Salvar o teamId
     });
 
     await message.save();
-    io.emit('receivedMessage', message);
+
+    //  Emitir apenas para a sala correta 
+    io.to(data.teamId).emit('receivedMessage', message);
   });
 });
 
-// Rota para buscar as mesagens antigas do mongo
-app.get('/messages', async (req, res) => {
+// Rota para buscar mensagens por equipe 
+app.get('/messages/:teamId', async (req, res) => {
   try {
-    const messages = await Message.find().sort({ timestamp: 1 });
+    const { teamId } = req.params;
+    if (!teamId) {
+      return res.status(400).json({ error: 'TeamId é obrigatório' });
+    }
+
+    //  Filtrar mensagens pelo id do time 
+    const messages = await Message.find({ teamId: teamId }).sort({ timestamp: 1 });
     res.json(messages);
   } catch (err) {
     console.log('Erro ao buscar mensagens:', err);
@@ -137,14 +173,9 @@ server.listen(PORT, () => console.log(` Chat rodando na porta ${PORT}`));
 
 
 // app.get('/', (req, res) => {
-//     res.json({
-//         status: 'OK',
-//         message: 'Chat Service is running'
-//     });
+//     res.json({
+//         status: 'OK',
+//         message: 'Chat Service is running'
+//     });
 // });
-
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//     console.log(`Chat Service is running on port ${PORT}`);
-// });
-
+// ...
