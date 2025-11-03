@@ -14,6 +14,7 @@ const EventoInfo = React.lazy(() => import("./pages/EventoInfo"));
 const InscricaoEvento = React.lazy(() => import("./pages/InscricaoEvento"));
 const CriarTime = React.lazy(() => import("./pages/CriarTime"));
 const EditarEvento = React.lazy(() => import("./pages/EditarEvento.jsx"))
+const About_Us = React.lazy(() => import("./pages/About_Us.jsx"))
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/evento/:eventId/inscricao" element={<InscricaoEvento />} />
             <Route path="/evento/:eventId/criarTime" element={<CriarTime />} />
             <Route path="/evento/:eventId/editarevento" element={<EditarEvento />} />
+            <Route path="/" element={<About_Us/>} />
 
           </Route>
         </Routes>
