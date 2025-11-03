@@ -15,13 +15,14 @@ const InscricaoEvento = React.lazy(() => import("./pages/InscricaoEvento"));
 const CriarTime = React.lazy(() => import("./pages/CriarTime"));
 const EditarEvento = React.lazy(() => import("./pages/EditarEvento"))
 const NotFound = React.lazy(() => import("./pages/NotFound"));
-
+const About_Us = React.lazy(() => import("./pages/About_Us.jsx"))
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
       <Suspense fallback={<div>Carregando...</div>}>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/aboutUs" element={<About_Us/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
 
@@ -35,7 +36,6 @@ createRoot(document.getElementById("root")).render(
             <Route path="/evento/:eventId/inscricao" element={<InscricaoEvento />} />
             <Route path="/evento/:eventId/criarTime" element={<CriarTime />} />
             <Route path="/evento/:eventId/editarEvento" element={<EditarEvento />} />
-
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
