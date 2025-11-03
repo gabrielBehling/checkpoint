@@ -1,14 +1,21 @@
 /*
  * ===================================
- * ARQUIVO: style-404.css (CORRIGIDO)
+ * ARQUIVO: style-404.css (CORRIGIDO E CENTRALIZADO)
  * ===================================
- * Este CSS agora segue os padrões do seu style-login.css
  */
 
-/*
- * 1. O container de erro.
- * Copiando estilos exatos de .form-auth para consistência.
- */
+/* ===== BODY CENTRALIZADO ===== */
+body {
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center;     /* Centraliza verticalmente */
+    height: 100vh;           /* Ocupa a altura total da tela */
+    margin: 0;
+    background: #100C1F;     /* Cor de fundo consistente com seu tema */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== CONTAINER DE ERRO ===== */
 .error-container {
     background: transparent;
     text-align: center;
@@ -22,15 +29,7 @@
     box-shadow: 0 0 50px rgba(74, 144, 226, 0.1); 
 }
 
-/* * 2. O .logo-auth
- * (Já deve funcionar pelo seu CSS principal se você o incluiu no HTML)
- */
-
-
-/*
- * 3. O código de erro "404".
- * Usando a cor de destaque principal.
- */
+/* ===== CÓDIGO DE ERRO 404 ===== */
 .error-code {
     font-size: 150px;
     font-weight: 900;
@@ -40,23 +39,17 @@
     text-shadow: 0 0 15px rgba(74, 144, 226, 0.3);
 }
 
-/*
- * 4. O Título (H1) - CORRIGIDO
- * Este seletor agora aplica os mesmos estilos de .form-auth h1
- */
+/* ===== TÍTULO H1 ===== */
 .error-container h1 {
     font-size: 32px;
     margin-bottom: 30px;
     color: #4A90E2; /* Cor azul vibrante */
     letter-spacing: 5px;
-    font-weight: lighter; /* Fonte fina (como no login) */
+    font-weight: lighter;
     text-transform: uppercase;
 }
 
-/*
- * 5. A mensagem de parágrafo.
- * Usando a cor de texto padrão (baseado no .logo-auth .text).
- */
+/* ===== MENSAGEM DE PARÁGRAFO ===== */
 .error-message {
     font-size: 18px;
     color: #f0f0f0; 
@@ -65,19 +58,16 @@
     line-height: 1.6;
 }
 
-/*
- * 6. O link de "Voltar" - CORRIGIDO
- * Este seletor agora aplica os mesmos estilos de .form-auth ... a
- */
+/* ===== LINK DE VOLTAR ===== */
 .error-link a {
-    color: #4A90E2; /* Link em azul vibrante */
+    color: #4A90E2;
     text-decoration: none;
     font-weight: bold;
-    font-size: 16px; /* Tamanho consistente */
+    font-size: 16px;
     transition: text-shadow 0.2s ease, text-decoration 0.2s ease;
 }
 
 .error-link a:hover {
-    text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); /* Efeito de brilho */
-    text-decoration: underline; /* Feedback de hover padrão */
+    text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+    text-decoration: underline;
 }
