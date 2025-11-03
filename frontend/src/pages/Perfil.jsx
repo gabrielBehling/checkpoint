@@ -3,103 +3,204 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import "../assets/css/style-perfil.css";
 
-
 export default function PerfilPage() {
-    const [userData, setUserData] = useState({
-        Username: "",
-        Email: "",
-        UserRole: ""
-    });
+  const [userData, setUserData] = useState({
+    Username: "",
+    Email: "",
+    UserRole: "",
+    participacoes: [],
+    profileImage: null,
+    bannerImage: null, // imagem do banner
+  });
 
-    // Simulating API call to get user data
-    useEffect(() => {
-        // This should be replaced with your actual API endpoint
-        api.get("/auth/me/")
-            .then(response => {
-                setUserData(response.data);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [previewBanner, setPreviewBanner] = useState(null);
 
-            })
-            .catch(error => {
-                console.error("Erro ao buscar dados do usuário:", error);
-            });
+  useEffect(() => {
+    api
+      .get("/auth/me/")
+      .then((response) => {
+        setUserData(response.data);
+        if (response.data.profileImage) setPreviewImage(response.data.profileImage);
+        if (response.data.bannerImage) setPreviewBanner(response.data.bannerImage);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar dados do usuário:", error);
+      });
+  }, []);
 
-        // // For development/testing purposes, you can use this mock data:
-        // setUserData({
-        //     nome: "João Silva",
-        //     email: "joao@email.com",
-        //     campeonatos: [
-        //         { nome: "LoL Nordeste", data: "10/08/2025" },
-        //         { nome: "Valorant Nordeste", data: "14/08/2025" },
-        //         { nome: "FIFA 23 Legends", data: "20/08/2025" }
-        //     ]
-        // });
-    }, []);
+  // ====== TROCA FOTO DE PERFIL ======
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImage(previewUrl);
 
-    return (
-        <div>
-            <header>
-                <div className="logo">
-                    <a href="index.html">Logo</a>
-                </div>
-                <nav>
+      const formData = new FormData();
+      formData.append("profileImage", file);
 
-                    <a href="#">Eventos</a>
-                    <a href="#">Jogos</a>
-                </nav>
-            </header>
+      api
+        .post("/auth/upload-profile-image/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((res) => {
+          setUserData((prev) => ({ ...prev, profileImage: res.data.imageUrl }));
+        })
+        .catch((err) => {
+          console.error("Erro ao enviar imagem de perfil:", err);
+        });
+    }
+  };
 
-            {/* ====== BANNER PERFIL ====== */}
-            <section className="perfil-banner">
-                <div className="background-img">
-                    <div className="perfil-info">
-                        <div className="foto-perfil"></div>
-                        <div className="status">
-                            <span className="dot"></span> status: online, offline
-                        </div>
-                        <div className="perfil-buttons">
-                            <button>Nome usuário</button>
-                            <Link to="/" className="btn">Histórico</Link>
-                            <Link to="/chat"><button type="submit" className="btn">Chat</button></Link>
-                        </div>
-                    </div>
-                </div>  
-            </section>
+  // ====== TROCA BANNER ======
+  const handleBannerChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewBanner(previewUrl);
 
-            {/* ====== CONTEÚDO PRINCIPAL ====== */}
-            <main>
-                <aside className="info-box">
-                    <h3>Informações:</h3>
-                    <p><strong>Nome:</strong> {userData.Username}</p>
-                    <p><strong>E-mail:</strong> {userData.Email}</p>
-                    <p><strong>Tipo da conta:</strong> {userData.UserRole}</p>
-                    <button className="secondary">Trocar tipo da conta</button>
+      const formData = new FormData();
+      formData.append("bannerImage", file);
 
-                    <h3>Configurações</h3>
-                    <p><strong>Idioma:</strong> Português BR</p>
-                    <p><strong>Notificações:</strong> ativadas</p>
-                    <button className="secondary">Trocar notificações</button>
+      api
+        .post("/auth/upload-banner-image/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((res) => {
+          setUserData((prev) => ({ ...prev, bannerImage: res.data.bannerUrl }));
+        })
+        .catch((err) => {
+          console.error("Erro ao enviar banner:", err);
+        });
+    }
+  };
 
-                    <div className="danger"> <Link to="/logout">Sair</Link></div>
-
-                </aside>
-
-                <section className="participacoes">
-                    <h3>Participações recentes.</h3>
-                    <div className="grid">
-                        <div className="card"></div>
-                        <div className="card"></div>
-                        <div className="card"></div>
-                        <div className="card"></div>
-                    </div>
-                </section>
-            </main>
-
-            {/* ====== FOOTER ====== */}
-            <footer>
-                <a href="#">Ajuda</a>
-                <a href="#">Contato</a>
-                <a href="#">Sobre-Nós</a>
-            </footer>
+  return (
+    <div className="perfil-container">
+      <header>
+        <div className="logo">
+          <a href="/">Logo</a>
         </div>
-    );
+        <nav>
+          <a href="#">Eventos</a>
+          <a href="#">Jogos</a>
+        </nav>
+      </header>
+
+      {/* ====== BANNER PERFIL ====== */}
+      <section className="perfil-banner">
+        <div
+          className="background-img"
+          style={{
+            backgroundImage: previewBanner
+              ? `url(${previewBanner})`
+              : "linear-gradient(135deg, #241D3B, #100C1F)",
+          }}
+        >
+          {/* Botão para alterar banner */}
+          <label htmlFor="upload-banner" className="edit-banner-btn">
+            Alterar Banner
+            <input
+              id="upload-banner"
+              type="file"
+              accept="image/*"
+              onChange={handleBannerChange}
+              style={{ display: "none" }}
+            />
+          </label>
+
+          <div className="perfil-info">
+            <label htmlFor="upload-image" className="foto-perfil">
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  alt="Foto de perfil"
+                  className="perfil-img"
+                />
+              ) : (
+                <span>+</span>
+              )}
+              <input
+                id="upload-image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+              />
+            </label>
+
+            <div className="status">
+              <span className="dot"></span> status: online
+            </div>
+
+            <div className="perfil-buttons">
+              <button>{userData.Username || "Usuário"}</button>
+              <Link to="/" className="btn">
+                Histórico
+              </Link>
+              <Link to="/chat">
+                <button type="submit" className="btn">
+                  Chat
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====== CONTEÚDO PRINCIPAL ====== */}
+      <main>
+        <aside className="info-box">
+          <h3>Informações:</h3>
+          <p>
+            <strong>Nome:</strong> {userData.Username}
+          </p>
+          <p>
+            <strong>E-mail:</strong> {userData.Email}
+          </p>
+          <p>
+            <strong>Tipo da conta:</strong> {userData.UserRole}
+          </p>
+          <button className="secondary">Trocar tipo da conta</button>
+
+          <h3>Configurações</h3>
+          <p>
+            <strong>Idioma:</strong> Português BR
+          </p>
+          <p>
+            <strong>Notificações:</strong> ativadas
+          </p>
+          <button className="secondary">Trocar notificações</button>
+
+          <div className="danger">
+            <Link to="/logout">Sair</Link>
+          </div>
+        </aside>
+
+        <section className="participacoes">
+          <h3>Participações recentes</h3>
+          {userData.participacoes?.length > 0 ? (
+            <div className="grid">
+              {userData.participacoes.map((evento, index) => (
+                <div className="card" key={index}>
+                  <h4>{evento.nome}</h4>
+                  <p>{evento.data}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="sem-participacoes">
+              <p>Você ainda não participou de nenhum evento.</p>
+            </div>
+          )}
+        </section>
+      </main>
+
+      <footer>
+        <a href="#">Ajuda</a>
+        <a href="#">Contato</a>
+        <a href="#">Sobre Nós</a>
+      </footer>
+    </div>
+  );
 }

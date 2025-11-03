@@ -4,7 +4,6 @@ import "./assets/css/App.css";
 import api from "./pages/api";
 import { useAuth } from "./contexts/AuthContext";
 
-
 // Imagem padrão
 import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png"; 
 
@@ -18,7 +17,6 @@ function App() {
     const [error, setError] = useState(null);
     const { user, logout } = useAuth();
 
-    // 🔧 Corrigido: aplica imagem padrão se não tiver URL
     const fetchCarouselData = async () => {
         setLoading(true);
         setError(null);
@@ -49,7 +47,6 @@ function App() {
     };
 
     useEffect(() => {
-        // Aplica estilos globais no body
         document.body.style.overflowX = "auto";
         document.body.style.overflowY = "auto";
         document.body.style.minHeight = "100vh";
@@ -91,7 +88,6 @@ function App() {
         return classes;
     };
     
-
     return (
         <>
             <header>
@@ -110,7 +106,6 @@ function App() {
                             <>
                                 <li><Link to="/chat">Chat</Link></li>
                                 <li><Link to="/cadastroEvento">Cadastro Evento</Link></li>
-                                <li><Link to="/perfil">Perfil</Link></li>
                                 <li>
                                     <button onClick={logout} className="logout-btn">
                                         Logout
@@ -118,7 +113,7 @@ function App() {
                                 </li>
                                 <li>
                                     <span className="user-welcome">
-                                        Olá, {user.Username}
+                                        <li><a href="/perfil">Olá, {user.Username}</a></li>
                                     </span>
                                 </li>
                             </>
@@ -163,14 +158,17 @@ function App() {
                     <button id="next" onClick={nextSlide}>▶</button>
                 </div>
                 
-                <div className="cta">
-                    <p>
-                        Cadastre-se e aproveite benefícios exclusivos!<br />
-                        Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.<br />
-                        É rápido, gratuito e feito pra você!
-                    </p>
-                    <Link to="/cadastro" className="btn">Cadastre-se</Link>
-                </div>
+                {/* CTA só aparece se o usuário não estiver logado */}
+                {!user && (
+                    <div className="cta">
+                        <p>
+                            Cadastre-se e aproveite benefícios exclusivos!<br />
+                            Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.<br />
+                            É rápido, gratuito e feito pra você!
+                        </p>
+                        <Link to="/cadastro" className="btn">Cadastre-se</Link>
+                    </div>
+                )}
             </section>
 
             <section className="eventos" style={{ overflowX: "auto" }}>
