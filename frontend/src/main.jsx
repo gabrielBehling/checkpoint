@@ -16,6 +16,8 @@ const CriarTime = React.lazy(() => import("./pages/CriarTime"));
 const EditarEvento = React.lazy(() => import("./pages/EditarEvento"))
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const About_Us = React.lazy(() => import("./pages/About_Us.jsx"))
+const PesquisaEvento = React.lazy(() => import("./pages/Pesquisa.jsx"))
+
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
@@ -27,6 +29,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/cadastro" element={<Cadastro />} />
 
           <Route path="/evento/:eventId" element={<EventoInfo />} />
+          <Route path="/search" element={<PesquisaEvento />} />
 
           {/* Rotas protegidas */}
           <Route element={<ProtectedRoutes />}>

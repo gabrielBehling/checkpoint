@@ -1,0 +1,157 @@
+/* ======== CONTAINER PRINCIPAL ======== */
+.pesquisa-container {
+  background: linear-gradient(180deg, #0a0a24 0%, #141438 100%);
+  min-height: 100vh;
+  padding: 3rem 8%;
+  color: #ffffff;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ======== TÍTULO ======== */
+.pesquisa-container h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* ======== ÁREA DE FILTROS ======== */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.filtros input,
+.filtros select {
+  background-color: #1b1b3a;
+  color: #ffffff;
+  border: 1px solid #2c2c5c;
+  border-radius: 12px;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  width: 220px;
+  transition: all 0.2s ease-in-out;
+}
+
+.filtros input:focus,
+.filtros select:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #22225a;
+}
+
+.filtros button {
+  background: linear-gradient(90deg, #ff8c00 0%, #ffb347 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.filtros button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #ff9e1a 0%, #ffc866 100%);
+}
+
+/* ======== LISTA DE RESULTADOS ======== */
+.resultados {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+/* ======== CARD DO EVENTO ======== */
+.card-evento {
+  background-color: #1c1c3a;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-evento:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 20px rgba(0, 128, 255, 0.4);
+}
+
+/* ======== IMAGEM DO EVENTO ======== */
+.banner-evento {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background-color: #2a2a5a;
+}
+
+/* ======== CONTEÚDO DO CARD ======== */
+.card-evento h2 {
+  font-size: 1.1rem;
+  margin: 10px 15px 6px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.card-evento p {
+  font-size: 0.9rem;
+  margin: 4px 15px;
+  color: #cfcfea;
+}
+
+.card-evento strong {
+  color: #ffffff;
+}
+
+/* ======== BOTÃO DE DETALHES ======== */
+.card-evento button {
+  margin: 12px 15px 15px;
+  background: linear-gradient(90deg, #ff8c00 0%, #ffb347 100%);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-weight: 600;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.card-evento button:hover {
+  background: linear-gradient(90deg, #ff9e1a 0%, #ffd36b 100%);
+  transform: translateY(-2px);
+}
+
+/* ======== MENSAGENS DE ESTADO ======== */
+.erro,
+.resultados p {
+  text-align: center;
+  margin-top: 1rem;
+  color: #ff6666;
+}
+
+@media (max-width: 768px) {
+  .filtros {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filtros input,
+  .filtros select {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .resultados {
+    grid-template-columns: 1fr;
+  }
+}
