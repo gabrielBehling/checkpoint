@@ -1,0 +1,70 @@
+/*
+ * ===================================
+ * ARQUIVO: AboutUsStyle.css
+ * ===================================
+ * (Este arquivo é carregado DEPOIS do seu CSS principal)
+ */
+
+/* * O .container já define o fundo (#1C172C), padding e bordas.
+ * Só precisamos estilizar o conteúdo dentro dele.
+ */
+.about-us-content {
+    /* Centraliza o bloco de texto, bom para leitura */
+    max-width: 800px; 
+    margin: 0 auto;
+    color: #f0f0f0;
+}
+
+/*
+ * 1. Título (h1)
+ * Replicando o estilo dos seus outros títulos (login, 404)
+ */
+.about-us-content h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #4A90E2; /* Cor azul vibrante */
+    letter-spacing: 5px;
+    font-weight: lighter;
+    text-transform: uppercase;
+    text-align: center;
+    
+    /* Adiciona uma linha sutil abaixo do título */
+    border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+    padding-bottom: 20px;
+}
+
+/*
+ * 2. Parágrafos (p)
+ * Estilo de texto limpo e legível
+ */
+.about-us-content p {
+    font-size: 1.1em;  /* 17-18px */
+    line-height: 1.7;  /* Espaçamento confortável entre linhas */
+    color: #d9d9d9;  /* Branco um pouco mais suave */
+    margin-bottom: 25px;
+}
+
+/*
+ * 3. Parágrafo de Missão (destaque)
+ * Dá mais ênfase à primeira frase.
+ */
+.about-us-content .mission-statement {
+    font-size: 1.3em; /* Texto maior */
+    font-weight: 300; /* Mais leve */
+    color: #f0f0f0;
+    text-align: center;
+    
+    /* Um leve divisor abaixo da missão */
+    border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+    padding-bottom: 25px;
+    margin-bottom: 30px;
+}
+
+/*
+ * 4. Destaques (strong)
+ * Usa a cor de destaque principal do site.
+ */
+.about-us-content strong {
+    color: #4A90E2; /* Azul vibrante */
+    font-weight: 600; /* Peso de fonte padrão para bold */
+}
