@@ -1,23 +1,23 @@
 import React from 'react';
 
-// 1. Importe seus componentes reutilizáveis
+// 1. Componentes reutilizáveis
 import Header from '../components/Header'; // Ajuste o caminho se necessário
 import Footer from '../components/Footer'; // Ajuste o caminho se necessário
 
-// 2. Importe seu CSS principal (que tem a classe .container)
-import '../assets/css/CadastroStyle.css'; 
-
-// 3. Importe o CSS específico para esta página (criado abaixo)
-import '../assets/css/About_Us.css';
+// 2. Importado APENAS o CSS desta página
+import '../assets/css/AboutUsStyle.css'; 
+// (A importação do 'CadastroStyle.css' foi removida)
 
 function AboutUsPage() {
   return (
-    <div>
+    // 3. Adicionado um "wrapper" para controlar o fundo e layout da página
+    <div className="about-us-page-wrapper">
+      
       {/* Seu Header reutilizado */}
       <Header />
 
-      {/* Reutilizamos a classe 'container' do seu 'CadastroStyle.css'
-        para manter o fundo, borda e padding consistentes.
+      {/* A classe 'container' agora será definida 
+        diretamente no 'AboutUsStyle.css' 
       */}
       <main className="container">
         
