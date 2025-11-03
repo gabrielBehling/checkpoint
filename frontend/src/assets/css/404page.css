@@ -1,0 +1,83 @@
+/*
+ * ===================================
+ * ARQUIVO: style-404.css (CORRIGIDO)
+ * ===================================
+ * Este CSS agora segue os padrões do seu style-login.css
+ */
+
+/*
+ * 1. O container de erro.
+ * Copiando estilos exatos de .form-auth para consistência.
+ */
+.error-container {
+    background: transparent;
+    text-align: center;
+    width: 100%;
+    max-width: 650px; /* Mantido um pouco maior para a mensagem 404 */
+    padding: 40px 60px;
+    border-radius: 8px;
+    
+    /* Estilos de "brilho" idênticos ao .form-auth */
+    border: 1px solid rgba(74, 144, 226, 0.3); 
+    box-shadow: 0 0 50px rgba(74, 144, 226, 0.1); 
+}
+
+/* * 2. O .logo-auth
+ * (Já deve funcionar pelo seu CSS principal se você o incluiu no HTML)
+ */
+
+
+/*
+ * 3. O código de erro "404".
+ * Usando a cor de destaque principal.
+ */
+.error-code {
+    font-size: 150px;
+    font-weight: 900;
+    color: #4A90E2; /* Azul vibrante */
+    line-height: 1;
+    margin-bottom: 10px;
+    text-shadow: 0 0 15px rgba(74, 144, 226, 0.3);
+}
+
+/*
+ * 4. O Título (H1) - CORRIGIDO
+ * Este seletor agora aplica os mesmos estilos de .form-auth h1
+ */
+.error-container h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #4A90E2; /* Cor azul vibrante */
+    letter-spacing: 5px;
+    font-weight: lighter; /* Fonte fina (como no login) */
+    text-transform: uppercase;
+}
+
+/*
+ * 5. A mensagem de parágrafo.
+ * Usando a cor de texto padrão (baseado no .logo-auth .text).
+ */
+.error-message {
+    font-size: 18px;
+    color: #f0f0f0; 
+    margin-top: 20px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/*
+ * 6. O link de "Voltar" - CORRIGIDO
+ * Este seletor agora aplica os mesmos estilos de .form-auth ... a
+ */
+.error-link a {
+    color: #4A90E2; /* Link em azul vibrante */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px; /* Tamanho consistente */
+    transition: text-shadow 0.2s ease, text-decoration 0.2s ease;
+}
+
+.error-link a:hover {
+    text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); /* Efeito de brilho */
+    text-decoration: underline; /* Feedback de hover padrão */
+}
