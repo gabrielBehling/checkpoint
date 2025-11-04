@@ -22,7 +22,9 @@ let createTeamSchema = object({
     TeamName: string().required().max(100),
     LogoURL: string().url().max(255)
 });
-
+let updateStatusSchema = object({
+    status: string().oneOf(['Pending', 'Approved', 'Rejected', 'Cancelled'], "Invalid status value").required()
+});
 // Create a new team and register it for an event
 router.post("/:eventId/teams", authMiddleware, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
@@ -487,5 +489,63 @@ router.delete("/teams/:teamId/members/:memberId", authMiddleware, async (req, re
         }
     }
 });
+// ROTA PARA O DONO DO EVENTO ATUALIZAR O STATUS DE UM TIME
+router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) => {
+    const eventId = parseInt(req.params.eventId);
+    const teamId = parseInt(req.params.teamId);
+    const userId = req.user.userId;
 
+    // 1. Validar IDs
+    if (isNaN(eventId) || isNaN(teamId)) {
+        return res.status(400).json({ error: "Invalid eventId or teamId" });
+    }
+
+    // 2. Validar o Body (o novo status)
+    let validatedData;
+    try {
+        validatedData = await updateStatusSchema.validate(req.body);
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
+    
+    const { status: newStatus } = validatedData;
+
+    try {
+        await sql.connect(dbConfig);
+        
+        // 3. Verificar se o usuário é o Dono do Evento (usando a view EventsNotDeleted)
+        const eventCheck = await sql.query`
+            SELECT CreatedBy FROM EventsNotDeleted 
+            WHERE EventID = ${eventId}
+        `;
+        
+        if (eventCheck.recordset.length === 0) {
+            return res.status(404).json({ error: "Event not found." });
+        }
+        
+        if (eventCheck.recordset[0].CreatedBy !== userId) {
+            return res.status(403).json({ error: "You are not authorized to manage this event's registrations." });
+        }
+
+        // 4. Se for o dono, atualizar o status da inscrição do time
+        const updateResult = await sql.query`
+            UPDATE EventRegistrations 
+            SET Status = ${newStatus}
+            WHERE EventID = ${eventId} AND TeamID = ${teamId} AND DeletedAt IS NULL
+        `;
+
+        if (updateResult.rowsAffected[0] === 0) {
+            // Isso acontece se o time não estiver inscrito ou já foi deletado
+            return res.status(404).json({ error: "Team registration not found for this event." });
+        }
+
+        res.status(200).json({ message: `Team ${teamId} status for event ${eventId} updated to ${newStatus}` });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        await sql.close();
+    }
+});
+// 
 module.exports = router;

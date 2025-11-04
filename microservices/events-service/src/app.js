@@ -1,8 +1,8 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const responseMiddleware = require("./responseMiddleware");
-const eventsControllers = require("./constrollers/eventsControllers");
-const teamsControllers = require("./constrollers/teamsControllers");
+const eventsControllers = require("./controllers/eventsControllers");
+const teamsControllers = require("./controllers/teamsControllers");
+const matchControlles = require("./controllers/matchControllers");
 
 const app = express();
 
@@ -11,6 +11,8 @@ app.use(cookieParser());
 app.use(responseMiddleware);
 
 app.use("/", eventsControllers);
+
+app.use("/", matchControlles)
 
 app.use("/", teamsControllers);
 

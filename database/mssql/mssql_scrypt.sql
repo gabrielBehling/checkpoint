@@ -139,6 +139,83 @@ CREATE TABLE TeamMatches (
     FOREIGN KEY (TeamID) REFERENCES Teams(TeamID)
 );
 GO
+CREATE TABLE LeaderboardScores (
+    ScoreID INT PRIMARY KEY IDENTITY(1,1),
+    EventID INT NOT NULL,
+    TeamID INT NOT NULL,
+    RoundNumber INT NOT NULL,
+    Points DECIMAL(10, 2) NOT NULL DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    LastModifiedAt DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_LeaderboardScores_Events FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    CONSTRAINT FK_LeaderboardScores_Teams FOREIGN KEY (TeamID) REFERENCES Teams(TeamID),
+    
+    -- Garante que um time só pode ter uma pontuação por rodada em um evento
+    CONSTRAINT UQ_Event_Team_Round UNIQUE (EventID, TeamID, RoundNumber)
+);
+GO
+CREATE TABLE KnockoutMatches (
+    MatchID INT PRIMARY KEY IDENTITY(1,1),
+    EventID INT NOT NULL,
+    RoundNumber INT NOT NULL,
+    MatchNumber INT NOT NULL,
+    Team1_ID INT NULL,
+    Team2_ID INT NULL,
+    Team1_Score INT NULL,
+    Team2_Score INT NULL,
+    Winner_ID INT NULL,
+    
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Pending',
+    
+    Team1_SourceMatchID INT NULL,
+    Team2_SourceMatchID INT NULL,
+
+    CONSTRAINT FK_KnockoutMatches_Events FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    CONSTRAINT FK_KnockoutMatches_Team1 FOREIGN KEY (Team1_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_KnockoutMatches_Team2 FOREIGN KEY (Team2_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_KnockoutMatches_Winner FOREIGN KEY (Winner_ID) REFERENCES Teams(TeamID),
+
+    CONSTRAINT FK_Knockout_Source1 FOREIGN KEY (Team1_SourceMatchID) REFERENCES KnockoutMatches(MatchID),
+    CONSTRAINT FK_Knockout_Source2 FOREIGN KEY (Team2_SourceMatchID) REFERENCES KnockoutMatches(MatchID),
+    CONSTRAINT UQ_Event_Round_Match UNIQUE (EventID, RoundNumber, MatchNumber)
+);
+GO
+
+CREATE TABLE EventSettings_RoundRobin (
+    EventID INT PRIMARY KEY,
+    PointsPerWin DECIMAL(5, 2) NOT NULL DEFAULT 3,
+    PointsPerDraw DECIMAL(5, 2) NOT NULL DEFAULT 1,
+    PointsPerLoss DECIMAL(5, 2) NOT NULL DEFAULT 0,
+    
+    CONSTRAINT FK_RoundRobinSettings_Events FOREIGN KEY (EventID) REFERENCES Events(EventID)
+        ON DELETE CASCADE -- Se o evento for deletado, as configurações também são
+);
+GO
+
+/* Tabela 2: Armazena todas as partidas da agenda
+*/
+CREATE TABLE RoundRobinMatches (
+    MatchID INT PRIMARY KEY IDENTITY(1,1),
+    EventID INT NOT NULL,
+    Team1_ID INT NOT NULL,
+    Team2_ID INT NOT NULL,
+    Team1_Score INT NULL,
+    Team2_Score INT NULL,
+    Winner_ID INT NULL,           -- NULL em caso de empate
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Pending', -- Pending, Finished
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    LastModifiedAt DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_RoundRobinMatches_Events FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    CONSTRAINT FK_RoundRobinMatches_Team1 FOREIGN KEY (Team1_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_RoundRobinMatches_Team2 FOREIGN KEY (Team2_ID) REFERENCES Teams(TeamID),
+    CONSTRAINT FK_RoundRobinMatches_Winner FOREIGN KEY (Winner_ID) REFERENCES Teams(TeamID),
+    
+    -- Garante que o par (Time A vs Time B) seja único por evento
+    CONSTRAINT UQ_RoundRobin_Match UNIQUE (EventID, Team1_ID, Team2_ID)
+);
+GO
 
 -- VIEWS
 CREATE VIEW dbo.UsersNotDeleted AS
