@@ -38,6 +38,11 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
     function handleSubmit(e) {
         e.preventDefault();
 
+        if (password !== passwordConfirm) {
+            alert("As senhas não coincidem!");
+            return;
+        }
+
         api.post("/auth/register", {
             email: email,
             username: nome,
@@ -107,9 +112,15 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         value={password}
                         onChange={handlePasswordChange}
                         name="password"
-                        pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\.])[A-Za-z\d@$!%*?&\.]{8,}$"
-                        title="A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial."
+                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+                        title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres."
                     />
+                    <small style={{ color: '#666', fontSize: '0.8em', marginTop: '4px' }}>
+                        A senha deve conter pelo menos:<br />
+                        - 8 caracteres<br />
+                        - Uma letra<br />
+                        - Um número
+                    </small>
 
                     {/* Confirmação de Senha */}
                     <label htmlFor="confirmar-senha">Confirmar Senha</label>

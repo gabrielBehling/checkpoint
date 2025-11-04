@@ -15,7 +15,62 @@ function App() {
     const [errorSources, setErrorSources] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [eventosProximos, setEventosProximos] = useState([]);
+    const [eventosEmAlta, setEventosEmAlta] = useState([]);
+    const [loadingEventos, setLoadingEventos] = useState(true);
+    const [loadingEventosAlta, setLoadingEventosAlta] = useState(true);
     const { user, logout } = useAuth();
+
+    const fetchEventosEmAlta = async () => {
+        setLoadingEventosAlta(true);
+        try {
+            const response = await api.get('/events/', {
+                params: {
+                    page: 1,
+                    limit: 6,
+                    status: 'Active'
+                }
+            });
+
+            if (response.data.success) {
+                // Ordena os eventos pelo número de participantes atual
+                const eventos = response.data.data.data
+                    .sort((a, b) => (b.currentParticipants || 0) - (a.currentParticipants || 0))
+                    .slice(0, 6); // Pega os 6 eventos com mais participantes
+                setEventosEmAlta(eventos);
+            }
+        } catch (err) {
+            console.error('Erro ao carregar eventos em alta:', err);
+        } finally {
+            setLoadingEventosAlta(false);
+        }
+    };
+
+    const fetchEventosProximos = async () => {
+        setLoadingEventos(true);
+        try {
+            const hoje = new Date();
+            const response = await api.get('/events/', {
+                params: {
+                    page: 1,
+                    limit: 6,
+                    status: 'Active'
+                }
+            });
+
+            if (response.data.success) {
+                const eventos = response.data.data.data.filter(evento => {
+                    const dataEvento = new Date(evento.startDate);
+                    return dataEvento >= hoje;
+                });
+                setEventosProximos(eventos);
+            }
+        } catch (err) {
+            console.error('Erro ao carregar eventos próximos:', err);
+        } finally {
+            setLoadingEventos(false);
+        }
+    };
 
     const fetchCarouselData = async () => {
         setLoading(true);
@@ -26,8 +81,8 @@ function App() {
             if (response.data.success) {
                 const newCarouselData = response.data.data.data.map((event, index) => ({
                     id: event.eventId,
-                    src: event.bannerUrl && event.bannerUrl.trim() !== "" 
-                        ? event.bannerUrl 
+                    src: event.bannerURL && event.bannerURL.trim() !== "" 
+                        ? event.bannerURL 
                         : FALLBACK_IMAGE_SRC,
                     alt: event.title || "Evento sem título",
                     link: `/evento/${event.eventId}/`
@@ -59,6 +114,8 @@ function App() {
         document.body.style.color = "#f1f1f1";
 
         fetchCarouselData();
+        fetchEventosProximos();
+        fetchEventosEmAlta();
         const interval = setInterval(nextSlide, 15*60*1000); 
         return () => clearInterval(interval); 
     }, [totalSlides]);
@@ -177,23 +234,89 @@ function App() {
             </section>
 
             <section className="eventos" style={{ overflowX: "auto" }}>
-                <h2>Eventos Próximos (Cadastrados)</h2>
+                <h2>Eventos Próximos</h2>
                 <div id="lista-eventos" className="eventos-container">
-                    <p>Carregando eventos...</p>
-                    <div className="evento-card">
-                        <div className="imagem-evento"></div>
-                        <div className="info-evento">
-                            <p>
-                                Evento tal<br />
-                                Data tal<br />
-                                Premiação tal<br />
-                                Hora tal
-                            </p>
-                            <Link to="/EventoInfo" className="btn">Cadastrar no evento</Link>
-                        </div>
-                    </div>
+                    {loadingEventos ? (
+                        <p>Carregando eventos...</p>
+                    ) : eventosProximos.length > 0 ? (
+                        eventosProximos.map(evento => {
+                            const dataEvento = new Date(evento.startDate);
+                            return (
+                                <div key={evento.eventId} className="evento-card">
+                                    <div className="imagem-evento">
+                                        <img 
+                                            src={evento.bannerURL || FALLBACK_IMAGE_SRC} 
+                                            alt={evento.title}
+                                            onError={(e) => {
+                                                e.target.src = FALLBACK_IMAGE_SRC;
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="info-evento">
+                                        <h3>{evento.title}</h3>
+                                        <p>
+                                            Data: {dataEvento.toLocaleDateString()}<br />
+                                            Horário: {dataEvento.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br />
+                                            {evento.prizes && `Premiação: ${evento.prizes}`}<br />
+                                            {evento.isOnline ? 'Online' : `Local: ${evento.location}`}
+                                        </p>
+                                        <Link to={`/evento/${evento.eventId}`} className="btn">
+                                            Ver detalhes
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <p>Nenhum evento próximo encontrado.</p>
+                    )}
                 </div>
             </section> 
+
+            <section className="eventos eventos-alta" style={{ overflowX: "auto" }}>
+                <h2>Eventos em Alta</h2>
+                <div id="lista-eventos-alta" className="eventos-container">
+                    {loadingEventosAlta ? (
+                        <p>Carregando eventos em alta...</p>
+                    ) : eventosEmAlta.length > 0 ? (
+                        eventosEmAlta.map(evento => {
+                            const dataEvento = new Date(evento.startDate);
+                            return (
+                                <div key={evento.eventId} className="evento-card">
+                                    <div className="imagem-evento">
+                                        <img 
+                                            src={evento.bannerURL || FALLBACK_IMAGE_SRC} 
+                                            alt={evento.title}
+                                            onError={(e) => {
+                                                e.target.src = FALLBACK_IMAGE_SRC;
+                                            }}
+                                        />
+                                        {evento.currentParticipants > 0 && (
+                                            <div className="participantes-badge">
+                                                {evento.currentParticipants} participantes
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="info-evento">
+                                        <h3>{evento.title}</h3>
+                                        <p>
+                                            Data: {dataEvento.toLocaleDateString()}<br />
+                                            Horário: {dataEvento.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br />
+                                            {evento.prizes && `Premiação: ${evento.prizes}`}<br />
+                                            {evento.isOnline ? 'Online' : `Local: ${evento.location}`}
+                                        </p>
+                                        <Link to={`/evento/${evento.eventId}`} className="btn">
+                                            Ver detalhes
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <p>Nenhum evento em alta encontrado.</p>
+                    )}
+                </div>
+            </section>
 
             <footer>
                 <ul>
