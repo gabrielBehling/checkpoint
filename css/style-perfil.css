@@ -1,0 +1,278 @@
+/*
+ * CORES PRINCIPAIS
+ * Fundo: #100C1F (Azul Marinho Escuro/Quase Preto)
+ * Input Background: #241D3B (Roxo/Azul Escuro)
+ * Destaque/Primária: #4A90E2 (Azul Vibrante)
+ * Texto Secundário: #F0F0F0 (Quase Branco)
+ */
+
+/* ====== RESET ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte mais limpa */
+}
+
+body {
+    background: #100C1F; /* Fundo escuro */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    color: #F0F0F0; /* Cor de texto principal, quase branco */
+}
+
+/* ====== NAVBAR (HEADER) ====== */
+header {
+    background: #17132B; /* Um pouco mais claro que o corpo, mas ainda escuro */
+    color: #F0F0F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    border-bottom: 1px solid rgba(74, 144, 226, 0.1); /* Linha sutil de destaque */
+}
+
+header .logo a {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #4A90E2; /* Logo em azul vibrante */
+    text-decoration: none;
+    letter-spacing: 2px;
+}
+
+header nav a {
+    margin-left: 25px;
+    color: #909090; /* Links secundários em cinza */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+header nav a:hover {
+    color: #4A90E2; /* Destaque em azul vibrante no hover */
+}
+
+/* ====== PERFIL BANNER (Mantenho centralizado) ====== */
+.perfil-banner {
+    /* Degradê que remete ao estilo visual, usando o azul principal */
+    background: linear-gradient(135deg, #241D3B, #17132B);
+    color: white;
+    padding: 60px 20px 30px; /* Reduzi o padding de baixo para deixar o menu mais perto */
+    text-align: center;
+    border-bottom: 2px solid #4A90E2; /* Borda de destaque */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.foto-perfil {
+    width: 140px;
+    height: 140px;
+    /* Fundo com a cor de background de input/cartão */
+    background: #241D3B;
+    border-radius: 50%;
+    margin: 0 auto 15px auto;
+    border: 4px solid #4A90E2; /* Borda com a cor de destaque */
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.6); /* Sombra de brilho */
+    transition: transform 0.3s ease;
+}
+
+.foto-perfil:hover {
+    transform: scale(1.05);
+}
+
+.status {
+    margin-bottom: 18px;
+    font-size: 14px;
+    opacity: 0.9;
+    color: #A0A0A0;
+}
+
+.status .dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: #4caf50; /* Manter o verde para o 'online' */
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 5px #4caf50;
+}
+
+.perfil-buttons button {
+    margin: 5px;
+    padding: 10px 25px;
+    border: none;
+    background: #4A90E2; /* Botão primário em azul vibrante */
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.perfil-buttons button:hover {
+    background: #5CA1F8; /* Azul mais claro no hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+}
+
+/* ---------------------------------------------------- */
+/* ====== MAIN CONTENT AREA - ALTERADO PARA LAYOUT L/R ====== */
+main {
+    display: flex; /* Permite a organização lado a lado */
+    justify-content: center; /* Centraliza o bloco principal na tela */
+    align-items: flex-start; /* Alinha o conteúdo ao topo */
+    padding: 40px;
+    flex: 1;
+    gap: 40px; /* Espaçamento entre os blocos */
+    max-width: 1400px; /* Limite de largura para a área de conteúdo */
+    margin: 0 auto;
+}
+
+.info-box {
+    /* **Alterado:** Define uma largura fixa e a posiciona à esquerda */
+    width: 320px; 
+    min-width: 320px; /* Garante que não diminua */
+    
+    background: #241D3B; /* Cor de fundo dos inputs/cards */
+    padding: 25px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Sombra de brilho sutil */
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.15);
+    border: 1px solid rgba(74, 144, 226, 0.3);
+}
+
+.info-box h3 {
+    margin-bottom: 10px;
+    color: #4A90E2; /* Títulos em azul vibrante */
+    font-size: 1.4rem;
+    border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+    padding-bottom: 5px;
+}
+
+.info-box p {
+    color: #A0A0A0; /* Texto secundário */
+}
+
+.info-box button {
+    margin-top: 5px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    font-weight: bold;
+}
+
+/* Botão Secundário (como "Trocar Tipo de Conta" e "Trocar Notificações") */
+.info-box .secondary {
+    background: #444059; /* Cor secundária escura */
+    color: white;
+}
+
+.info-box .secondary:hover {
+    background: #5A566E;
+    transform: scale(1.02);
+}
+
+/* Link/Botão Perigo (como "Sair") */
+.info-box .danger a {
+    display: block;
+    text-align: center;
+    background: #e53935; /* Vermelho padrão */
+    padding: 12px;
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+    font-weight: bold;
+}
+
+.info-box .danger a:hover {
+    background: #c62828;
+    transform: scale(1.02);
+}
+
+/* Participações (Área Principal) */
+.participacoes {
+    flex: 1; /* **Alterado:** Ocupa todo o espaço restante (direita) */
+    min-width: 60%; /* Manter um bom mínimo para evitar que fique muito pequeno em telas médias */
+    
+    /* Estilo de fundo do info-box para manter a coerência */
+    background: #241D3B;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.15);
+    border: 1px solid rgba(74, 144, 226, 0.3);
+}
+
+.participacoes h3 {
+    margin-bottom: 20px;
+    color: #4A90E2; /* Título em azul vibrante */
+    font-size: 1.6rem;
+    border-bottom: 2px solid rgba(74, 144, 226, 0.2);
+    padding-bottom: 10px;
+}
+
+.grid {
+    display: grid;
+    /* Adaptação com cards um pouco maiores */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.grid .card {
+    background: #17132B; /* Fundo do card mais escuro para contraste */
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    height: 160px; /* Aumentei a altura */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 15px;
+    color: #F0F0F0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(74, 144, 226, 0.4); /* Sombra de destaque no hover */
+    background: #1E1A36; /* Levemente mais claro no hover */
+}
+
+.grid .card h4 {
+    color: #4A90E2;
+    margin-bottom: 5px;
+}
+
+.grid .card p {
+    font-size: 0.9rem;
+    color: #A0A0A0;
+}
+
+
+/* ====== FOOTER ====== */
+footer {
+    background: #17132B; /* Cor do header */
+    text-align: center;
+    padding: 20px;
+    color: #909090;
+    border-top: 1px solid rgba(74, 144, 226, 0.1);
+}
+
+footer a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #4A90E2; /* Links em azul vibrante */
+    transition: color 0.3s ease;
+    font-weight: bold;
+}
+
+footer a:hover {
+    color: #F0F0F0;
+}

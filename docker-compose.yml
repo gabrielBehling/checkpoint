@@ -135,7 +135,6 @@ services:
         source: ./frontend/src
         target: /app/src
         read_only: true
-      - /app/node_modules
     depends_on:
       - auth-service
       - events-service
