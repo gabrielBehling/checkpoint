@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import api from "../api";
-import "./PesquisaEvento.css";
+import api from "./api";
+import "../assets/css/PesquisaEvento.css";
 
 export default function PesquisaEventos() {
   const [search, setSearch] = useState("");

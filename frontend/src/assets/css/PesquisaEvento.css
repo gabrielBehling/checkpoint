@@ -1,157 +1,145 @@
-/* ======== CONTAINER PRINCIPAL ======== */
 .pesquisa-container {
-  background: linear-gradient(180deg, #0a0a24 0%, #141438 100%);
+  background-color: #0b1130;
+  color: white;
   min-height: 100vh;
-  padding: 3rem 8%;
-  color: #ffffff;
+  padding: 40px 60px;
   font-family: "Poppins", sans-serif;
 }
 
-/* ======== TÍTULO ======== */
-.pesquisa-container h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 2rem;
-  text-align: center;
-  letter-spacing: 1px;
-}
-
-/* ======== ÁREA DE FILTROS ======== */
-.filtros {
+.barra-pesquisa {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.filtros input,
-.filtros select {
-  background-color: #1b1b3a;
-  color: #ffffff;
-  border: 1px solid #2c2c5c;
-  border-radius: 12px;
-  padding: 10px 15px;
-  font-size: 0.95rem;
-  width: 220px;
-  transition: all 0.2s ease-in-out;
-}
-
-.filtros input:focus,
-.filtros select:focus {
-  outline: none;
-  border-color: #007bff;
-  background-color: #22225a;
-}
-
-.filtros button {
-  background: linear-gradient(90deg, #ff8c00 0%, #ffb347 100%);
-  color: #fff;
-  font-weight: 600;
+.barra-pesquisa input {
+  width: 60%;
+  padding: 12px 16px;
+  border-radius: 10px;
   border: none;
-  padding: 10px 25px;
-  border-radius: 25px;
+  font-size: 1rem;
+  background-color: #1b2144;
+  color: #fff;
+  outline: none;
+}
+
+.btn-buscar {
+  background-color: #ff7a00;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: bold;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: background 0.2s;
 }
 
-.filtros button:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(90deg, #ff9e1a 0%, #ffc866 100%);
+.btn-buscar:hover {
+  background-color: #ffa347;
 }
 
-/* ======== LISTA DE RESULTADOS ======== */
-.resultados {
+.filtros-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.btn-filtros {
+  background-color: #1b2144;
+  color: #fff;
+  padding: 10px 20px;
+  border: 1px solid #2e3a7a;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.2s;
+}
+
+.btn-filtros:hover {
+  background-color: #2a3170;
+}
+
+.filtros-container {
+  background-color: #13183b;
+  padding: 20px;
+  border-radius: 15px;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 1.5rem;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
 }
 
-/* ======== CARD DO EVENTO ======== */
+.filtro-grupo h3 {
+  color: #ff7a00;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.filtro-grupo input,
+.filtro-grupo select {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background-color: #1f2656;
+  color: white;
+  outline: none;
+}
+
+.lista-eventos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+
 .card-evento {
-  background-color: #1c1c3a;
-  border-radius: 16px;
+  background-color: #1b2144;
+  border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
 
-.card-evento:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 20px rgba(0, 128, 255, 0.4);
-}
-
-/* ======== IMAGEM DO EVENTO ======== */
 .banner-evento {
   width: 100%;
   height: 160px;
   object-fit: cover;
-  background-color: #2a2a5a;
 }
 
-/* ======== CONTEÚDO DO CARD ======== */
-.card-evento h2 {
+.info-evento {
+  padding: 16px;
+}
+
+.info-evento h2 {
   font-size: 1.1rem;
-  margin: 10px 15px 6px;
-  color: #ffffff;
-  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
-.card-evento p {
+.info-evento p {
   font-size: 0.9rem;
-  margin: 4px 15px;
-  color: #cfcfea;
+  color: #c5c5c5;
 }
 
-.card-evento strong {
-  color: #ffffff;
-}
-
-/* ======== BOTÃO DE DETALHES ======== */
-.card-evento button {
-  margin: 12px 15px 15px;
-  background: linear-gradient(90deg, #ff8c00 0%, #ffb347 100%);
-  border: none;
-  border-radius: 25px;
+.btn-detalhes {
+  margin-top: 10px;
+  background-color: #ff7a00;
   color: white;
-  font-weight: 600;
+  border: none;
   padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s ease;
 }
 
-.card-evento button:hover {
-  background: linear-gradient(90deg, #ff9e1a 0%, #ffd36b 100%);
-  transform: translateY(-2px);
-}
-
-/* ======== MENSAGENS DE ESTADO ======== */
-.erro,
-.resultados p {
+.mensagem-status,
+.mensagem-erro {
   text-align: center;
-  margin-top: 1rem;
-  color: #ff6666;
+  margin-top: 20px;
+  font-size: 1rem;
 }
 
-@media (max-width: 768px) {
-  .filtros {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .filtros input,
-  .filtros select {
-    width: 100%;
-    max-width: 350px;
-  }
-
-  .resultados {
-    grid-template-columns: 1fr;
-  }
+.mensagem-erro {
+  color: #ff4747;
 }
