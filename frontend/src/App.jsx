@@ -174,7 +174,6 @@ function App() {
                                 </li>
                                 <li>
                                     <span className="user-welcome">
-                                        {console.log("User data:", user)}
                                         <li><a href="/perfil">Olá, {user.username}</a></li>
                                     </span>
                                 </li>
