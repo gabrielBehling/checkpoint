@@ -1,90 +1,176 @@
 /*
  * ===================================
- * ARQUIVO: AboutUsStyle.css (Ajustado)
+ * ARQUIVO: About_Us.css
+ * VERSÃO OTIMIZADA E CENTRALIZADA
  * ===================================
- * Este arquivo agora é autossuficiente e define
- * todos os estilos para a página "Sobre Nós".
  */
 
-/* ===== 1. RESET & FONTES (Estilo "semelhante" ao seu CSS) ===== */
-* {
-  margin: 0;
-  padding: 0;
+/* ==================================
+ * 🎨 VARIÁVEIS CSS (Design Tokens)
+ * Facilita a manutenção e padronização.
+ * ================================== */
+:root {
+  /* Cores */
+  --cor-fundo-principal: #100C1F; /* Roxo escuro muito profundo */
+  --cor-primaria: #4A90E2; /* Azul vibrante (Destaque) */
+  --cor-texto-principal: #f0f0f0; /* Branco suave */
+  --cor-texto-secundario: #e0e0e0; /* Cinza claro */
+  --cor-fundo-card-base: 16, 12, 31; /* RGB para transparência */
+
+  /* Espaçamento */
+  --espacamento-h1-paragrafo: 24px;
+  --padding-card-desktop: 60px 50px;
+  --padding-card-mobile: 40px 25px;
+
+  /* Borda/Sombra */
+  --sombra-primaria: rgba(74, 144, 226, 0.4);
+  --borda-raio: 12px;
+}
+
+
+/* ===================================
+ * ⚙️ CONFIGURAÇÃO GLOBAL E RESET
+ * =================================== */
+*, *::before, *::after {
   box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--cor-fundo-principal);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* ===== 2. WRAPPER DA PÁGINA (Estilo "semelhante" ao seu BODY) ===== */
-.about-us-page-wrapper {
-  background: #100c1f; /* Fundo principal (roxo/preto) */
-  color: #f0f0f0;       /* Cor do texto principal (branco) */
-  
-  /* Garante que a página ocupe 100% da altura */
-  min-height: 100vh; 
+  color: var(--cor-texto-principal);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
-/* ===== 3. CONTAINER PRINCIPAL (Estilo "semelhante" ao seu .container) ===== */
-.about-us-page-wrapper .container {
-  max-width: 1400px;
-  /* Margens para centralizar e espaçar do header/footer */
-  margin: 30px auto 40px auto; 
-  padding: 40px;
-  background: #1c172c; /* Fundo do container (roxo escuro) */
-  border-radius: 10px;
-  
-  /* Brilho da borda (azul) */
-  border: 1px solid rgba(74, 144, 226, 0.2);
-  box-shadow: 0 0 50px rgba(74, 144, 226, 0.1);
-
-  /* Faz o <main> crescer e empurrar o <Footer> para baixo */
-  flex-grow: 1; 
+/* ===================================
+ * 🖼️ CONTAINER PRINCIPAL (MAIN)
+ * =================================== */
+main {
+  max-width: 800px;
+  width: 100%;
+  background: rgba(var(--cor-fundo-card-base), 0.85);
+  padding: var(--padding-card-desktop);
+  border-radius: var(--borda-raio);
+  text-align: center;
+  border: 1px solid rgba(var(--cor-fundo-card-base), 0.5);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease-in-out;
+  animation: fadeInUp 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0;
+  transform: translateY(30px);
 }
 
-/* ===== 4. CONTEÚDO ESPECÍFICO (Estilos que já existiam) ===== */
-
-.about-us-content {
-  /* Centraliza o bloco de texto para melhor leitura */
-  max-width: 800px; 
-  margin: 0 auto;
-  color: #f0f0f0;
+main:hover {
+  box-shadow: 0 10px 40px 0 var(--sombra-primaria);
+  transform: translateY(-2px);
 }
 
-/* Título (h1) */
-.about-us-content h1 {
-  font-size: 32px;
-  margin-bottom: 30px;
-  color: #4A90E2; /* Cor azul vibrante */
-  letter-spacing: 5px;
-  font-weight: lighter;
+/* ===================================
+ * 🏷️ ELEMENTOS DE CONTEÚDO
+ * =================================== */
+main h1 {
+  font-size: clamp(30px, 5vw, 42px);
+  margin-bottom: var(--espacamento-h1-paragrafo);
+  color: var(--cor-primaria);
   text-transform: uppercase;
-  text-align: center;
-  border-bottom: 1px solid rgba(74, 144, 226, 0.2);
-  padding-bottom: 20px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px var(--sombra-primaria);
 }
 
-/* Parágrafos (p) */
-.about-us-content p {
-  font-size: 1.1em; 
-  line-height: 1.7; 
-  color: #d9d9d9; /* Branco suave */
-  margin-bottom: 25px;
+main p {
+  font-size: 18px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  color: var(--cor-texto-secundario);
 }
 
-/* Parágrafo de Missão (destaque) */
-.about-us-content .mission-statement {
-  font-size: 1.3em; 
-  font-weight: 300;
-  color: #f0f0f0;
-  text-align: center;
-  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
-  padding-bottom: 25px;
-  margin-bottom: 30px;
+main p:last-of-type {
+  margin-bottom: 0;
 }
 
-/* Destaques (strong) */
-.about-us-content strong {
-  color: #4A90E2; /* Azul vibrante */
+main strong {
+  color: var(--cor-primaria);
+  font-weight: 700;
+}
+
+/* ===================================
+ * 🔙 BOTÃO DE VOLTAR
+ * =================================== */
+.back-button {
+  display: inline-block;
+  margin-top: 40px;
+  padding: 12px 24px;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-principal);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
   font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px 0 var(--sombra-primaria);
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #357ac8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px 0 var(--sombra-primaria);
+}
+
+/* Versão fixa opcional — caso queira o botão sempre visível no topo
+.back-button {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+}
+*/
+
+/* ===================================
+ * 🎬 ANIMAÇÃO DE ENTRADA
+ * =================================== */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================
+ * 📱 RESPONSIVIDADE
+ * =================================== */
+@media (max-width: 650px) {
+  body {
+    padding: 40px 10px;
+  }
+
+  main {
+    padding: var(--padding-card-mobile);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
+    transform: none !important;
+  }
+
+  main:hover {
+    transform: none;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  main p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .back-button {
+    width: 100%;
+    margin-top: 30px;
+    font-size: 15px;
+  }
 }
