@@ -1,21 +1,21 @@
 /*
  * ===================================
  * ARQUIVO: About_Us.css
- * VERSÃO OTIMIZADA E CENTRALIZADA
+ * VERSÃO COM FONTES MAIORES
  * ===================================
  */
 
 /* ==================================
  * 🎨 VARIÁVEIS CSS (Design Tokens)
- * Facilita a manutenção e padronização.
+ * ... (Mantidas as variáveis originais)
  * ================================== */
 :root {
   /* Cores */
-  --cor-fundo-principal: #100C1F; /* Roxo escuro muito profundo */
-  --cor-primaria: #4A90E2; /* Azul vibrante (Destaque) */
-  --cor-texto-principal: #f0f0f0; /* Branco suave */
-  --cor-texto-secundario: #e0e0e0; /* Cinza claro */
-  --cor-fundo-card-base: 16, 12, 31; /* RGB para transparência */
+  --cor-fundo-principal: #100C1F;
+  --cor-primaria: #4A90E2;
+  --cor-texto-principal: #f0f0f0;
+  --cor-texto-secundario: #e0e0e0;
+  --cor-fundo-card-base: 16, 12, 31;
 
   /* Espaçamento */
   --espacamento-h1-paragrafo: 24px;
@@ -49,6 +49,7 @@ body {
 
 /* ===================================
  * 🖼️ CONTAINER PRINCIPAL (MAIN)
+ * ... (Estilos do container principal mantidos)
  * =================================== */
 main {
   max-width: 800px;
@@ -73,10 +74,13 @@ main:hover {
 }
 
 /* ===================================
- * 🏷️ ELEMENTOS DE CONTEÚDO
+ * 🏷️ ELEMENTOS DE CONTEÚDO (FONTES AJUSTADAS)
  * =================================== */
+
+/* TÍTULO H1: AUMENTADO O VALOR MÁXIMO (42px -> 48px) */
 main h1 {
-  font-size: clamp(30px, 5vw, 42px);
+  /* Mínimo 30px, 5% da viewport, Máximo AGORA 48px */
+  font-size: clamp(30px, 5.5vw, 48px); 
   margin-bottom: var(--espacamento-h1-paragrafo);
   color: var(--cor-primaria);
   text-transform: uppercase;
@@ -84,8 +88,9 @@ main h1 {
   text-shadow: 0 0 15px var(--sombra-primaria);
 }
 
+/* PARÁGRAFOS: AUMENTADO (18px -> 20px) */
 main p {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.7;
   margin-bottom: 20px;
   color: var(--cor-texto-secundario);
@@ -101,7 +106,7 @@ main strong {
 }
 
 /* ===================================
- * 🔙 BOTÃO DE VOLTAR
+ * 🔙 BOTÃO DE VOLTAR (FONTE AJUSTADA)
  * =================================== */
 .back-button {
   display: inline-block;
@@ -111,7 +116,8 @@ main strong {
   color: var(--cor-texto-principal);
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  /* AUMENTADO (16px -> 18px) */
+  font-size: 18px; 
   font-weight: 600;
   cursor: pointer;
   text-transform: uppercase;
@@ -126,16 +132,10 @@ main strong {
   box-shadow: 0 6px 18px 0 var(--sombra-primaria);
 }
 
-/* Versão fixa opcional — caso queira o botão sempre visível no topo
-.back-button {
-  position: absolute;
-  top: 30px;
-  left: 30px;
-}
-*/
 
 /* ===================================
  * 🎬 ANIMAÇÃO DE ENTRADA
+ * ... (Mantida a animação)
  * =================================== */
 @keyframes fadeInUp {
   to {
@@ -145,7 +145,7 @@ main strong {
 }
 
 /* ===================================
- * 📱 RESPONSIVIDADE
+ * 📱 RESPONSIVIDADE (FONTES AJUSTADAS)
  * =================================== */
 @media (max-width: 650px) {
   body {
@@ -163,14 +163,16 @@ main strong {
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
   }
 
+  /* PARÁGRAFOS EM MOBILE: AUMENTADO (16px -> 17px) */
   main p {
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.6;
   }
 
+  /* BOTÃO EM MOBILE: AUMENTADO (15px -> 16px) */
   .back-button {
     width: 100%;
     margin-top: 30px;
-    font-size: 15px;
+    font-size: 16px; 
   }
 }
