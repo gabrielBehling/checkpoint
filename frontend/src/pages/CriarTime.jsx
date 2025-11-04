@@ -54,7 +54,7 @@ export default function CriarTime() {
     e.preventDefault();
     try {
       const response = await api.post(`/events/${eventId}/teams/`, {
-        teamName: teamName,
+        TeamName: teamName,
         // logoFile: teamLogo
       });
       if (response.data.success) {

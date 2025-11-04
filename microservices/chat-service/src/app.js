@@ -8,10 +8,13 @@ const socketIO = require('socket.io');
 const Message = require('./models/Message');
 const authMiddleware = require('./authMiddleware');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser'); // <-- MUDANÇA NECESSÁRIA
+const cookieParser = require('cookie-parser');
 
 const app = express();
-app.use(cookieParser()); // <-- MUDANÇA NECESSÁRIA
+
+app.use(cookieParser());
+app.use(express.json());
+
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {

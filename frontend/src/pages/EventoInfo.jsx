@@ -23,9 +23,9 @@ export default function EventoInfo() {
 
         const [eventoRes, commentsRes] = await Promise.all([
           api.get(`/events/${eventId}/`),
-          api.get(`/events/${eventId}/comments`)
+          api.get(`/chat/events/${eventId}/comments`)
         ]);
-        if (response.data.success) {
+        if (eventoRes.data.success) {
           setEvento(eventoRes.data.data);
         }
         setComments(commentsRes.data);
@@ -106,7 +106,7 @@ export default function EventoInfo() {
             if (!newComment.trim()) return;
             
             try {
-              const response = await api.post(`/events/${eventId}/comments`, {
+              const response = await api.post(`/chat/events/${eventId}/comments`, {
                 content: newComment.trim()
               });
               setComments(prev => [response.data, ...prev]);
