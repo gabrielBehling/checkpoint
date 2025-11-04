@@ -409,24 +409,104 @@ app.delete("/delete-account", async (req, res) => {
     return res.success(null, "Account deleted successfully.");
 });
 
-app.get("/me", (req, res) => {
+app.get("/me", async (req, res) => {
     const token = req.cookies.accessToken;
     if (!token) {
         return res.error("Authentication token required.", "TOKEN_REQUIRED", 401);
     }
 
+    let decoded;
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: "1h" });
+    } catch (err) {
+        return res.error("Invalid or expired token.", "INVALID_TOKEN", 401);
+    }
+
+    const userId = decoded.userId;
+
+    try {
+        await sql.connect(dbConfig);
+
+        // Fetch user email and basic info from view
+        const userRecord = await sql.query`
+            SELECT UserID, Username, UserRole, Email
+            FROM UsersNotDeleted
+            WHERE UserID = ${userId};
+        `;
+
+        if (userRecord.recordset.length === 0) {
+            return res.error("User not found.", "USER_NOT_FOUND", 404);
+        }
+
+        const userFields = userRecord.recordset.shift();
+        const email = userFields.Email;
+        const username = userFields.Username;
+        const userRole = userFields.UserRole;
+
+        // Fetch user's event registration history:
+        // 1) personal registrations (er.UserID)
+        // 2) team registrations where the user is a member of the registered team
+        const personalRegs = await sql.query`
+            SELECT er.RegistrationID, er.EventID, e.Title, e.StartDate, e.EndDate, er.Status, er.RegisteredAt,
+                   NULL AS TeamID, NULL AS TeamName, 0 AS ViaTeam
+            FROM EventRegistrations er
+            JOIN EventsNotDeleted e ON e.EventID = er.EventID
+            WHERE er.UserID = ${userId} AND er.DeletedAt IS NULL;
+        `;
+
+        const teamRegs = await sql.query`
+            SELECT er.RegistrationID, er.EventID, e.Title, e.StartDate, e.EndDate, er.Status, er.RegisteredAt,
+                   t.TeamID, t.TeamName, 1 AS ViaTeam
+            FROM EventRegistrations er
+            JOIN EventsNotDeleted e ON e.EventID = er.EventID
+            JOIN TeamMembers tm ON tm.TeamID = er.TeamID
+            JOIN TeamsNotDeleted t ON t.TeamID = er.TeamID
+            WHERE tm.UserID = ${userId} AND tm.DeletedAt IS NULL AND er.DeletedAt IS NULL;
+        `;
+
+        // Merge and normalize results, avoid duplicates by registrationId
+        const combined = [];
+        const seen = new Set();
+
+        const pushRecord = (r) => {
+            if (!r || seen.has(r.RegistrationID)) return;
+            seen.add(r.RegistrationID);
+            combined.push(r);
+        };
+
+        (personalRegs.recordset || []).forEach(pushRecord);
+        (teamRegs.recordset || []).forEach(pushRecord);
+
+        // Sort by registeredAt desc
+        combined.sort((a, b) => new Date(b.RegisteredAt) - new Date(a.RegisteredAt));
+
+        const eventsHistory = combined.map((r) => ({
+            registrationId: r.RegistrationID,
+            eventId: r.EventID,
+            title: r.Title,
+            startDate: r.StartDate,
+            endDate: r.EndDate,
+            status: r.Status,
+            registeredAt: r.RegisteredAt,
+            viaTeam: !!r.ViaTeam,
+            teamId: r.TeamID || null,
+            teamName: r.TeamName || null,
+        }));
+
         return res.success(
             {
-                userId: decoded.userId,
-                username: decoded.username,
-                userRole: decoded.userRole
+                userId,
+                username,
+                userRole,
+                email,
+                eventsHistory,
             },
             "User information retrieved successfully"
         );
     } catch (err) {
-        return res.error("Invalid or expired token.", "INVALID_TOKEN", 401);
+        return res.error("Database error", "DATABASE_ERROR", 500, err.message);
+    } finally {
+        await sql.close();
     }
 });
 

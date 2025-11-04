@@ -179,12 +179,12 @@ export default function PerfilPage() {
 
         <section className="participacoes">
           <h3>Participações recentes</h3>
-          {userData.participacoes?.length > 0 ? (
+          {userData.eventsHistory?.length > 0 ? (
             <div className="grid">
-              {userData.participacoes.map((evento, index) => (
+              {userData.eventsHistory.map((evento, index) => (
                 <div className="card" key={index}>
-                  <h4>{evento.nome}</h4>
-                  <p>{evento.data}</p>
+                  <h4>{evento.title}</h4>
+                  <p>{new Date(evento.startDate)}</p>
                 </div>
               ))}
             </div>

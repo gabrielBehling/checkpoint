@@ -313,7 +313,28 @@ Cookie: accessToken=<token>
   "data": {
     "userId": 123,
     "username": "usuario",
-    "userRole": "Player"
+    "userRole": "Player",
+    "email": "usuario@email.com",
+    "eventsHistory": [
+      {
+        "registrationId": 10,
+        "eventId": 1,
+        "title": "Summer CS2 Cup",
+        "startDate": "2024-06-01T14:00:00.000Z",
+        "endDate": "2024-06-03T20:00:00.000Z",
+        "status": "Approved",
+        "registeredAt": "2024-05-20T10:00:00.000Z"
+      },
+      {
+        "registrationId": 7,
+        "eventId": 3,
+        "title": "Local LAN Party",
+        "startDate": "2023-11-10T18:00:00.000Z",
+        "endDate": "2023-11-10T23:00:00.000Z",
+        "status": "Cancelled",
+        "registeredAt": "2023-10-01T09:00:00.000Z"
+      }
+    ]
   },
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
@@ -332,6 +353,12 @@ Cookie: accessToken=<token>
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
+
+Notes:
+- `email` is returned for the authenticated user (the `/me` endpoint). If you want to restrict email visibility further, we can add additional policy checks.
+- `eventsHistory` is an array of past and current event registrations for the user. Each item contains `registrationId`, `eventId`, `title`, `startDate`, `endDate`, `status` and `registeredAt`. The service only returns registrations and events that are not soft-deleted.
+ - `eventsHistory` is an array of past and current event registrations for the user. Each item contains `registrationId`, `eventId`, `title`, `startDate`, `endDate`, `status` and `registeredAt`.
+ - Items may also include `viaTeam` (boolean), and when true, `teamId` and `teamName` indicating the team through which the user participated. The service only returns registrations and events that are not soft-deleted.
 
 ---
 
