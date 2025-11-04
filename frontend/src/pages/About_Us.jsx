@@ -4,21 +4,17 @@ import React from 'react';
 
 function AboutUsPage() {
   return (
-    // 1. Removido o 'div' externo com className.
-    //    Usamos um Fragment (<>) para agrupar os elementos 
-    //    sem adicionar um nó extra ao DOM.
+  
     <>
-      {/* 2. O Header foi removido. */}
       
-      {/* 3. A estrutura do <main> foi mantida pela semântica,
-             mas as classes foram removidas. */}
+      
       <main>
         
-        {/* 4. O 'div' interno com className foi removido. */}
+        
         
         <h1>Sobre o Checkpoint</h1>
 
-        {/* 5. A classe 'mission-statement' foi removida. */}
+       
         <p>
           O Checkpoint nasceu de um projeto de conclusão de curso com uma missão clara: 
           <strong> simplificar o universo dos eSports.</strong>
