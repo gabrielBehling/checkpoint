@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import validator from 'validator';
 import "../assets/css/chat.css"
 import { useAuth } from '../contexts/AuthContext.jsx';
+import api from './api';
 
 //  O componente agora recebe 'teamId' como uma "prop" 
 // NECESSITA passar o ID da equipe para este componente quando o usar.
@@ -19,7 +20,10 @@ export default function App({ teamId }) {
   const fileInputRef = useRef(null);
   const socketRef = useRef(null);
 
-  const BASE_URL = 'http://checkpoint.localhost';
+  // derive base host from api.defaults.baseURL when available
+  // api.defaults.baseURL is like 'http://checkpoint.localhost/api'
+  const API_BASE = (api && api.defaults && api.defaults.baseURL) ? api.defaults.baseURL : 'http://checkpoint.localhost/api';
+  const BASE_URL = API_BASE.replace(/\/api\/?$/, '');
   const SOCKET_PATH = '/api/chat/socket.io';
 
   useEffect(() => {
@@ -76,27 +80,24 @@ export default function App({ teamId }) {
       return;
     }
 
-    // load initial messages
-    // <-- MUDANÇA 4: Buscar histórico da API usando o 'teamId'
-    fetch(`${BASE_URL}/api/chat/messages/${teamId}`, {
-      credentials: 'include' // envia os cookies de autenticação (JWT)
-    })
-      .then(res => res.json())
-      .then(msgs => {
+    // load initial messages using the shared axios instance
+    // endpoint uses api.baseURL which already contains '/api'
+    api.get(`/chat/messages/${teamId}`)
+      .then(res => {
+        const msgs = res.data;
         if (Array.isArray(msgs)) {
           setMessages(msgs);
           setStatus(`${msgs.length || 0} mensagens carregadas`);
           scrollToBottom();
         } else {
-          // Lida com o caso de 'msgs' não ser um array (ex: erro)
           setMessages([]);
           setStatus('Erro ao carregar mensagens.');
         }
-      })
-      .catch(err => {
-        console.error('Erro ao carregar mensagens antigas:', err);
-        setStatus('Não foi possível carregar mensagens antigas');
-      });
+      })
+      .catch(err => {
+        console.error('Erro ao carregar mensagens antigas:', err);
+        setStatus('Não foi possível carregar mensagens antigas');
+      });
   }, [teamId]); // <-- O useEffect agora depende do teamId
 
   function showNotification(text) {
@@ -206,36 +207,38 @@ export default function App({ teamId }) {
     formData.append('teamId', teamId);
     formData.append('author', user.Username); // O backend precisa saber quem enviou
 
-    setUploadProgress(30);
+    setUploadProgress(30);
 
-    fetch(`${BASE_URL}/api/chat/upload`, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    })
-      .then(response => {
-        setUploadProgress(60);
-        if (!response.ok) {
-          // Se a resposta não for 2xx, joga um erro
-          return response.json().then(err => { throw new Error(err.error || 'Erro no servidor') });
+    // Use shared axios instance so refresh-token logic and withCredentials are applied
+    api.post(`/chat/upload`, formData, {
+      // Let the browser set the correct multipart Content-Type boundary
+      onUploadProgress: (progressEvent) => {
+        try {
+          if (progressEvent.total) {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percent);
+          }
+        } catch (e) {
+          // ignore progress errors
         }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          setUploadProgress(100);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-          setTimeout(() => setUploadProgress(0), 500);
-          showNotification('Arquivo enviado com sucesso!');
-        } else {
-          throw new Error(data.error || 'Erro ao enviar arquivo.');
-        }
-      })
-      .catch(err => {
-        console.error('Erro no upload:', err);
-        alert('Erro ao enviar arquivo: ' + (err.message || err));
-        setUploadProgress(0);
-      });
+      }
+    })
+      .then(response => {
+        const data = response.data;
+        if (data && data.success) {
+          setUploadProgress(100);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          setTimeout(() => setUploadProgress(0), 500);
+          showNotification('Arquivo enviado com sucesso!');
+        } else {
+          throw new Error((data && data.error) || 'Erro ao enviar arquivo.');
+        }
+      })
+      .catch(err => {
+        console.error('Erro no upload:', err);
+        alert('Erro ao enviar arquivo: ' + (err.message || err));
+        setUploadProgress(0);
+      });
   }
 
   return (

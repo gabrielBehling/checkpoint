@@ -29,7 +29,7 @@ createRoot(document.getElementById("root")).render(
           <Route element={<ProtectedRoutes />}>
             <Route path="/cadastroEvento" element={<CadastroEvento />} />
             <Route path="/perfil" element={<PerfilPage />} />
-            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat" element={<Chat teamId="1" />} />
             <Route path="/evento/:eventId/inscricao" element={<InscricaoEvento />} />
             <Route path="/evento/:eventId/criarTime" element={<CriarTime />} />
           </Route>
