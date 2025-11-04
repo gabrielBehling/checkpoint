@@ -13,6 +13,10 @@ const ProtectedRoutes = React.lazy(() => import("./components/ProtectedRoute"));
 const EventoInfo = React.lazy(() => import("./pages/EventoInfo"));
 const InscricaoEvento = React.lazy(() => import("./pages/InscricaoEvento"));
 const CriarTime = React.lazy(() => import("./pages/CriarTime"));
+const EditarEvento = React.lazy(() => import("./pages/EditarEvento"))
+const NotFound = React.lazy(() => import("./pages/NotFound"));
+const About_Us = React.lazy(() => import("./pages/About_Us.jsx"))
+const PesquisaEvento = React.lazy(() => import("./pages/Pesquisa.jsx"))
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -20,10 +24,12 @@ createRoot(document.getElementById("root")).render(
       <Suspense fallback={<div>Carregando...</div>}>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/aboutUs" element={<About_Us/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
 
           <Route path="/evento/:eventId" element={<EventoInfo />} />
+          <Route path="/search" element={<PesquisaEvento />} />
 
           {/* Rotas protegidas */}
           <Route element={<ProtectedRoutes />}>
@@ -32,7 +38,9 @@ createRoot(document.getElementById("root")).render(
             <Route path="/chat" element={<Chat teamId="1" />} />
             <Route path="/evento/:eventId/inscricao" element={<InscricaoEvento />} />
             <Route path="/evento/:eventId/criarTime" element={<CriarTime />} />
+            <Route path="/evento/:eventId/editarEvento" element={<EditarEvento />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </AuthProvider>

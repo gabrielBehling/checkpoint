@@ -11,55 +11,54 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte mais limpa */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background: #100C1F; /* Fundo escuro */
+    background: #100C1F;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    color: #F0F0F0; /* Cor de texto principal, quase branco */
+    color: #F0F0F0;
 }
 
-/* ====== NAVBAR (HEADER) ====== */
+/* ====== NAVBAR ====== */
 header {
-    background: #17132B; /* Um pouco mais claro que o corpo, mas ainda escuro */
+    background: #17132B;
     color: #F0F0F0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 14px 40px;
-    border-bottom: 1px solid rgba(74, 144, 226, 0.1); /* Linha sutil de destaque */
+    border-bottom: 1px solid rgba(74, 144, 226, 0.1);
 }
 
 header .logo a {
     font-weight: bold;
     font-size: 1.4rem;
-    color: #4A90E2; /* Logo em azul vibrante */
+    color: #4A90E2;
     text-decoration: none;
     letter-spacing: 2px;
 }
 
 header nav a {
     margin-left: 25px;
-    color: #909090; /* Links secundários em cinza */
+    color: #909090;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 header nav a:hover {
-    color: #4A90E2; /* Destaque em azul vibrante no hover */
+    color: #4A90E2;
 }
 
 /* ====== PERFIL BANNER ====== */
 .perfil-banner {
-    /* Degradê que remete ao estilo visual, usando o azul principal */
     background: linear-gradient(135deg, #241D3B, #17132B);
     color: white;
     padding: 60px 20px;
     text-align: center;
-    border-bottom: 2px solid #4A90E2; /* Borda de destaque */
+    border-bottom: 2px solid #4A90E2;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -73,22 +72,59 @@ header nav a:hover {
     color: #A0A0A0;
 }
 
+/* ====== FOTO DE PERFIL (UPLOAD + HOVER) ====== */
 .foto-perfil {
     width: 140px;
     height: 140px;
-    /* Fundo com a cor de background de input/cartão */
-    background: #241D3B;
     border-radius: 50%;
     margin: 0 auto 15px auto;
-    border: 4px solid #4A90E2; /* Borda com a cor de destaque */
-    box-shadow: 0 0 15px rgba(74, 144, 226, 0.6); /* Sombra de brilho */
-    transition: transform 0.3s ease;
+    border: 4px solid #4A90E2;
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.6);
+    background: #241D3B;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .foto-perfil:hover {
     transform: scale(1.05);
+    border-color: #5CA1F8;
 }
 
+.foto-perfil span {
+    color: #4A90E2;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.perfil-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.foto-perfil::after {
+    content: "Trocar";
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    color: #ccc;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.foto-perfil:hover::after {
+    opacity: 1;
+}
+
+/* ====== STATUS E BOTÕES ====== */
 .status {
     margin-bottom: 18px;
     font-size: 14px;
@@ -100,7 +136,7 @@ header nav a:hover {
     display: inline-block;
     width: 12px;
     height: 12px;
-    background: #4caf50; /* Manter o verde para o 'online' */
+    background: #4caf50;
     border-radius: 50%;
     margin-right: 6px;
     box-shadow: 0 0 5px #4caf50;
@@ -110,7 +146,7 @@ header nav a:hover {
     margin: 5px;
     padding: 10px 25px;
     border: none;
-    background: #4A90E2; /* Botão primário em azul vibrante */
+    background: #4A90E2;
     color: white;
     cursor: pointer;
     border-radius: 6px;
@@ -120,15 +156,15 @@ header nav a:hover {
 }
 
 .perfil-buttons button:hover {
-    background: #5CA1F8; /* Azul mais claro no hover */
+    background: #5CA1F8;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
 }
 
-/* ====== MAIN CONTENT AREA ====== */
+/* ====== MAIN CONTENT ====== */
 main {
     display: flex;
-    justify-content: center; /* Centraliza o conteúdo, já que o body não está centralizando verticalmente */
+    justify-content: center;
     padding: 40px;
     flex: 1;
     gap: 40px;
@@ -137,30 +173,30 @@ main {
     margin: 0 auto;
 }
 
+/* ====== INFO BOX ====== */
 .info-box {
-    background: #241D3B; /* Cor de fundo dos inputs/cards */
+    background: #241D3B;
     padding: 25px;
     border-radius: 10px;
-    width: 300px; /* Aumentei um pouco a largura */
+    width: 300px;
     min-width: 280px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    /* Sombra de brilho sutil */
     box-shadow: 0 0 20px rgba(74, 144, 226, 0.15);
     border: 1px solid rgba(74, 144, 226, 0.3);
 }
 
 .info-box h3 {
     margin-bottom: 10px;
-    color: #4A90E2; /* Títulos em azul vibrante */
+    color: #4A90E2;
     font-size: 1.4rem;
     border-bottom: 1px solid rgba(74, 144, 226, 0.2);
     padding-bottom: 5px;
 }
 
 .info-box p {
-    color: #A0A0A0; /* Texto secundário */
+    color: #A0A0A0;
 }
 
 .info-box button {
@@ -173,9 +209,8 @@ main {
     font-weight: bold;
 }
 
-/* Botão Secundário (como "Editar Perfil") */
 .info-box .secondary {
-    background: #444059; /* Cor secundária escura */
+    background: #444059;
     color: white;
 }
 
@@ -184,11 +219,10 @@ main {
     transform: scale(1.02);
 }
 
-/* Link/Botão Perigo (como "Desconectar" ou "Excluir") */
 .info-box .danger a {
     display: block;
     text-align: center;
-    background: #e53935; /* Vermelho padrão */
+    background: #e53935;
     padding: 12px;
     border-radius: 6px;
     color: white;
@@ -202,11 +236,10 @@ main {
     transform: scale(1.02);
 }
 
-/* Participações (Área Principal) */
+/* ====== PARTICIPAÇÕES ====== */
 .participacoes {
     flex: 1;
     min-width: 60%;
-    /* Estilo de fundo do info-box para manter a coerência */
     background: #241D3B;
     padding: 25px;
     border-radius: 10px;
@@ -216,7 +249,7 @@ main {
 
 .participacoes h3 {
     margin-bottom: 20px;
-    color: #4A90E2; /* Título em azul vibrante */
+    color: #4A90E2;
     font-size: 1.6rem;
     border-bottom: 2px solid rgba(74, 144, 226, 0.2);
     padding-bottom: 10px;
@@ -224,15 +257,14 @@ main {
 
 .grid {
     display: grid;
-    /* Adaptação com cards um pouco maiores */
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
 }
 
 .grid .card {
-    background: #17132B; /* Fundo do card mais escuro para contraste */
+    background: #17132B;
     border: 1px solid rgba(74, 144, 226, 0.3);
-    height: 160px; /* Aumentei a altura */
+    height: 160px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -247,8 +279,8 @@ main {
 
 .grid .card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 10px 20px rgba(74, 144, 226, 0.4); /* Sombra de destaque no hover */
-    background: #1E1A36; /* Levemente mais claro no hover */
+    box-shadow: 0 10px 20px rgba(74, 144, 226, 0.4);
+    background: #1E1A36;
 }
 
 .grid .card h4 {
@@ -261,10 +293,32 @@ main {
     color: #A0A0A0;
 }
 
+/* ====== ESTADOS VAZIOS ====== */
+.sem-participacoes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed #666;
+  border-radius: 10px;
+  padding: 40px;
+  margin-top: 20px;
+  min-height: 120px;
+  text-align: center;
+  color: #aaa;
+  font-size: 1rem;
+  font-style: italic;
+  transition: 0.3s ease;
+}
+
+.sem-participacoes:hover {
+  border-color: #888;
+  color: #ddd;
+}
 
 /* ====== FOOTER ====== */
 footer {
-    background: #17132B; /* Cor do header */
+    background: #17132B;
     text-align: center;
     padding: 20px;
     color: #909090;
@@ -274,7 +328,7 @@ footer {
 footer a {
     margin: 0 15px;
     text-decoration: none;
-    color: #4A90E2; /* Links em azul vibrante */
+    color: #4A90E2;
     transition: color 0.3s ease;
     font-weight: bold;
 }
