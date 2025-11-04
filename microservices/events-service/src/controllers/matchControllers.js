@@ -27,7 +27,7 @@ const authMiddleware = require("../authMiddleware");
 const getEventAndValidate = async (req, res, next) => {
     const { eventId } = req.params;
     if (isNaN(parseInt(eventId))) {
-        return res.status(400).json({ error: "Invalid eventId" });
+        return res.error("Invalid eventId", "INVALID_EVENT_ID", 400);
     }
 
     let pool;
@@ -38,7 +38,7 @@ const getEventAndValidate = async (req, res, next) => {
             .query('SELECT EventID, Mode, CreatedBy, Status FROM Events WHERE EventID = @eventId AND DeletedAt IS NULL');
 
         if (result.recordset.length === 0) {
-            return res.status(404).json({ error: "Event not found" });
+            return res.error("Event not found", "EVENT_NOT_FOUND", 404);
         }
 
         // Anexa informações úteis ao objeto `res.locals` para as próximas rotas
@@ -49,8 +49,8 @@ const getEventAndValidate = async (req, res, next) => {
 
     } catch (error) {
         console.error("Database connection error in middleware:", error);
-        res.status(500).json({ error: "Failed to process request." });
         if (pool) await pool.close();
+        return res.error("Failed to process request.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 };
 
@@ -61,12 +61,12 @@ router.use("/:eventId", getEventAndValidate);
 router.use("/:eventId/leaderboard", authMiddleware, (req, res, next) => {
     if (res.locals.event.Mode !== 'Leaderboard') {
         res.locals.db_pool.close();
-        return res.status(400).json({ error: `This endpoint is only for 'Leaderboard' events. This event is of type '${res.locals.event.Mode}'.` });
+        return res.error(`This endpoint is only for 'Leaderboard' events. This event is of type '${res.locals.event.Mode}'.`, "INVALID_EVENT_MODE", 400);
     }
     if (req.method === 'POST') {
         if (res.locals.event.status === 'Finished') {
             res.locals.db_pool.close();
-            return res.status(400).json({ error: "Cannot modify a completed event." });
+            return res.error("Cannot modify a completed event.", "EVENT_FINISHED", 400);
         }
     }
     next();
@@ -75,14 +75,14 @@ router.use("/:eventId/leaderboard", authMiddleware, (req, res, next) => {
 router.use("/:eventId/single-elimination", authMiddleware, (req, res, next) => {
     if (res.locals.event.Mode !== 'Single Elimination') {
         res.locals.db_pool.close();
-        return res.status(400).json({ error: `This endpoint is only for 'Single Elimination' events. This event is of type '${res.locals.event.Mode}'.` });
+        return res.error(`This endpoint is only for 'Single Elimination' events. This event is of type '${res.locals.event.Mode}'.`, "INVALID_EVENT_MODE", 400);
     }
 
     // 2. Validar Status do Evento para rotas POST (gerar bracket, atualizar partida, finalizar)
     if (req.method === 'POST') {
         if (res.locals.event.status === 'Finished') {
             res.locals.db_pool.close();
-            return res.status(400).json({ error: "Cannot modify a completed event." });
+            return res.error("Cannot modify a completed event.", "EVENT_FINISHED", 400);
         }
     }
     next();
@@ -92,14 +92,14 @@ router.use("/:eventId/round-robin", authMiddleware, (req, res, next) => {
     // 1. Validar Modo
     if (res.locals.event.Mode !== 'Round Robin') { // Use esta string exata
         res.locals.db_pool.close();
-        return res.status(400).json({ error: `This endpoint is only for 'Round Robin' events. This event is of type '${res.locals.event.Mode}'.` });
+        return res.error(`This endpoint is only for 'Round Robin' events. This event is of type '${res.locals.event.Mode}'.`, "INVALID_EVENT_MODE", 400);
     }
 
     // 2. Validar Status do Evento para rotas POST
     if (req.method === 'POST') {
         if (res.locals.event.Status === 'Finished') {
             res.locals.db_pool.close();
-            return res.status(400).json({ error: "Cannot modify a completed event." });
+            return res.error("Cannot modify a completed event.", "EVENT_FINISHED", 400);
         }
     }
     next();

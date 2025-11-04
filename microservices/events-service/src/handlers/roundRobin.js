@@ -28,7 +28,7 @@ router.post("/settings", async (req, res) => {
     
     // Autorização
     if (res.locals.event.CreatedBy !== req.user.userId) {
-        return res.status(403).json({ error: "You are not authorized to configure this event." });
+        return res.error("You are not authorized to configure this event.", "UNAUTHORIZED", 403);
     }
     
     // Validação do Body
@@ -36,7 +36,7 @@ router.post("/settings", async (req, res) => {
     try {
         settings = await settingsSchema.validate(req.body);
     } catch (error) {
-        return res.status(400).json({ error: error.message });
+        return res.error(error.message, "VALIDATION_ERROR", 400);
     }
 
     try {
@@ -58,10 +58,10 @@ router.post("/settings", async (req, res) => {
                     VALUES (@eventId, @win, @draw, @loss);
             `);
         
-        res.status(200).json({ message: "Event point settings updated successfully." });
+        return res.success(null, "Event point settings updated successfully.");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to update settings.", details: error.message });
+        return res.error("Failed to update settings.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 });
 
@@ -74,7 +74,7 @@ router.post("/generate-schedule", async (req, res) => {
     const { eventId } = req.params;
     
     if (res.locals.event.CreatedBy !== req.user.userId) {
-        return res.status(403).json({ error: "You are not authorized to manage this event." });
+        return res.error("You are not authorized to manage this event.", "UNAUTHORIZED", 403);
     }
 
     const transaction = new sql.Transaction(res.locals.db_pool);
@@ -89,7 +89,7 @@ router.post("/generate-schedule", async (req, res) => {
         
         if (checkResult.recordset[0].MatchCount > 0) {
             await transaction.rollback();
-            return res.status(400).json({ error: "Schedule has already been generated for this event." });
+            return res.error("Schedule has already been generated for this event.", "SCHEDULE_ALREADY_GENERATED", 400);
         }
 
         // 2. Buscar equipes aprovadas
@@ -102,7 +102,7 @@ router.post("/generate-schedule", async (req, res) => {
 
         if (teams.length < 2) {
             await transaction.rollback();
-            return res.status(400).json({ error: "At least 2 approved teams are required to generate a schedule." });
+            return res.error("At least 2 approved teams are required to generate a schedule.", "NOT_ENOUGH_TEAMS", 400);
         }
 
         // 3. Gerar pares (Todos contra Todos)
@@ -123,13 +123,13 @@ router.post("/generate-schedule", async (req, res) => {
             }
         }
 
-        await transaction.commit();
-        res.status(201).json({ message: `Schedule generated successfully with ${teams.length} teams.` });
+    await transaction.commit();
+    return res.success({ teamCount: teams.length }, `Schedule generated successfully with ${teams.length} teams.`, 201);
 
     } catch (error) {
         await transaction.rollback();
         console.error(error);
-        res.status(500).json({ error: "Failed to generate schedule.", details: error.message });
+        return res.error("Failed to generate schedule.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 });
 
@@ -158,10 +158,10 @@ router.get("/schedule", async (req, res) => {
                 ORDER BY M.MatchID;
             `);
         
-        res.status(200).json(result.recordset);
+        return res.success(result.recordset, "Schedule retrieved successfully");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     }
 });
 
@@ -174,14 +174,14 @@ router.post("/match/:matchId", async (req, res) => {
     const { eventId, matchId } = req.params;
 
     if (res.locals.event.CreatedBy !== req.user.userId) {
-        return res.status(403).json({ error: "You are not authorized to update match results." });
+        return res.error("You are not authorized to update match results.", "UNAUTHORIZED", 403);
     }
 
     let resultData;
     try {
         resultData = await matchResultSchema.validate(req.body);
     } catch (error) {
-        return res.status(400).json({ error: error.message });
+        return res.error(error.message, "VALIDATION_ERROR", 400);
     }
 
     const { team1Score, team2Score } = resultData;
@@ -196,12 +196,12 @@ router.post("/match/:matchId", async (req, res) => {
             .query('SELECT Team1_ID, Team2_ID, Status FROM RoundRobinMatches WHERE MatchID = @matchId AND EventID = @eventId');
         
         if (matchResult.recordset.length === 0) {
-            return res.status(404).json({ error: "Match not found." });
+            return res.error("Match not found.", "MATCH_NOT_FOUND", 404);
         }
         
         const match = matchResult.recordset[0];
         if (match.Status === 'Finished') {
-            return res.status(400).json({ error: "This match has already been finished." });
+            return res.error("This match has already been finished.", "MATCH_ALREADY_FINISHED", 400);
         }
 
         // 2. Determinar Vencedor
@@ -225,11 +225,11 @@ router.post("/match/:matchId", async (req, res) => {
                 WHERE MatchID = @matchId
             `);
         
-        res.status(200).json({ message: "Match result recorded successfully." });
+    return res.success(null, "Match result recorded successfully.");
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to update match.", details: error.message });
+        return res.error("Failed to update match.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 });
 
@@ -251,7 +251,7 @@ router.get("/ranking", async (req, res) => {
             .query('SELECT PointsPerWin, PointsPerDraw, PointsPerLoss FROM EventSettings_RoundRobin WHERE EventID = @eventId');
 
         if (settingsResult.recordset.length === 0) {
-            return res.status(400).json({ error: "Point settings for this event are not configured. Please set them first." });
+            return res.error("Point settings for this event are not configured. Please set them first.", "SETTINGS_NOT_CONFIGURED", 400);
         }
         
         const settings = settingsResult.recordset[0];
@@ -322,11 +322,11 @@ router.get("/ranking", async (req, res) => {
             ORDER BY TotalPoints DESC, GoalDifference DESC, GoalsFor DESC;
         `);
 
-        res.status(200).json(rankingResult.recordset);
+    return res.success(rankingResult.recordset, "Ranking retrieved successfully");
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to get ranking.", details: error.message });
+        return res.error("Failed to get ranking.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 });
 
@@ -339,7 +339,7 @@ router.post("/finish", async (req, res) =>{
     const { eventId } = req.params;
     
     if(res.locals.event.CreatedBy !== req.user.userId){
-        return res.status(403).json({ error: "You are not authorized to finish this event." });
+        return res.error("You are not authorized to finish this event.", "UNAUTHORIZED", 403);
     }
     
     try { 
@@ -348,10 +348,10 @@ router.post("/finish", async (req, res) =>{
             .input('eventId', sql.Int, eventId)
             .query(`UPDATE Events SET Status = 'Finished' WHERE EventID = @eventId`);
         
-        res.status(200).json({ message: `Event has been finished!` });
+        return res.success(null, `Event has been finished!`);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     }
 });
 

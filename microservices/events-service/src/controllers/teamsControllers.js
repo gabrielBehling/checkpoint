@@ -497,7 +497,7 @@ router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) =>
 
     // 1. Validar IDs
     if (isNaN(eventId) || isNaN(teamId)) {
-        return res.status(400).json({ error: "Invalid eventId or teamId" });
+        return res.error("Invalid eventId or teamId", "INVALID_ID", 400);
     }
 
     // 2. Validar o Body (o novo status)
@@ -505,7 +505,7 @@ router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) =>
     try {
         validatedData = await updateStatusSchema.validate(req.body);
     } catch (error) {
-        return res.status(400).json({ error: error.message });
+        return res.error(error.message, "VALIDATION_ERROR", 400);
     }
     
     const { status: newStatus } = validatedData;
@@ -520,11 +520,11 @@ router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) =>
         `;
         
         if (eventCheck.recordset.length === 0) {
-            return res.status(404).json({ error: "Event not found." });
+            return res.error("Event not found.", "EVENT_NOT_FOUND", 404);
         }
         
         if (eventCheck.recordset[0].CreatedBy !== userId) {
-            return res.status(403).json({ error: "You are not authorized to manage this event's registrations." });
+            return res.error("You are not authorized to manage this event's registrations.", "UNAUTHORIZED", 403);
         }
 
         // 4. Se for o dono, atualizar o status da inscrição do time
@@ -536,13 +536,13 @@ router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) =>
 
         if (updateResult.rowsAffected[0] === 0) {
             // Isso acontece se o time não estiver inscrito ou já foi deletado
-            return res.status(404).json({ error: "Team registration not found for this event." });
+            return res.error("Team registration not found for this event.", "REGISTRATION_NOT_FOUND", 404);
         }
 
-        res.status(200).json({ message: `Team ${teamId} status for event ${eventId} updated to ${newStatus}` });
+        return res.success(null, `Team ${teamId} status for event ${eventId} updated to ${newStatus}`);
 
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     } finally {
         await sql.close();
     }
