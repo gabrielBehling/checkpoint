@@ -5,9 +5,9 @@ import "../assets/css/style-perfil.css";
 
 export default function PerfilPage() {
   const [userData, setUserData] = useState({
-    Username: "",
-    Email: "",
-    UserRole: "",
+    username: "",
+    email: "",
+    userRole: "",
     participacoes: [],
     profileImage: null,
     bannerImage: null, // imagem do banner
@@ -20,7 +20,7 @@ export default function PerfilPage() {
     api
       .get("/auth/me/")
       .then((response) => {
-        setUserData(response.data);
+        setUserData(response.data.data);
         if (response.data.profileImage) setPreviewImage(response.data.profileImage);
         if (response.data.bannerImage) setPreviewBanner(response.data.bannerImage);
       })
@@ -134,7 +134,7 @@ export default function PerfilPage() {
             </div>
 
             <div className="perfil-buttons">
-              <button>{userData.Username || "Usuário"}</button>
+              <button>{userData.username || "Usuário"}</button>
               <Link to="/" className="btn">
                 Histórico
               </Link>
@@ -153,13 +153,13 @@ export default function PerfilPage() {
         <aside className="info-box">
           <h3>Informações:</h3>
           <p>
-            <strong>Nome:</strong> {userData.Username}
+            <strong>Nome:</strong> {userData.username}
           </p>
           <p>
-            <strong>E-mail:</strong> {userData.Email}
+            <strong>E-mail:</strong> {userData.email}
           </p>
           <p>
-            <strong>Tipo da conta:</strong> {userData.UserRole}
+            <strong>Tipo da conta:</strong> {userData.userRole}
           </p>
           <button className="secondary">Trocar tipo da conta</button>
 

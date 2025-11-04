@@ -199,13 +199,13 @@ export default function PesquisaEventos() {
           {eventos.map((evento) => (
             <div key={evento.id} className="card-evento">
               <img
-                src={evento.BannerURL}
-                alt={evento.Title}
+                src={evento.bannerUrl}
+                alt={evento.title}
                 className="banner-evento"
               />
               <div className="info-evento">
-                <h2>{evento.Title}</h2>
-                <p>{evento.Description}</p>
+                <h2>{evento.title}</h2>
+                <p>{evento.description}</p>
                 <button className="btn-detalhes">Mais detalhes</button>
               </div>
             </div>

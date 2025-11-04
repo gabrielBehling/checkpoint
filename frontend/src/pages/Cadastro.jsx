@@ -45,9 +45,11 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
             passwordConfirm: passwordConfirm,
             userRole: type,
         }).then(function (response) {
-            alert("Cadastro realizado com sucesso!");
-            checkAuth();
-            navigate("/"); 
+            if (response.data.success) {
+                alert("Cadastro realizado com sucesso!");
+                checkAuth();
+                navigate("/");
+            }
         }).catch(function (error) {
             console.error("Erro no cadastro:", error);
             alert("Erro ao cadastrar. Verifique o console.");

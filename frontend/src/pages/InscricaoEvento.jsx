@@ -19,10 +19,14 @@ export default function InscricaoEvento() {
         }
 
         const eventResponse = await api.get(`/events/${eventId}/`);
-        setEvento(eventResponse.data);
+        if (eventResponse.data.success) {
+          setEvento(eventResponse.data.data);
+        }
 
         const teamsResponse = await api.get(`/events/${eventId}/teams/`);
-        setTimes(teamsResponse.data);
+        if (teamsResponse.data.success) {
+          setTimes(teamsResponse.data.data);
+        }
       } catch (err) {
         console.error("Erro ao carregar evento:", err.response);
         setErro("Erro ao carregar informações do evento.");
@@ -52,9 +56,9 @@ export default function InscricaoEvento() {
 
   return (
     <main className="inscricao-container">
-      <h1>Inscrição no Evento: {evento.Title}</h1>
+      <h1>Inscrição no Evento: {evento.title}</h1>
       <section className="criar-time">
-        <Link to={`/evento/${evento.EventID}/criarTime`}>
+        <Link to={`/evento/${evento.eventId}/criarTime`}>
           <button>Criar Novo Time</button>
         </Link>
       </section>
@@ -66,10 +70,10 @@ export default function InscricaoEvento() {
         ) : (
           <ul>
             {times.map((time) => (
-              <li key={time.TeamID}>
-                <h3>{time.TeamName}</h3>
+              <li key={time.teamId}>
+                <h3>{time.teamName}</h3>
                 <button
-                  onClick={handleInscreverTime(time.TeamID)}
+                  onClick={handleInscreverTime(time.teamId)}
                 >
                   Entrar no time
                 </button>

@@ -25,7 +25,7 @@ export default function LoginPage() {
       password: password
     })
     .then((res) => {
-      if (res.status === 200) {
+      if (res.data.success) {
         checkAuth();
         navigate("/");
       }

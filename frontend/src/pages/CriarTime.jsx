@@ -23,7 +23,9 @@ export default function CriarTime() {
         }
 
         const eventResponse = await api.get(`/events/${eventId}/`);
-        setEvento(eventResponse.data);
+        if (eventResponse.data.success) {
+          setEvento(eventResponse.data.data);
+        }
       } catch (err) {
         console.error("Erro ao carregar evento:", err);
         setErro("Erro ao carregar informações do evento.");
@@ -52,11 +54,13 @@ export default function CriarTime() {
     e.preventDefault();
     try {
       const response = await api.post(`/events/${eventId}/teams/`, {
-        TeamName: teamName,
-        // LogoFile: teamLogo
+        teamName: teamName,
+        // logoFile: teamLogo
       });
-      alert("Time criado com sucesso!");
-      navigate(`/evento/${eventId}`);
+      if (response.data.success) {
+        alert("Time criado com sucesso!");
+        navigate(`/evento/${eventId}`);
+      }
     } catch (err) {
       console.error("Erro ao criar time:", err);
       alert("Erro ao criar time. Tente novamente.");

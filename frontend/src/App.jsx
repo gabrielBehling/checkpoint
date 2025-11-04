@@ -23,18 +23,22 @@ function App() {
         try {
             const response = await api.get("/events/"); 
             
-            const newCarouselData = response.data.map((event, index) => ({
-                id: event.EventID,
-                src: event.BannerURL && event.BannerURL.trim() !== "" 
-                    ? event.BannerURL 
-                    : FALLBACK_IMAGE_SRC,
-                alt: event.Title || "Evento sem título",
-                link: `/evento/${event.EventID}/`
-            }));
+            if (response.data.success) {
+                const newCarouselData = response.data.data.data.map((event, index) => ({
+                    id: event.eventId,
+                    src: event.bannerUrl && event.bannerUrl.trim() !== "" 
+                        ? event.bannerUrl 
+                        : FALLBACK_IMAGE_SRC,
+                    alt: event.title || "Evento sem título",
+                    link: `/evento/${event.eventId}/`
+                }));
 
-            setCarouselData(newCarouselData);
-            setActiveIndex(0);
-            setErrorSources({});
+                setCarouselData(newCarouselData);
+                setActiveIndex(0);
+                setErrorSources({});
+            } else {
+                throw new Error("Falha ao carregar os eventos");
+            }
         } catch (err) {
             console.error("Erro ao carregar banners dos eventos:", err);
             setError("Não foi possível carregar os eventos. Tente novamente.");
@@ -113,7 +117,8 @@ function App() {
                                 </li>
                                 <li>
                                     <span className="user-welcome">
-                                        <li><a href="/perfil">Olá, {user.Username}</a></li>
+                                        {console.log("User data:", user)}
+                                        <li><a href="/perfil">Olá, {user.username}</a></li>
                                     </span>
                                 </li>
                             </>
@@ -194,7 +199,7 @@ function App() {
                 <ul>
                     <li><a href="#">Ajuda</a></li>
                     <li><a href="#">Contato</a></li>
-                    <li><a href="#">Sobre Nós</a></li>
+                    <li><Link to="/aboutUs">Sobre nós</Link></li>
                     <li><a href="#">Termos</a></li>
                 </ul>
             </footer>

@@ -20,7 +20,9 @@ export default function EventoInfo() {
         }
 
         const response = await api.get(`/events/${eventId}/`);
-        setEvento(response.data);
+        if (response.data.success) {
+          setEvento(response.data.data);
+        }
       } catch (err) {
         console.error("Erro ao carregar evento:", err);
         setErro("Erro ao carregar informações do evento.");
@@ -44,29 +46,29 @@ export default function EventoInfo() {
         className="evento-banner"
       />
 
-      <h1>{evento.Title}</h1>
-      <p>{evento.Description}</p>
+      <h1>{evento.title}</h1>
+      <p>{evento.description}</p>
 
       <section className="evento-info">
-        <p><strong>Jogo ID:</strong> {evento.GameID}</p>
-        <p><strong>Modo:</strong> {evento.Mode}</p>
-        <p><strong>Data de Início:</strong> {formatarData(evento.StartDate)}</p>
-        <p><strong>Data de Término:</strong> {formatarData(evento.EndDate)}</p>
-        <p><strong>Local:</strong> {evento.Location}</p>
-        <p><strong>Online:</strong> {evento.IsOnline ? "Sim" : "Não"}</p>
-        <p><strong>Idioma:</strong> {evento.Language}</p>
-        <p><strong>Plataforma:</strong> {evento.Platform}</p>
-        <p><strong>Participantes Máximos:</strong> {evento.MaxParticipants}</p>
-        <p><strong>Times Máximos:</strong> {evento.MaxTeams}</p>
-        <p><strong>Tamanho do Time:</strong> {evento.TeamSize}</p>
-        <p><strong>Entrada:</strong> R$ {evento.Ticket?.toFixed(2)||"0.00"}</p>
-        <p><strong>Custo de Participação:</strong> R$ {evento.ParticipationCost?.toFixed(2)||"0.00"}</p>
-        <p><strong>Regras:</strong> {evento.Rules}</p>
-        <p><strong>Premiação:</strong> {evento.Prizes}</p>
-        <p><strong>Status:</strong> {evento.Status}</p>
+        <p><strong>Jogo ID:</strong> {evento.gameId}</p>
+        <p><strong>Modo:</strong> {evento.mode}</p>
+        <p><strong>Data de Início:</strong> {formatarData(evento.startDate)}</p>
+        <p><strong>Data de Término:</strong> {formatarData(evento.endDate)}</p>
+        <p><strong>Local:</strong> {evento.location}</p>
+        <p><strong>Online:</strong> {evento.isOnline ? "Sim" : "Não"}</p>
+        <p><strong>Idioma:</strong> {evento.language}</p>
+        <p><strong>Plataforma:</strong> {evento.platform}</p>
+        <p><strong>Participantes Máximos:</strong> {evento.maxParticipants}</p>
+        <p><strong>Times Máximos:</strong> {evento.maxTeams}</p>
+        <p><strong>Tamanho do Time:</strong> {evento.teamSize}</p>
+        <p><strong>Entrada:</strong> R$ {evento.ticket?.toFixed(2)||"0.00"}</p>
+        <p><strong>Custo de Participação:</strong> R$ {evento.participationCost?.toFixed(2)||"0.00"}</p>
+        <p><strong>Regras:</strong> {evento.rules}</p>
+        <p><strong>Premiação:</strong> {evento.prizes}</p>
+        <p><strong>Status:</strong> {evento.status}</p>
       </section>
 
-      <Link to={`/evento/${evento.EventID}/inscricao`}>
+      <Link to={`/evento/${evento.eventId}/inscricao`}>
       <button className="btn-inscricao">Inscrever-se</button>
       </Link>
     </main>

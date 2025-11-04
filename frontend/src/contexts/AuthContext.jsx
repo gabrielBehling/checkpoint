@@ -10,8 +10,9 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
         try {
             const response = await api.get('/auth/me/');
-            if (response.status === 200) {
-                setUser(response.data);
+            
+            if (response.data.success) {
+                setUser(response.data.data);
             } else {
                 setUser(null);
             }
