@@ -8,10 +8,12 @@ export default function EventoInfo() {
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
-  const { eventId } = useParams()
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const { eventId } = useParams();
   
   useEffect(() => {
-    async function carregarEvento() {
+    async function carregarDados() {
       try {
         if (!eventId) {
           setErro("Evento não encontrado.");
@@ -19,20 +21,24 @@ export default function EventoInfo() {
           return;
         }
 
-        const response = await api.get(`/events/${eventId}/`);
+        const [eventoRes, commentsRes] = await Promise.all([
+          api.get(`/events/${eventId}/`),
+          api.get(`/events/${eventId}/comments`)
+        ]);
         if (response.data.success) {
-          setEvento(response.data.data);
+          setEvento(eventoRes.data.data);
         }
+        setComments(commentsRes.data);
       } catch (err) {
-        console.error("Erro ao carregar evento:", err);
+        console.error("Erro ao carregar dados:", err);
         setErro("Erro ao carregar informações do evento.");
       } finally {
         setLoading(false);
       }
     }
 
-    carregarEvento();
-  }, []);
+    carregarDados();
+  }, [eventId]);
 
   if (loading) return <p>Carregando informações...</p>;
   if (erro) return <p style={{ color: "red" }}>{erro}</p>;
@@ -71,6 +77,58 @@ export default function EventoInfo() {
       <Link to={`/evento/${evento.eventId}/inscricao`}>
       <button className="btn-inscricao">Inscrever-se</button>
       </Link>
+
+      <section className="comments-section">
+        <h3>Comentários</h3>
+        
+        <div className="comments-list">
+          {comments.length === 0 ? (
+            <p className="no-comments">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+          ) : (
+            comments.map(comment => (
+              <div key={comment._id} className="comment">
+                <div className="comment-header">
+                  <strong>{comment.author}</strong>
+                  <span className="comment-date">
+                    {new Date(comment.timestamp).toLocaleString('pt-BR')}
+                  </span>
+                </div>
+                <p className="comment-content">{comment.message}</p>
+              </div>
+            ))
+          )}
+        </div>
+
+        <form 
+          className="comment-form" 
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!newComment.trim()) return;
+            
+            try {
+              const response = await api.post(`/events/${eventId}/comments`, {
+                content: newComment.trim()
+              });
+              setComments(prev => [response.data, ...prev]);
+              setNewComment('');
+            } catch (err) {
+              console.error('Erro ao enviar comentário:', err);
+              alert('Não foi possível enviar o comentário. Tente novamente.');
+            }
+          }}
+        >
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Escreva seu comentário..."
+            maxLength={1000}
+            required
+          />
+          <button type="submit" disabled={!newComment.trim()}>
+            Enviar Comentário
+          </button>
+        </form>
+      </section>
     </main>
   );
 }
