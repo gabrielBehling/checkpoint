@@ -1,5 +1,8 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+
+const responseMiddleware = require("./responseMiddleware");
+
 const eventsControllers = require("./controllers/eventsControllers");
 const teamsControllers = require("./controllers/teamsControllers");
 const matchControlles = require("./controllers/matchControllers");
