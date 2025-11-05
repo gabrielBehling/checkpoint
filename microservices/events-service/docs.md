@@ -3,7 +3,8 @@
 ## Base URL
 ```
 http://api.localhost/api/events
-```
+
+````
 
 ## 🔐 Autenticação
 Todos os endpoints (exceto `/health` e `GET /:eventId`) requerem autenticação via JWT token.
@@ -20,9 +21,10 @@ A API utiliza um formato padronizado para todas as respostas:
   "data": { /* dados específicos */ },
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
-```
+````
 
 ### Resposta de Erro
+
 ```json
 {
   "success": false,
@@ -34,28 +36,31 @@ A API utiliza um formato padronizado para todas as respostas:
 ```
 
 **Códigos de Erro Comuns:**
-- `INVALID_EVENT_ID` - ID do evento inválido
-- `INVALID_TEAM_ID` - ID do time inválido
-- `VALIDATION_ERROR` - Erro de validação de dados
-- `EVENT_NOT_FOUND` - Evento não encontrado
-- `TEAM_NOT_FOUND` - Time não encontrado
-- `UNAUTHORIZED` - Sem permissão para a operação
-- `TEAM_FULL` - Time está cheio
-- `ALREADY_MEMBER` - Usuário já é membro do time
-- `TEAM_ALREADY_EXISTS` - Usuário já criou um time para este evento
-- `MAX_TEAMS_REACHED` - Limite de times atingido
-- `INTERNAL_ERROR` - Erro interno do servidor
 
----
+  * `INVALID_EVENT_ID` - ID do evento inválido
+  * `INVALID_TEAM_ID` - ID do time inválido
+  * `VALIDATION_ERROR` - Erro de validação de dados
+  * `EVENT_NOT_FOUND` - Evento não encontrado
+  * `TEAM_NOT_FOUND` - Time não encontrado
+  * `UNAUTHORIZED` - Sem permissão para a operação
+  * `TEAM_FULL` - Time está cheio
+  * `ALREADY_MEMBER` - Usuário já é membro do time
+  * `TEAM_ALREADY_EXISTS` - Usuário já criou um time para este evento
+  * `MAX_TEAMS_REACHED` - Limite de times atingido
+  * `INTERNAL_ERROR` - Erro interno do servidor
+
+-----
 
 ## 📋 Endpoints
 
 ### Health Check
+
 **GET** `/health`
 
 Verifica o status do serviço.
 
 **Resposta:**
+
 ```json
 {
   "success": true,
@@ -67,21 +72,24 @@ Verifica o status do serviço.
 }
 ```
 
----
+-----
 
 ## 🎯 Gerenciamento de Eventos
 
-### 1. Criar Evento
+### 1\. Criar Evento
+
 **POST** `/`
 
 Cria um novo evento.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Body:**
+
 ```json
 {
   "Title": "Torneio de CS2",
@@ -101,19 +109,21 @@ Cookie: accessToken=<jwt_token>
   "MaxTeams": 20,
   "Rules": "Melhor de 3 mapas...",
   "Prizes": "1º lugar: R$ 1000,00",
-  "BannerURL": "https://example.com/banner.jpg",
+  "BannerURL": "[https://example.com/banner.jpg](https://example.com/banner.jpg)",
   "Status": "Active"
 }
 ```
 
 **Campos Obrigatórios:**
-- `Title` (string)
-- `Description` (string) 
-- `StartDate` (date)
-- `EndDate` (date)
-- `IsOnline` (boolean)
+
+  * `Title` (string)
+  * `Description` (string)
+  * `StartDate` (date)
+  * `EndDate` (date)
+  * `IsOnline` (boolean)
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -127,26 +137,31 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `201`: Evento criado com sucesso
-- `400`: Dados inválidos (erro de validação)
-- `401`: Não autenticado
 
----
+  * `201`: Evento criado com sucesso
+  * `400`: Dados inválidos (erro de validação)
+  * `401`: Não autenticado
 
-### 2. Atualizar Evento
+-----
+
+### 2\. Atualizar Evento
+
 **PUT** `/:eventId`
 
 Atualiza um evento existente. Apenas o criador do evento pode atualizá-lo.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Parâmetros:**
-- `eventId` (number) - ID do evento
+
+  * `eventId` (number) - ID do evento
 
 **Body:** (campos opcionais)
+
 ```json
 {
   "Title": "Novo título",
@@ -156,6 +171,7 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -168,28 +184,33 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `200`: Evento atualizado com sucesso
-- `400`: Dados inválidos
-- `401`: Não autenticado
-- `403`: Sem permissão para editar
-- `404`: Evento não encontrado
 
----
+  * `200`: Evento atualizado com sucesso
+  * `400`: Dados inválidos
+  * `401`: Não autenticado
+  * `403`: Sem permissão para editar
+  * `404`: Evento não encontrado
 
-### 3. Deletar Evento
+-----
+
+### 3\. Deletar Evento
+
 **DELETE** `/:eventId`
 
 Deleta um evento (soft delete). Apenas o criador do evento pode deletá-lo.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Parâmetros:**
-- `eventId` (number) - ID do evento
+
+  * `eventId` (number) - ID do evento
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -202,15 +223,17 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `200`: Evento deletado com sucesso
-- `400`: ID inválido
-- `401`: Não autenticado
-- `403`: Sem permissão para deletar
-- `404`: Evento não encontrado
 
----
+  * `200`: Evento deletado com sucesso
+  * `400`: ID inválido
+  * `401`: Não autenticado
+  * `403`: Sem permissão para deletar
+  * `404`: Evento não encontrado
 
-### 4. Buscar Eventos
+-----
+
+### 4\. Buscar Eventos
+
 **GET** `/`
 
 Busca eventos com filtros avançados e suporte a paginação.
@@ -218,7 +241,7 @@ Busca eventos com filtros avançados e suporte a paginação.
 **Query Parameters:**
 
 | Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
+| --- | --- | --- |
 | `game` | string | Nome do jogo |
 | `date` | date | Data específica (YYYY-MM-DD) |
 | `mode` | string | Modo de jogo (ex: "5v5") |
@@ -238,11 +261,13 @@ Busca eventos com filtros avançados e suporte a paginação.
 | `limit` | number | Itens por página (padrão: 10) |
 
 **Exemplo de Uso:**
+
 ```
 GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit=10
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -273,7 +298,7 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
         "availableTeamSlots": 11,
         "rules": "Melhor de 3 mapas...",
         "prizes": "1º lugar: R$ 1000,00",
-        "bannerURL": "https://example.com/banner.jpg",
+        "bannerURL": "[https://example.com/banner.jpg](https://example.com/banner.jpg)",
         "status": "Active",
         "organizer": {
           "userId": 123,
@@ -294,25 +319,20 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
 }
 ```
 
-**Status Codes:**
-- `200`: Sucesso
-- `500`: Erro interno do servidor
-
----
-
 ### 5. Buscar Evento por ID
-
 **GET** `/:eventId`
 
 Busca um evento específico pelo seu ID com dados completos e relacionados.
 
 **Parâmetros:**
-- `eventId` (number) - ID do evento
+* `eventId` (number) - ID do evento
 
 **Headers (opcional):**
 ```
-Cookie: accessToken=<jwt_token>
-```
+
+Cookie: accessToken=\<jwt\_token\>
+
+````
 *Se autenticado, inclui informações sobre registro do usuário no evento*
 
 **Resposta de Sucesso:**
@@ -346,7 +366,7 @@ Cookie: accessToken=<jwt_token>
     "availableTeamSlots": 11,
     "rules": "Melhor de 3 mapas...",
     "prizes": "1º lugar: R$ 1000,00",
-    "bannerURL": "https://example.com/banner.jpg",
+    "bannerURL": "[https://example.com/banner.jpg](https://example.com/banner.jpg)",
     "status": "Active",
     "createdBy": {
       "userId": 123,
@@ -362,43 +382,50 @@ Cookie: accessToken=<jwt_token>
   },
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
-```
+````
 
 **Status Codes:**
-- `200`: Evento encontrado e retornado com sucesso
-- `400`: `eventId` inválido (não numérico)
-- `404`: Evento não encontrado ou deletado
-- `500`: Erro interno do servidor
 
----
+  * `200`: Evento encontrado e retornado com sucesso
+  * `400`: `eventId` inválido (não numérico)
+  * `404`: Evento não encontrado ou deletado
+  * `500`: Erro interno do servidor
+
+-----
 
 ## 👥 Gerenciamento de Times
 
-### 6. Criar Time para Evento
+### 6\. Criar Time para Evento
+
 **POST** `/:eventId/teams`
 
 Cria um novo time e registra para um evento. O criador automaticamente se torna o capitão do time.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Parâmetros:**
-- `eventId` (number) - ID do evento
+
+  * `eventId` (number) - ID do evento
 
 **Body:**
+
 ```json
 {
   "TeamName": "Team Alpha",
-  "LogoURL": "https://example.com/logo.png"
+  "LogoURL": "[https://example.com/logo.png](https://example.com/logo.png)"
 }
 ```
 
 **Campos Obrigatórios:**
-- `TeamName` (string, max 100 caracteres)
+
+  * `TeamName` (string, max 100 caracteres)
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -414,12 +441,14 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `201`: Time criado com sucesso
-- `400`: Dados inválidos, limite de times atingido ou usuário já possui time no evento
-- `401`: Não autenticado
-- `404`: Evento não encontrado
+
+  * `201`: Time criado com sucesso
+  * `400`: Dados inválidos, limite de times atingido ou usuário já possui time no evento
+  * `401`: Não autenticado
+  * `404`: Evento não encontrado
 
 **Resposta de Erro (Limite de Times):**
+
 ```json
 {
   "success": false,
@@ -434,23 +463,28 @@ Cookie: accessToken=<jwt_token>
 }
 ```
 
----
+-----
 
-### 7. Listar Times de um Evento
+### 7\. Listar Times de um Evento
+
 **GET** `/:eventId/teams`
 
 Lista todos os times registrados em um evento com informações enriquecidas.
 
 **Parâmetros:**
-- `eventId` (number) - ID do evento
+
+  * `eventId` (number) - ID do evento
 
 **Headers (opcional):**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
+
 *Se autenticado, inclui informação se o usuário pode entrar em cada time*
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -459,7 +493,7 @@ Cookie: accessToken=<jwt_token>
     {
       "teamId": 1,
       "teamName": "Team Alpha",
-      "logoURL": "https://example.com/logo.png",
+      "logoURL": "[https://example.com/logo.png](https://example.com/logo.png)",
       "eventId": 1,
       "status": "Approved",
       "registeredAt": "2024-01-01T10:00:00.000Z",
@@ -479,21 +513,25 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `200`: Sucesso
-- `400`: `eventId` inválido
-- `500`: Erro interno do servidor
 
----
+  * `200`: Sucesso
+  * `400`: `eventId` inválido
+  * `500`: Erro interno do servidor
 
-### 8. Buscar Informações do Time
+-----
+
+### 8\. Buscar Informações do Time
+
 **GET** `/teams/:teamId`
 
 Retorna informações detalhadas de um time específico, incluindo lista de membros.
 
 **Parâmetros:**
-- `teamId` (number) - ID do time
+
+  * `teamId` (number) - ID do time
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -501,7 +539,7 @@ Retorna informações detalhadas de um time específico, incluindo lista de memb
   "data": {
     "teamId": 1,
     "teamName": "Team Alpha",
-    "logoURL": "https://example.com/logo.png",
+    "logoURL": "[https://example.com/logo.png](https://example.com/logo.png)",
     "chatID": "550e8400-e29b-41d4-a716-446655440000",
     "eventId": 1,
     "status": "Approved",
@@ -536,27 +574,32 @@ Retorna informações detalhadas de um time específico, incluindo lista de memb
 ```
 
 **Status Codes:**
-- `200`: Sucesso
-- `400`: `teamId` inválido
-- `404`: Time não encontrado
-- `500`: Erro interno do servidor
 
----
+  * `200`: Sucesso
+  * `400`: `teamId` inválido
+  * `404`: Time não encontrado
+  * `500`: Erro interno do servidor
 
-### 9. Entrar em um Time
+-----
+
+### 9\. Entrar em um Time
+
 **POST** `/teams/:teamId/join`
 
 Permite que um usuário entre em um time específico, desde que o time não esteja cheio.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Parâmetros:**
-- `teamId` (number) - ID do time
+
+  * `teamId` (number) - ID do time
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -573,13 +616,15 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `200`: Entrada no time bem-sucedida
-- `400`: Erro de validação (time cheio ou usuário já é membro)
-- `401`: Não autenticado
-- `404`: Time não encontrado ou registro não encontrado
-- `500`: Erro interno do servidor
+
+  * `200`: Entrada no time bem-sucedida
+  * `400`: Erro de validação (time cheio ou usuário já é membro)
+  * `401`: Não autenticado
+  * `404`: Time não encontrado ou registro não encontrado
+  * `500`: Erro interno do servidor
 
 **Resposta de Erro (Time Cheio):**
+
 ```json
 {
   "success": false,
@@ -595,6 +640,7 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Resposta de Erro (Já é Membro):**
+
 ```json
 {
   "success": false,
@@ -609,25 +655,30 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Regras de Validação:**
-- O usuário não pode entrar em um time do qual já é membro
-- O time não pode exceder o número máximo de membros definido no evento
 
----
+  * O usuário não pode entrar em um time do qual já é membro
+  * O time não pode exceder o número máximo de membros definido no evento
 
-### 10. Deletar Time
+-----
+
+### 10\. Deletar Time
+
 **DELETE** `/teams/:teamId`
 
 Deleta um time (soft delete). Apenas o capitão do time pode deletá-lo.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Parâmetros:**
-- `teamId` (number) - ID do time
+
+  * `teamId` (number) - ID do time
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -640,29 +691,34 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `200`: Time deletado com sucesso
-- `400`: `teamId` inválido
-- `401`: Não autenticado
-- `403`: Sem permissão para deletar
-- `404`: Time não encontrado
 
----
+  * `200`: Time deletado com sucesso
+  * `400`: `teamId` inválido
+  * `401`: Não autenticado
+  * `403`: Sem permissão para deletar
+  * `404`: Time não encontrado
 
-### 11. Remover Membro do Time
+-----
+
+### 11\. Remover Membro do Time
+
 **DELETE** `/teams/:teamId/members/:memberId`
 
 Remove um membro específico de um time. O membro pode ser removido pelo capitão do time (CreatedBy) ou pode sair voluntariamente (quando memberId é o próprio usuário).
 
 **Headers:**
+
 ```
 Cookie: accessToken=<jwt_token>
 ```
 
 **Parâmetros:**
-- `teamId` (number) - ID do time
-- `memberId` (number) - ID do usuário a ser removido
+
+  * `teamId` (number) - ID do time
+  * `memberId` (number) - ID do usuário a ser removido
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -678,6 +734,7 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Resposta quando Time é Cancelado (sem membros):**
+
 ```json
 {
   "success": true,
@@ -693,28 +750,595 @@ Cookie: accessToken=<jwt_token>
 ```
 
 **Status Codes:**
-- `200`: Membro removido com sucesso
-- `400`: ID inválido
-- `401`: Não autenticado
-- `403`: Sem permissão para remover o membro
-- `404`: Time ou membro não encontrado
-- `500`: Erro interno do servidor
+
+  * `200`: Membro removido com sucesso
+  * `400`: ID inválido
+  * `401`: Não autenticado
+  * `403`: Sem permissão para remover o membro
+  * `404`: Time ou membro não encontrado
+  * `500`: Erro interno do servidor
 
 **Regras de Negócio:**
-- Apenas o capitão do time pode remover outros membros
-- Um membro pode sair voluntariamente do time (remover a si mesmo)
-- Se o último membro sair, o time é automaticamente deletado
-- Quando um time fica sem membros, seu status é alterado para 'Cancelled'
 
----
+  * Apenas o capitão do time pode remover outros membros
+  * Um membro pode sair voluntariamente do time (remover a si mesmo)
+  * Se o último membro sair, o time é automaticamente deletado
+  * Quando um time fica sem membros, seu status é alterado para 'Cancelled'
+
+
+### 12. Atualizar Status de Inscrição do Time
+**PUT** `/:eventId/teams/:teamId/status`
+
+Atualiza o status de inscrição de um time no evento (ex: de 'Pending' para 'Approved').
+Apenas o Dono do Evento pode realizar esta ação.
+
+**Headers:**
+```
+
+Cookie: accessToken=\<jwt\_token\>
+
+````
+
+**Parâmetros:**
+* `eventId` (number) - ID do evento
+* `teamId` (number) - ID do time
+
+**Body:**
+```json
+{
+  "status": "Approved"
+}
+````
+
+*Valores de Status Válidos: `Pending`, `Approved`, `Rejected`, `Cancelled`*
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Team 1 status for event 1 updated to Approved",
+  "data": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Validação):**
+
+```json
+{
+  "success": false,
+  "message": "Invalid status value",
+  "error": "VALIDATION_ERROR",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (403 - Não autorizado):**
+
+```json
+{
+  "success": false,
+  "message": "You are not authorized to manage this event's registrations.",
+  "error": "UNAUTHORIZED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (404 - Evento não encontrado):**
+
+```json
+{
+  "success": false,
+  "message": "Event not found.",
+  "error": "EVENT_NOT_FOUND",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (404 - Inscrição não encontrada):**
+
+```json
+{
+  "success": false,
+  "message": "Team registration not found for this event.",
+  "error": "REGISTRATION_NOT_FOUND",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+-----
+
+## ⚔️ Sistema de Partidas
+
+Endpoints para gerenciar partidas e pontuações, específicos para cada `Mode` de evento (Leaderboard, Round Robin, Single Elimination). A autenticação é necessária para todas as rotas, exceto consulta pública de rankings/brackets.
+
+### Modo: Leaderboard
+
+#### 1\. Adicionar/Atualizar Pontos da Rodada
+
+**POST** `/:eventId/leaderboard/round/:roundNumber`
+
+Registra ou atualiza os pontos de times em uma rodada específica.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+
+  * `eventId` (number) - ID do evento (deve ser do tipo `Leaderboard`)
+  * `roundNumber` (number) - Número da rodada
+
+**Body:**
+
+```json
+{
+  "scores": [
+    { "teamId": 1, "points": 25 },
+    { "teamId": 2, "points": 15 }
+  ]
+}
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Scores for round 1 updated successfully.",
+  "data": {
+    "eventId": 1,
+    "roundNumber": 1,
+    "affectedTeams": 2
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Validação):**
+
+```json
+{
+  "success": false,
+  "message": "Scores array cannot be empty",
+  "error": "VALIDATION_ERROR",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (403 - Não autorizado):**
+
+```json
+{
+  "success": false,
+  "message": "You are not authorized to manage this event's matches.",
+  "error": "UNAUTHORIZED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 2\. Obter Leaderboard (Ranking)
+
+**GET** `/:eventId/leaderboard`
+
+Retorna o ranking completo dos times baseado na soma total de pontos.
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Leaderboard retrieved successfully",
+  "data": [
+    {
+      "Rank": 1,
+      "TeamId": 1,
+      "TeamName": "Team Alpha",
+      "LogoURL": "[https://logo.url/alpha.png](https://logo.url/alpha.png)",
+      "TotalPoints": 25
+    },
+    {
+      "Rank": 2,
+      "TeamId": 2,
+      "TeamName": "Team Beta",
+      "LogoURL": "[https://logo.url/beta.png](https://logo.url/beta.png)",
+      "TotalPoints": 15
+    }
+  ],
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 3\. Finalizar Evento (Leaderboard)
+
+**POST** `/:eventId/leaderboard/finish`
+
+Finaliza o evento, alterando seu status para 'Finished'.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Event has been finished!",
+  "data": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+-----
+
+### Modo: Round Robin (Todos contra Todos)
+
+#### 1\. Gerar Agenda de Partidas
+
+**POST** `/:eventId/round-robin/generate-schedule`
+
+Gera a agenda de partidas (todos contra todos) para as equipes aprovadas.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Resposta de Sucesso (201):**
+
+```json
+{
+  "success": true,
+  "message": "Round robin schedule generated successfully.",
+  "data": {
+    "eventId": 1,
+    "matchesCreated": 10
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Agenda já existe):**
+
+```json
+{
+  "success": false,
+  "message": "Schedule has already been generated for this event.",
+  "error": "SCHEDULE_ALREADY_GENERATED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Times insuficientes):**
+
+```json
+{
+  "success": false,
+  "message": "Cannot generate schedule, requires at least 2 approved teams.",
+  "error": "INSUFFICIENT_TEAMS",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 2\. Obter Agenda de Partidas
+
+**GET** `/:eventId/round-robin/schedule`
+
+Retorna a lista de partidas geradas para o evento.
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Schedule retrieved successfully",
+  "data": [
+    {
+      "MatchID": 1,
+      "Team1_ID": 10,
+      "Team1_Name": "Team Alpha",
+      "Team1_Score": null,
+      "Team2_ID": 20,
+      "Team2_Name": "Team Beta",
+      "Team2_Score": null,
+      "Status": "Pending",
+      "Winner_ID": null
+    }
+  ],
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 3\. Atualizar Resultado da Partida
+
+**POST** `/:eventId/round-robin/match/:matchId`
+
+Atualiza o resultado (placar) de uma partida específica.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+
+  * `eventId` (number)
+  * `matchId` (number)
+
+**Body:**
+
+```json
+{
+  "team1Score": 2,
+  "team2Score": 1
+}
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Match result updated successfully.",
+  "data": {
+    "matchId": 1,
+    "status": "Finished",
+    "winnerId": 10
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 4\. Obter Ranking (Tabela)
+
+**GET** `/:eventId/round-robin/ranking`
+
+Retorna a tabela de classificação (ranking) do evento, calculada com base nos resultados das partidas.
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Ranking retrieved successfully",
+  "data": [
+    {
+      "Rank": 1,
+      "TeamID": 10,
+      "TeamName": "Team Alpha",
+      "Points": 3,
+      "Wins": 1,
+      "Draws": 0,
+      "Losses": 0,
+      "GoalsFor": 2,
+      "GoalsAgainst": 1,
+      "GoalDifference": 1
+    }
+  ],
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 5\. Finalizar Evento (Round Robin)
+
+**POST** `/:eventId/round-robin/finish`
+
+Finaliza o evento, alterando seu status para 'Finished'.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Event has been finished!",
+  "data": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+-----
+
+### Modo: Single Elimination (Mata-Mata)
+
+#### 1\. Gerar Chaveamento (Bracket)
+
+**POST** `/:eventId/single-elimination/generate-bracket`
+
+Gera a estrutura de partidas (chaveamento) para as equipes aprovadas, embaralhando-as.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Resposta de Sucesso (201):**
+
+```json
+{
+  "success": true,
+  "message": "Bracket generated successfully",
+  "data": {
+    "eventId": 1,
+    "teamCount": 8,
+    "bracketSize": 8,
+    "matchesCreated": 7
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Chaveamento já existe):**
+
+```json
+{
+  "success": false,
+  "message": "Bracket has already been generated for this event.",
+  "error": "BRACKET_ALREADY_GENERATED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 2\. Obter Chaveamento (Bracket)
+
+**GET** `/:eventId/single-elimination/bracket`
+
+Retorna a estrutura completa do chaveamento (todas as partidas e rodadas).
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Bracket retrieved successfully",
+  "data": [
+    {
+      "MatchID": 1,
+      "EventID": 1,
+      "RoundNumber": 8,
+      "MatchNumber": 1,
+      "Team1_ID": 10,
+      "Team1_Name": "Team Alpha",
+      "Team1_Score": null,
+      "Team1_SourceMatchID": null,
+      "Team2_ID": 20,
+      "Team2_Name": "Team Beta",
+      "Team2_Score": null,
+      "Team2_SourceMatchID": null,
+      "Status": "Ready",
+      "Winner_ID": null,
+      "NextMatch_ID": 5
+    }
+  ],
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 3\. Atualizar Resultado da Partida (Mata-Mata)
+
+**POST** `/:eventId/single-elimination/match/:matchId`
+
+Atualiza o resultado da partida e avança o vencedor para a próxima rodada.
+Apenas o criador do evento pode realizar esta ação. Empates não são permitidos.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+
+  * `eventId` (number)
+  * `matchId` (number)
+
+**Body:**
+
+```json
+{
+  "team1Score": 1,
+  "team2Score": 0
+}
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Match result recorded and winner advanced.",
+  "data": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Empate):**
+
+```json
+{
+  "success": false,
+  "message": "Ties are not allowed in single elimination.",
+  "error": "INVALID_MATCH_RESULT",
+  "details": null,
+  "timestamp": "2S024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Partida finalizada):**
+
+```json
+{
+  "success": false,
+  "message": "This match has already been finished.",
+  "error": "MATCH_ALREADY_FINISHED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 4\. Finalizar Evento (Single Elimination)
+
+**POST** `/:eventId/single-elimination/finish`
+
+Finaliza o evento, alterando seu status para 'Finished'.
+Apenas o criador do evento pode realizar esta ação.
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Event has been finished!",
+  "data": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+-----
 
 ## 🗃️ Modelo de Dados
 
 ### Evento
+
 Todos os campos são retornados em **camelCase** na resposta JSON.
 
 | Campo | Tipo | Descrição |
-|-------|------|-----------|
+| --- | --- | --- |
 | `eventId` | number | ID único do evento |
 | `title` | string | Título do evento |
 | `description` | string | Descrição detalhada |
@@ -745,10 +1369,11 @@ Todos os campos são retornados em **camelCase** na resposta JSON.
 | `metadata` | object | Metadados (createdAt, updatedAt, lastModifiedBy) |
 
 ### Time
+
 Todos os campos são retornados em **camelCase** na resposta JSON.
 
 | Campo | Tipo | Descrição |
-|-------|------|-----------|
+| --- | --- | --- |
 | `teamId` | number | ID único do time |
 | `teamName` | string | Nome do time |
 | `logoURL` | string | URL do logo |
@@ -765,53 +1390,61 @@ Todos os campos são retornados em **camelCase** na resposta JSON.
 | `members` | array | Lista de membros do time (apenas GET /teams/:teamId) |
 
 ### Organizador/Capitão
+
 | Campo | Tipo | Descrição |
-|-------|------|-----------|
+| --- | --- | --- |
 | `userId` | number | ID do usuário |
 | `username` | string | Nome de usuário |
 | `userRole` | string | Role do usuário |
 
----
+-----
 
 ## 🛡️ Regras de Negócio
 
 ### Permissões
-- Apenas usuários autenticados podem criar/editar eventos
-- Apenas o criador do evento pode editá-lo ou deletá-lo
-- Times podem ser criados por qualquer usuário autenticado
-- Apenas o capitão do time pode deletar o time ou remover membros
-- Membros podem sair voluntariamente do time (remover a si mesmos)
+
+  * Apenas usuários autenticados podem criar/editar eventos
+  * Apenas o criador do evento pode editá-lo ou deletá-lo
+  * Times podem ser criados por qualquer usuário autenticado
+  * Apenas o capitão do time pode deletar o time ou remover membros
+  * Membros podem sair voluntariamente do time (remover a si mesmos)
+  * Apenas o criador do evento pode gerenciar o status das inscrições (`PUT .../status`) e os resultados das partidas.
 
 ### Validações
-- Data de início deve ser anterior à data de término
-- Limite de times respeita `MaxTeams` do evento
-- Limite de membros por time respeita `TeamSize` do evento
-- Um usuário só pode criar um time por evento
-- Status válidos: `Active`, `Canceled`, `Finished`
+
+  * Data de início deve ser anterior à data de término
+  * Limite de times respeita `MaxTeams` do evento
+  * Limite de membros por time respeita `TeamSize` do evento
+  * Um usuário só pode criar um time por evento
+  * Status válidos: `Active`, `Canceled`, `Finished`
+  * Status de inscrição válidos: `Pending`, `Approved`, `Rejected`, `Cancelled`
 
 ### Filtros Disponíveis
-- **Texto**: `search` (título, descrição, organizador)
-- **Data/Hora**: `date`, `time`
-- **Localização**: `place`, `isOnline`
-- **Jogo**: `game`, `mode`, `platform`
-- **Configurações**: `groupSize`, `maxParticipants`
-- **Financeiro**: `ticket`, `participationCost`
-- **Outros**: `language`, `status`, `prize`
 
----
+  * **Texto**: `search` (título, descrição, organizador)
+  * **Data/Hora**: `date`, `time`
+  * **Localização**: `place`, `isOnline`
+  * **Jogo**: `game`, `mode`, `platform`
+  * **Configurações**: `groupSize`, `maxParticipants`
+  * **Financeiro**: `ticket`, `participationCost`
+  * **Outros**: `language`, `status`, `prize`
+
+-----
 
 ## 🚨 Tratamento de Erros
 
 ### Códigos de Status HTTP
-- `200`: Sucesso
-- `201`: Criado com sucesso
-- `400`: Dados inválidos ou validação falhou
-- `401`: Token inválido ou não fornecido
-- `403`: Sem permissão para a operação
-- `404`: Recurso não encontrado
-- `500`: Erro interno do servidor
+
+  * `200`: Sucesso
+  * `201`: Criado com sucesso
+  * `400`: Dados inválidos ou validação falhou
+  * `401`: Token inválido ou não fornecido
+  * `403`: Sem permissão para a operação
+  * `404`: Recurso não encontrado
+  * `500`: Erro interno do servidor
 
 ### Exemplo de Resposta de Erro:
+
 ```json
 {
   "success": false,
@@ -822,6 +1455,7 @@ Todos os campos são retornados em **camelCase** na resposta JSON.
 ```
 
 ### Exemplo de Erro com Detalhes:
+
 ```json
 {
   "success": false,
@@ -836,13 +1470,14 @@ Todos os campos são retornados em **camelCase** na resposta JSON.
 }
 ```
 
----
+-----
 
 ## 📊 Exemplos de Uso
 
 ### Criar um Torneio Online
+
 ```bash
-curl -X POST http://api.localhost/api/events \
+curl -X POST [http://api.localhost/api/events](http://api.localhost/api/events) \
   -H "Cookie: accessToken=your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
@@ -859,406 +1494,53 @@ curl -X POST http://api.localhost/api/events \
 ```
 
 ### Buscar Eventos Ativos de CS2 com Paginação
+
 ```bash
-curl "http://api.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10" \
+curl "[http://api.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10](http://api.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10)" \
   -H "Cookie: accessToken=your_jwt_token"
 ```
 
 ### Criar Time para um Evento
+
 ```bash
-curl -X POST http://api.localhost/api/events/1/teams \
+curl -X POST [http://api.localhost/api/events/1/teams](http://api.localhost/api/events/1/teams) \
   -H "Cookie: accessToken=your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
     "TeamName": "Team Alpha",
-    "LogoURL": "https://example.com/logo.png"
+    "LogoURL": "[https://example.com/logo.png](https://example.com/logo.png)"
   }'
 ```
 
 ### Entrar em um Time
+
 ```bash
-curl -X POST http://api.localhost/api/events/teams/1/join \
+curl -X POST [http://api.localhost/api/events/teams/1/join](http://api.localhost/api/events/teams/1/join) \
   -H "Cookie: accessToken=your_jwt_token"
 ```
 
-## 🏆 Sistema de Partidas e Leaderboard
+### Aprovar Inscrição de um Time (Dono do Evento)
 
-O serviço de **MatchControllers** é responsável pelo gerenciamento de partidas e rankings de eventos. **.
-
-A arquitetura foi desenhada para suportar diferentes modos de evento (`Mode`)
-
----
-
-### 🔗 Base URL
-
-```
-http://api.localhost/api/events/:eventId
+```bash
+curl -X PUT [http://api.localhost/api/events/1/teams/1/status](http://api.localhost/api/events/1/teams/1/status) \
+  -H "Cookie: accessToken=your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "Approved"
+  }'
 ```
 
-### 🔒 Autenticação
-
-Todas as rotas de **Leaderboard** exigem autenticação via JWT (`accessToken`), exceto a rota pública de visualização do ranking.
-
----
-
-## ⚙️ Middleware de Validação - `getEventAndValidate`
-
-Antes de qualquer rota sob `/events/:eventId/...`, é executado o middleware de validação do evento:
-
-**Funções:**
-
-* Verifica se `eventId` é válido
-* Busca o evento no banco
-* Anexa as informações ao `res.locals.event`
-* Cria e compartilha uma conexão SQL (`res.locals.db_pool`)
-* Fecha a conexão automaticamente após a resposta
-
-**Erros Possíveis:**
-
-| Código | Erro                        |
-| ------ | --------------------------- |
-| `400`  | `Invalid eventId`           |
-| `404`  | `Event not found`           |
-| `500`  | `Failed to process request` |
-
----
-
-
-## 🎮 Leaderboard - Pontuação e Ranking
-
-### 1. Adicionar/Atualizar Pontos de uma Rodada
-
-**POST** `/:eventId/leaderboard/round/:roundNumber`
-
-Registra ou atualiza os pontos de times em uma rodada específica.
-Apenas o criador do evento pode realizar esta ação.
-
-**Headers:**
-
-```
-Cookie: accessToken=<jwt_token>
-```
-
-**Parâmetros:**
-
-| Parâmetro     | Tipo   | Descrição                                                  |
-| ------------- | ------ | ---------------------------------------------------------- |
-| `eventId`     | number | ID do evento (precisa existir e ser do tipo *Leaderboard*) |
-| `roundNumber` | number | Número da rodada (ex: 1, 2, 3...)                          |
-
-**Body:**
-
-```json
-{
-  "scores": [
-    { "teamId": 1, "points": 25 },
-    { "teamId": 2, "points": 15 },
-    { "teamId": 3, "points": 5 }
-  ]
-}
-```
-
-**Validações:**
-
-* `teamId` deve existir no evento
-* `points` deve ser numérico
-* O array `scores` não pode ser vazio
-* Apenas o criador do evento pode atualizar a pontuação
-
-**Resposta de Sucesso:**
-
-```json
-{
-  "message": "Scores for round 2 updated successfully."
-}
-```
-
-**Status Codes:**
-
-| Código | Descrição                          |
-| ------ | ---------------------------------- |
-| `200`  | Pontuação atualizada com sucesso   |
-| `400`  | Dados inválidos ou rodada inválida |
-| `401`  | Não autenticado                    |
-| `403`  | Usuário não é o criador do evento  |
-| `404`  | Evento não encontrado              |
-| `500`  | Erro interno na transação          |
-
-**Notas Técnicas:**
-
-* As atualizações utilizam o comando SQL `MERGE`, permitindo inserir ou atualizar em uma única operação.
-* Todas as operações são executadas dentro de uma **transação** SQL para garantir atomicidade.
-
----
-
-### 2. Consultar Ranking Atual
-
-**GET** `/:eventId/leaderboard`
-
-Retorna o ranking completo de um evento, ordenado pela soma total de pontos de cada time.
-
-**Parâmetros:**
-
-| Parâmetro | Tipo   | Descrição    |
-| --------- | ------ | ------------ |
-| `eventId` | number | ID do evento |
-
-**Resposta de Sucesso:**
-
-```json
-[
-  {
-    "Rank": 1,
-    "TeamId": 12,
-    "TeamName": "Red Dragons",
-    "LogoURL": "https://example.com/logos/red.png",
-    "TotalPoints": 85
-  },
-  {
-    "Rank": 2,
-    "TeamId": 5,
-    "TeamName": "Blue Wolves",
-    "LogoURL": "https://example.com/logos/blue.png",
-    "TotalPoints": 73
-  }
-]
-```
-
-**Status Codes:**
-
-| Código | Descrição                |
-| ------ | ------------------------ |
-| `200`  | Sucesso                  |
-| `400`  | `eventId` inválido       |
-| `404`  | Evento não encontrado    |
-| `500`  | Erro interno do servidor |
-
-**Regra de Ranking:**
-
-* O ranking é calculado com `DENSE_RANK()` baseado na soma total dos pontos (`SUM(Points)`).
-* Empates recebem a mesma posição no ranking (exemplo: dois times com 50 pontos ficam ambos em 2º lugar).
-
----
-
-### 3. Estrutura de Banco de Dados (Leaderboard)
-
-#### Tabela: `LeaderboardScores`
-
-| Campo            | Tipo          | Descrição                |
-| ---------------- | ------------- | ------------------------ |
-| `EventID`        | int           | ID do evento             |
-| `TeamID`         | int           | ID do time               |
-| `RoundNumber`    | int           | Número da rodada         |
-| `Points`         | decimal(10,2) | Pontos obtidos na rodada |
-| `CreatedAt`      | datetime      | Data de inserção         |
-| `LastModifiedAt` | datetime      | Última atualização       |
-
-**Chave Primária Composta:**
-`(EventID, TeamID, RoundNumber)`
-
----
-
-## 📘 Observações Técnicas
-
-* Cada evento possui um **modo de jogo (`Mode`)**, que define as regras e endpoints disponíveis.
-  Exemplos: `Leaderboard`, `Elimination`, `GroupStage`, `Swiss`, entre outros.
-
-
-## 🏆 Sistema de Partidas e Leaderboard
-
-O serviço de **MatchControllers** é responsável pelo gerenciamento de partidas e rankings de eventos. **.
-
-A arquitetura foi desenhada para suportar diferentes modos de evento (`Mode`)
-
----
-
-### 🔗 Base URL
-
-```
-http://api.localhost/api/events/:eventId
-```
-
-### 🔒 Autenticação
-
-Todas as rotas de **Leaderboard** exigem autenticação via JWT (`accessToken`), exceto a rota pública de visualização do ranking.
-
----
-
-## ⚙️ Middleware de Validação - `getEventAndValidate`
-
-Antes de qualquer rota sob `/events/:eventId/...`, é executado o middleware de validação do evento:
-
-**Funções:**
-
-* Verifica se `eventId` é válido
-* Busca o evento no banco
-* Anexa as informações ao `res.locals.event`
-* Cria e compartilha uma conexão SQL (`res.locals.db_pool`)
-* Fecha a conexão automaticamente após a resposta
-
-**Erros Possíveis:**
-
-| Código | Erro                        |
-| ------ | --------------------------- |
-| `400`  | `Invalid eventId`           |
-| `404`  | `Event not found`           |
-| `500`  | `Failed to process request` |
-
----
-
-
-## 🎮 Leaderboard - Pontuação e Ranking
-
-### 1. Adicionar/Atualizar Pontos de uma Rodada
-
-**POST** `/:eventId/leaderboard/round/:roundNumber`
-
-Registra ou atualiza os pontos de times em uma rodada específica.
-Apenas o criador do evento pode realizar esta ação.
-
-**Headers:**
-
-```
-Cookie: accessToken=<jwt_token>
-```
-
-**Parâmetros:**
-
-| Parâmetro     | Tipo   | Descrição                                                  |
-| ------------- | ------ | ---------------------------------------------------------- |
-| `eventId`     | number | ID do evento (precisa existir e ser do tipo *Leaderboard*) |
-| `roundNumber` | number | Número da rodada (ex: 1, 2, 3...)                          |
-
-**Body:**
-
-```json
-{
-  "scores": [
-    { "teamId": 1, "points": 25 },
-    { "teamId": 2, "points": 15 },
-    { "teamId": 3, "points": 5 }
-  ]
-}
-```
-
-**Validações:**
-
-* `teamId` deve existir no evento
-* `points` deve ser numérico
-* O array `scores` não pode ser vazio
-* Apenas o criador do evento pode atualizar a pontuação
-
-**Resposta de Sucesso:**
-
-```json
-{
-  "message": "Scores for round 2 updated successfully."
-}
-```
-
-**Status Codes:**
-
-| Código | Descrição                          |
-| ------ | ---------------------------------- |
-| `200`  | Pontuação atualizada com sucesso   |
-| `400`  | Dados inválidos ou rodada inválida |
-| `401`  | Não autenticado                    |
-| `403`  | Usuário não é o criador do evento  |
-| `404`  | Evento não encontrado              |
-| `500`  | Erro interno na transação          |
-
-**Notas Técnicas:**
-
-* As atualizações utilizam o comando SQL `MERGE`, permitindo inserir ou atualizar em uma única operação.
-* Todas as operações são executadas dentro de uma **transação** SQL para garantir atomicidade.
-
----
-
-### 2. Consultar Ranking Atual
-
-**GET** `/:eventId/leaderboard`
-
-Retorna o ranking completo de um evento, ordenado pela soma total de pontos de cada time.
-
-**Parâmetros:**
-
-| Parâmetro | Tipo   | Descrição    |
-| --------- | ------ | ------------ |
-| `eventId` | number | ID do evento |
-
-**Resposta de Sucesso:**
-
-```json
-[
-  {
-    "Rank": 1,
-    "TeamId": 12,
-    "TeamName": "Red Dragons",
-    "LogoURL": "https://example.com/logos/red.png",
-    "TotalPoints": 85
-  },
-  {
-    "Rank": 2,
-    "TeamId": 5,
-    "TeamName": "Blue Wolves",
-    "LogoURL": "https://example.com/logos/blue.png",
-    "TotalPoints": 73
-  }
-]
-```
-
-**Status Codes:**
-
-| Código | Descrição                |
-| ------ | ------------------------ |
-| `200`  | Sucesso                  |
-| `400`  | `eventId` inválido       |
-| `404`  | Evento não encontrado    |
-| `500`  | Erro interno do servidor |
-
-**Regra de Ranking:**
-
-* O ranking é calculado com `DENSE_RANK()` baseado na soma total dos pontos (`SUM(Points)`).
-* Empates recebem a mesma posição no ranking (exemplo: dois times com 50 pontos ficam ambos em 2º lugar).
-
----
-
-### 3. Estrutura de Banco de Dados (Leaderboard)
-
-#### Tabela: `LeaderboardScores`
-
-| Campo            | Tipo          | Descrição                |
-| ---------------- | ------------- | ------------------------ |
-| `EventID`        | int           | ID do evento             |
-| `TeamID`         | int           | ID do time               |
-| `RoundNumber`    | int           | Número da rodada         |
-| `Points`         | decimal(10,2) | Pontos obtidos na rodada |
-| `CreatedAt`      | datetime      | Data de inserção         |
-| `LastModifiedAt` | datetime      | Última atualização       |
-
-**Chave Primária Composta:**
-`(EventID, TeamID, RoundNumber)`
-
----
-
-## 📘 Observações Técnicas
-
-* Cada evento possui um **modo de jogo (`Mode`)**, que define as regras e endpoints disponíveis.
-  Exemplos: `Leaderboard`, `Elimination`, `GroupStage`, `Swiss`, entre outros.
-
-
----
+-----
 
 ## 📝 Notas Importantes
 
-1. **Conversão de Nomes**: Todos os campos retornados pela API estão em **camelCase** (ex: `eventId`, `teamName`), enquanto os campos enviados no body podem estar em **PascalCase** (ex: `Title`, `TeamName`).
+1.  **Conversão de Nomes**: Todos os campos retornados pela API estão em **camelCase** (ex: `eventId`, `teamName`), enquanto os campos enviados no body podem estar em **PascalCase** (ex: `Title`, `TeamName`).
+2.  **Paginação**: O endpoint `GET /events` suporta paginação através dos parâmetros `page` e `limit`. O padrão é `page=1` e `limit=10`.
+3.  **Dados Enriquecidos**: Os endpoints `GET /:eventId` e `GET /teams/:teamId` retornam dados relacionados (organizador, jogo, membros) automaticamente para reduzir chamadas ao frontend.
+4.  **Autenticação Opcional**: Alguns endpoints GET podem ser acessados sem autenticação, mas retornam informações adicionais quando autenticado (ex: `isRegistered`, `canJoin`).
+5.  **Timestamp**: Todas as respostas incluem um campo `timestamp` com a data/hora da resposta em formato ISO 8601.
 
-2. **Paginação**: O endpoint `GET /events` suporta paginação através dos parâmetros `page` e `limit`. O padrão é `page=1` e `limit=10`.
+<!-- end list -->
 
-3. **Dados Enriquecidos**: Os endpoints `GET /:eventId` e `GET /teams/:teamId` retornam dados relacionados (organizador, jogo, membros) automaticamente para reduzir chamadas ao frontend.
-
-4. **Autenticação Opcional**: Alguns endpoints GET podem ser acessados sem autenticação, mas retornam informações adicionais quando autenticado (ex: `isRegistered`, `canJoin`).
-
-5. **Timestamp**: Todas as respostas incluem um campo `timestamp` com a data/hora da resposta em formato ISO 8601.
-
-Esta documentação reflete as melhorias implementadas na API para fornecer respostas padronizadas, consistentes e enriquecidas.
+```
+```
