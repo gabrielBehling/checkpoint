@@ -1,16 +1,10 @@
-import { React, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import "../assets/css/style-perfil.css";
 
 export default function PerfilPage() {
-  const [userData, setUserData] = useState({
-    username: "",
-    email: "",
-    userRole: "",
-    participacoes: [],
-    profileURL: null
-  });
+  const [userData, setUserData] = useState({});
 
   const [previewImage, setPreviewImage] = useState(null);
   const [previewBanner, setPreviewBanner] = useState(null);
@@ -19,7 +13,12 @@ export default function PerfilPage() {
     api
       .get("/auth/me/")
       .then((response) => {
-        const data = response.data && response.data.data ? response.data.data : response.data;
+
+        let data = null;
+        if (response.data.success){
+          data = response.data.data;
+        }
+        
         setUserData(data || {});
 
         const profilePath = data?.profileURL || null;
@@ -189,7 +188,7 @@ export default function PerfilPage() {
               {userData.eventsHistory.map((evento, index) => (
                 <div className="card" key={index}>
                   <h4>{evento.title}</h4>
-                  <p>{new Date(evento.startDate)}</p>
+                  <p>{new Date(evento.startDate).toLocaleDateString("pt-br")}</p>
                 </div>
               ))}
             </div>
