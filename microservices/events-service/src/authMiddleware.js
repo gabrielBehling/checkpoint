@@ -6,6 +6,10 @@ async function authMiddleware(req, res, next) {
     const accessToken = req.cookies?.accessToken;
 
     if (!accessToken) {
+        // Use standardized response if available, otherwise fallback
+        if (typeof res.error === 'function') {
+            return res.error('Access token missing', 'UNAUTHORIZED', 401);
+        }
         return res.status(401).json({ message: 'Access token missing' });
     }
 
@@ -14,6 +18,9 @@ async function authMiddleware(req, res, next) {
         req.user = user;
         return next();
     } catch (err) {
+        if (typeof res.error === 'function') {
+            return res.error('Invalid access token', 'UNAUTHORIZED', 401);
+        }
         return res.status(401).json({ message: 'Invalid access token' });
     }
 }

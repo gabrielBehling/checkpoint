@@ -33,7 +33,7 @@ router.post("/generate-bracket", async (req, res) => {
     const { eventId } = req.params;
 
     if (res.locals.event.CreatedBy !== req.user.userId) {
-        return res.status(403).json({ error: "You are not authorized to manage this event's matches." });
+        return res.error("You are not authorized to manage this event's matches.", "UNAUTHORIZED", 403);
     }
 
     const transaction = new sql.Transaction(res.locals.db_pool);
@@ -48,7 +48,7 @@ router.post("/generate-bracket", async (req, res) => {
         
         if (checkResult.recordset[0].MatchCount > 0) {
             await transaction.rollback();
-            return res.status(400).json({ error: "Bracket has already been generated for this event." });
+            return res.error("Bracket has already been generated for this event.", "BRACKET_ALREADY_GENERATED", 400);
         }
 
         // 2. Buscar equipes aprovadas
@@ -62,7 +62,7 @@ router.post("/generate-bracket", async (req, res) => {
 
         if (n < 2) {
             await transaction.rollback();
-            return res.status(400).json({ error: "At least 2 teams are required to generate a bracket." });
+            return res.error("At least 2 teams are required to generate a bracket.", "NOT_ENOUGH_TEAMS", 400);
         }
 
         // 3. Calcular tamanho da bracket e byes
@@ -100,7 +100,7 @@ router.post("/generate-bracket", async (req, res) => {
         // Se n=2, a "play-in" (Passo 4) já é a final. Não precisamos dos passos 5, 6, 7.
         if (n === 2) {
             await transaction.commit();
-            return res.status(201).json({ message: `Bracket generated successfully for 2 teams.` });
+            return res.success(null, `Bracket generated successfully for 2 teams.`, 201);
         }
         // =================== FIM DA CORREÇÃO ====================
 
@@ -186,16 +186,13 @@ router.post("/generate-bracket", async (req, res) => {
                 `);
         }
 
-        await transaction.commit();
-        res.status(201).json({ message: `Bracket generated successfully for ${n} teams.` });
+    await transaction.commit();
+    return res.success({ teamCount: n }, `Bracket generated successfully for ${n} teams.`, 201);
 
     } catch (error) {
         await transaction.rollback();
         console.error("Erro ao gerar bracket:", error);
-        res.status(500).json({ 
-            error: "Failed to generate bracket.", 
-            details: error.message
-        });
+        return res.error("Failed to generate bracket.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 });
 
@@ -225,10 +222,10 @@ router.get("/bracket", async (req, res) => {
                 ORDER BY M.RoundNumber, M.MatchNumber;
             `);
         
-        res.status(200).json(result.recordset);
+        return res.success(result.recordset, "Bracket retrieved successfully");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     }
 });
 
@@ -241,19 +238,19 @@ router.post("/match/:matchId", async (req, res) => {
     const { eventId, matchId } = req.params;
 
     if (res.locals.event.CreatedBy !== req.user.userId) {
-        return res.status(403).json({ error: "You are not authorized to manage this event's matches." });
+        return res.error("You are not authorized to manage this event's matches.", "UNAUTHORIZED", 403);
     }
 
     let resultData;
     try {
         resultData = await matchResultSchema.validate(req.body);
     } catch (error) {
-        return res.status(400).json({ error: error.message });
+        return res.error(error.message, "VALIDATION_ERROR", 400);
     }
 
     const { team1Score, team2Score } = resultData;
     if (team1Score === team2Score) {
-        return res.status(400).json({ error: "Draws are not allowed in single elimination." });
+        return res.error("Draws are not allowed in single elimination.", "INVALID_MATCH_RESULT", 400);
     }
 
     const transaction = new sql.Transaction(res.locals.db_pool);
@@ -269,18 +266,18 @@ router.post("/match/:matchId", async (req, res) => {
 
         if (matchResult.recordset.length === 0) {
             await transaction.rollback();
-            return res.status(404).json({ error: "Match not found." });
+            return res.error("Match not found.", "MATCH_NOT_FOUND", 404);
         }
         const match = matchResult.recordset[0];
 
         // 2. Validar status da partida
         if (match.Status === 'Finished') {
             await transaction.rollback();
-            return res.status(400).json({ error: "This match has already been finished." });
+            return res.error("This match has already been finished.", "MATCH_ALREADY_FINISHED", 400);
         }
         if (match.Status !== 'Ready') {
             await transaction.rollback();
-            return res.status(400).json({ error: "This match is not ready to be played." });
+            return res.error("This match is not ready to be played.", "MATCH_NOT_READY", 400);
         }
 
         // 3. Determinar vencedor e atualizar a partida atual
@@ -339,16 +336,13 @@ router.post("/match/:matchId", async (req, res) => {
             }
         }
 
-        await transaction.commit();
-        res.status(200).json({ message: "Match result recorded and winner advanced." });
+    await transaction.commit();
+    return res.success(null, "Match result recorded and winner advanced.");
 
     } catch (error) {
         await transaction.rollback();
         console.error("Erro ao atualizar partida:", error); // Log do erro
-        res.status(500).json({ 
-            error: "Failed to update match.", 
-            details: error.message 
-        });
+        return res.error("Failed to update match.", "INTERNAL_ERROR", 500, { details: error.message });
     }
 });
 
@@ -362,7 +356,7 @@ router.post("/finish", async (req, res) =>{
     const { eventId } = req.params;
     
     if(res.locals.event.CreatedBy !== req.user.userId){
-        return res.status(403).json({ error: "You are not authorized to finish this event." });
+        return res.error("You are not authorized to finish this event.", "UNAUTHORIZED", 403);
     }
     
     try { 
@@ -371,10 +365,10 @@ router.post("/finish", async (req, res) =>{
             .input('eventId', sql.Int, eventId)
             .query(`UPDATE Events SET Status = 'Finished' WHERE EventID = @eventId`);
         
-        res.status(200).json({ message: `Event has been finished!` });
+        return res.success(null, `Event has been finished!`);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     }
 });
 

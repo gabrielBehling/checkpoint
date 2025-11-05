@@ -22,7 +22,7 @@ let roundScoresSchema = object({
 router.post("/round/:roundNumber", authMiddleware, async (req, res) => {
     if (res.locals.event.CreatedBy !== req.user.userId) {
         res.locals.db_pool.close();
-        return res.status(403).json({ error: "You are not authorized to manage this event's matches." });
+        return res.error("You are not authorized to manage this event's matches.", "UNAUTHORIZED", 403);
     }
     // O eventId é acessado via req.params graças ao mergeParams
     const { eventId, roundNumber } = req.params;
@@ -30,7 +30,7 @@ router.post("/round/:roundNumber", authMiddleware, async (req, res) => {
 
     // A verificação se o evento é do tipo 'Leaderboard' e se o usuário é o dono já foi feita pelo controller principal (matchController.js)
     if (isNaN(parseInt(roundNumber))) {
-        return res.status(400).json({ error: "Invalid roundNumber" });
+        return res.error("Invalid roundNumber", "INVALID_ROUND_NUMBER", 400);
     }
 
     try {
@@ -60,14 +60,14 @@ router.post("/round/:roundNumber", authMiddleware, async (req, res) => {
                     `);
             }
             await transaction.commit();
-            res.status(200).json({ message: `Scores for round ${roundNumber} updated successfully.` });
+            return res.success({ roundNumber: parseInt(roundNumber) }, `Scores for round ${roundNumber} updated successfully.`, 200);
         } catch (error) {
             await transaction.rollback();
             console.error(error);
-            res.status(500).json({ error: "Transaction failed.", details: error.message });
+            return res.error("Transaction failed.", "TRANSACTION_FAILED", 500, { details: error.message });
         }
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        return res.error(error.message, "VALIDATION_ERROR", 400);
     }
 });
 
@@ -89,10 +89,10 @@ router.get("/", async (req, res) => {
                 GROUP BY t.TeamId, t.TeamName, t.LogoURL
                 ORDER BY TotalPoints DESC;
             `);
-        res.status(200).json(result.recordset);
+        return res.success(result.recordset, "Leaderboard retrieved successfully");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+        return res.error(error.message, "INTERNAL_ERROR", 500);
     }
 });
 
@@ -100,17 +100,18 @@ router.get("/", async (req, res) => {
 router.post("/finish", authMiddleware, async (req, res) =>{
     const { eventId } = req.params
     if(res.locals.event.CreatedBy == req.user.userId){
-    try{ 
-        const request = new sql.Request(res.locals.db_pool)
-        const finish = await request
-        .input('eventId', sql.Int, eventId)
-        .query(`Update Events set Status = 'Finished' where EventId = @eventId`)
-        res.status(200).json({ message: `Event has been finished!` });
+        try{ 
+            const request = new sql.Request(res.locals.db_pool)
+            await request
+            .input('eventId', sql.Int, eventId)
+            .query(`Update Events set Status = 'Finished' where EventId = @eventId`)
+            return res.success(null, `Event has been finished!`);
+        }
+        catch (error){
+            console.error(error);
+            return res.error(error.message, "INTERNAL_ERROR", 500);
+        }
     }
-catch (error){
-    console.error(error);
-    res.status(500).json({error: error.message})
-}}
     
    
 })
