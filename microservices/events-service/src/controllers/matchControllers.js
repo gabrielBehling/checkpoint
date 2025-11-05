@@ -35,14 +35,19 @@ const getEventAndValidate = async (req, res, next) => {
         pool = await sql.connect(dbConfig);
         const result = await pool.request()
             .input('eventId', sql.Int, eventId)
-            .query('SELECT EventID, Mode, CreatedBy, Status FROM Events WHERE EventID = @eventId AND DeletedAt IS NULL');
+            .query(`
+                SELECT e.EventID, e.ModeID, m.ModeName, e.CreatedBy, e.Status
+                FROM Events e
+                LEFT JOIN Modes m ON e.ModeID = m.ModeID
+                WHERE e.EventID = @eventId AND e.DeletedAt IS NULL
+            `);
 
         if (result.recordset.length === 0) {
             return res.error("Event not found", "EVENT_NOT_FOUND", 404);
         }
 
         // Anexa informações úteis ao objeto `res.locals` para as próximas rotas
-        res.locals.event = result.recordset[0];
+    res.locals.event = result.recordset[0];
         res.locals.db_pool = pool; // Passa a pool de conexão para evitar reconectar
 
         next();
@@ -59,12 +64,12 @@ router.use("/:eventId", getEventAndValidate);
 
 // Roteamento baseado no modo do evento
 router.use("/:eventId/leaderboard", authMiddleware, (req, res, next) => {
-    if (res.locals.event.Mode !== 'Leaderboard') {
+    if (res.locals.event.ModeName !== 'Leaderboard') {
         res.locals.db_pool.close();
-        return res.error(`This endpoint is only for 'Leaderboard' events. This event is of type '${res.locals.event.Mode}'.`, "INVALID_EVENT_MODE", 400);
+        return res.error(`This endpoint is only for 'Leaderboard' events. This event is of type '${res.locals.event.ModeName}'.`, "INVALID_EVENT_MODE", 400);
     }
     if (req.method === 'POST') {
-        if (res.locals.event.status === 'Finished') {
+        if (res.locals.event.Status === 'Finished') {
             res.locals.db_pool.close();
             return res.error("Cannot modify a completed event.", "EVENT_FINISHED", 400);
         }
@@ -73,14 +78,14 @@ router.use("/:eventId/leaderboard", authMiddleware, (req, res, next) => {
 }, leaderboardRouter);
 
 router.use("/:eventId/single-elimination", authMiddleware, (req, res, next) => {
-    if (res.locals.event.Mode !== 'Single Elimination') {
+    if (res.locals.event.ModeName !== 'Single Elimination') {
         res.locals.db_pool.close();
-        return res.error(`This endpoint is only for 'Single Elimination' events. This event is of type '${res.locals.event.Mode}'.`, "INVALID_EVENT_MODE", 400);
+        return res.error(`This endpoint is only for 'Single Elimination' events. This event is of type '${res.locals.event.ModeName}'.`, "INVALID_EVENT_MODE", 400);
     }
 
     // 2. Validar Status do Evento para rotas POST (gerar bracket, atualizar partida, finalizar)
     if (req.method === 'POST') {
-        if (res.locals.event.status === 'Finished') {
+        if (res.locals.event.Status === 'Finished') {
             res.locals.db_pool.close();
             return res.error("Cannot modify a completed event.", "EVENT_FINISHED", 400);
         }
@@ -90,9 +95,9 @@ router.use("/:eventId/single-elimination", authMiddleware, (req, res, next) => {
 
 router.use("/:eventId/round-robin", authMiddleware, (req, res, next) => {
     // 1. Validar Modo
-    if (res.locals.event.Mode !== 'Round Robin') { // Use esta string exata
+    if (res.locals.event.ModeName !== 'Round Robin') { // Use esta string exata
         res.locals.db_pool.close();
-        return res.error(`This endpoint is only for 'Round Robin' events. This event is of type '${res.locals.event.Mode}'.`, "INVALID_EVENT_MODE", 400);
+        return res.error(`This endpoint is only for 'Round Robin' events. This event is of type '${res.locals.event.ModeName}'.`, "INVALID_EVENT_MODE", 400);
     }
 
     // 2. Validar Status do Evento para rotas POST

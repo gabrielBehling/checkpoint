@@ -24,13 +24,13 @@ let createEventSchema = object({
     Title: string().required(),
     Description: string().required(),
     GameID: number(),
-    Mode: string(),
+    ModeID: number(),
     StartDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "Start date must be in the future").required(),
     EndDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "End date must be in the future").required(),
     Location: string(),
     Ticket: number(),
     ParticipationCost: number(),
-    Language: string(),
+    LanguageID: number(),
     Platform: string(),
     IsOnline: boolean().required(),
     MaxParticipants: number(),
@@ -46,7 +46,7 @@ router.post("/", authMiddleware, bannerUpload, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
 
-        if (eventData.EndDate <= eventData.StartDate) {
+        if (eventData.EndDate < eventData.StartDate) {
             return res.error("End date must be after start date", "INVALID_DATE_RANGE", 400);
         }
 
@@ -60,17 +60,17 @@ router.post("/", authMiddleware, bannerUpload, async (req, res) => {
         const userId = req.user.userId;        await sql.connect(dbConfig);
         const result = await sql.query`
             INSERT INTO Events (
-                Title, Description, GameID, Mode, StartDate, EndDate, Location, 
-                Ticket, ParticipationCost, Language, Platform, IsOnline,
+                Title, Description, GameID, ModeID, StartDate, EndDate, Location, 
+                Ticket, ParticipationCost, LanguageID, Platform, IsOnline,
                 MaxParticipants, TeamSize, MaxTeams, Rules, Prizes, BannerURL, 
                 Status, CreatedBy
             )
             OUTPUT INSERTED.EventID, INSERTED.CreatedAt
             VALUES (
                 ${eventData.Title}, ${eventData.Description}, ${eventData.GameID || null}, 
-                ${eventData.Mode || null}, ${eventData.StartDate}, ${eventData.EndDate}, 
+                ${eventData.ModeID || null}, ${eventData.StartDate}, ${eventData.EndDate}, 
                 ${eventData.Location || null}, ${eventData.Ticket || null}, 
-                ${eventData.ParticipationCost || null}, ${eventData.Language || null}, 
+                ${eventData.ParticipationCost || null}, ${eventData.LanguageID || null}, 
                 ${eventData.Platform || null}, ${eventData.IsOnline}, 
                 ${eventData.MaxParticipants || null}, ${eventData.TeamSize || null}, 
                 ${eventData.MaxTeams || null}, ${eventData.Rules || null}, 
@@ -108,13 +108,13 @@ let updateEventSchema = object({
     Title: string(),
     Description: string(),
     GameID: number(),
-    Mode: string(),
+    ModeID: number(),
     StartDate: date(),
     EndDate: date(),
     Location: string(),
     Ticket: number(),
     ParticipationCost: number(),
-    Language: string(),
+    LanguageID: number(),
     Platform: string(),
     IsOnline: boolean(),
     MaxParticipants: number(),
@@ -162,13 +162,13 @@ router.put("/:eventId", authMiddleware, bannerUpload, async (req, res) => {
             Title = coalesce(${eventData.Title}, Title),
             Description = coalesce(${eventData.Description}, Description),
             GameID = coalesce(${eventData.GameID}, GameID),
-            Mode = coalesce(${eventData.Mode}, Mode),
+            ModeID = coalesce(${eventData.ModeID}, ModeID),
             StartDate = coalesce(${eventData.StartDate}, StartDate),
             EndDate = coalesce(${eventData.EndDate}, EndDate),
             Location = coalesce(${eventData.Location}, Location),
             Ticket = coalesce(${eventData.Ticket}, Ticket),
             ParticipationCost = coalesce(${eventData.ParticipationCost}, ParticipationCost),
-            Language = coalesce(${eventData.Language}, Language),
+            LanguageID = coalesce(${eventData.LanguageID}, LanguageID),
             Platform = coalesce(${eventData.Platform}, Platform),
             IsOnline = coalesce(${eventData.IsOnline}, IsOnline),
             MaxParticipants = coalesce(${eventData.MaxParticipants}, MaxParticipants),
@@ -263,7 +263,7 @@ router.get("/", async (req, res) => {
             WHERE
                 (@game IS NULL OR e.GameID = (SELECT GameID FROM Games WHERE GameName = @game))
                 AND (@date IS NULL OR @date BETWEEN e.StartDate AND e.EndDate)
-                AND (@mode IS NULL OR e.Mode = @mode)
+                AND (@mode IS NULL OR e.ModeID = (SELECT ModeID FROM Modes WHERE ModeName = @mode))
                 AND (@ticket IS NULL OR e.Ticket = @ticket)
                 AND (@participationCost IS NULL OR e.ParticipationCost = @participationCost)
                 AND (@place IS NULL OR e.Location LIKE '%' + @place + '%')
@@ -271,7 +271,7 @@ router.get("/", async (req, res) => {
                 AND (@status IS NULL OR e.Status = @status)
                 AND (@prize IS NULL OR e.Prizes LIKE '%' + @prize + '%')
                 AND (@time IS NULL OR CONVERT(time, e.StartDate) = @time)
-                AND (@language IS NULL OR e.Language = @language)
+                AND (@language IS NULL OR e.LanguageID = (SELECT LanguageID FROM Languages WHERE LanguageName = @language))
                 AND (@platform IS NULL OR e.Platform LIKE '%' + @platform + '%')
                 AND (@maxParticipants IS NULL OR e.MaxParticipants = @maxParticipants)
                 AND (@isOnline IS NULL OR e.IsOnline = @isOnline)
@@ -288,6 +288,8 @@ router.get("/", async (req, res) => {
                 e.*,
                 u.Username AS OrganizerUsername,
                 u.ProfileURL AS OrganizerProfileURL,
+                m.ModeName AS ModeName,
+                l.LanguageName AS LanguageName,
                 g.GameName,
                 (SELECT COUNT(DISTINCT TM.UserID) 
                  FROM EventRegistrations ER
@@ -300,10 +302,12 @@ router.get("/", async (req, res) => {
             FROM EventsNotDeleted e
             INNER JOIN UsersNotDeleted u ON e.CreatedBy = u.UserID
             LEFT JOIN Games g ON e.GameID = g.GameID
+            LEFT JOIN Modes m ON e.ModeID = m.ModeID
+            LEFT JOIN Languages l ON e.LanguageID = l.LanguageID
             WHERE
                 (@game IS NULL OR e.GameID = (SELECT GameID FROM Games WHERE GameName = @game))
                 AND (@date IS NULL OR @date BETWEEN e.StartDate AND e.EndDate)
-                AND (@mode IS NULL OR e.Mode = @mode)
+                AND (@mode IS NULL OR e.ModeID = (SELECT ModeID FROM Modes WHERE ModeName = @mode))
                 AND (@ticket IS NULL OR e.Ticket = @ticket)
                 AND (@participationCost IS NULL OR e.ParticipationCost = @participationCost)
                 AND (@place IS NULL OR e.Location LIKE '%' + @place + '%')
@@ -311,7 +315,7 @@ router.get("/", async (req, res) => {
                 AND (@status IS NULL OR e.Status = @status)
                 AND (@prize IS NULL OR e.Prizes LIKE '%' + @prize + '%')
                 AND (@time IS NULL OR CONVERT(time, e.StartDate) = @time)
-                AND (@language IS NULL OR e.Language = @language)
+                AND (@language IS NULL OR e.LanguageID = (SELECT LanguageID FROM Languages WHERE LanguageName = @language))
                 AND (@platform IS NULL OR e.Platform LIKE '%' + @platform + '%')
                 AND (@maxParticipants IS NULL OR e.MaxParticipants = @maxParticipants)
                 AND (@isOnline IS NULL OR e.IsOnline = @isOnline)
@@ -377,6 +381,10 @@ router.get("/", async (req, res) => {
             const eventObj = { ...event };
             // Add organizer profileURL from raw recordset
             eventObj.organizerProfileURL = eventsResult.recordset[idx].OrganizerProfileURL || null;
+            // map ModeName/LanguageName into friendly fields
+            eventObj.mode = eventsResult.recordset[idx].ModeName || null;
+            eventObj.language = eventsResult.recordset[idx].LanguageName || null;
+
             if (eventObj.maxParticipants && eventObj.CurrentParticipants !== undefined) {
                 eventObj.currentParticipants = eventObj.CurrentParticipants || 0;
                 eventObj.availableSpots = eventObj.maxParticipants - eventObj.currentParticipants;
@@ -397,6 +405,41 @@ router.get("/", async (req, res) => {
         }, "Events retrieved successfully");
     } catch (error) {
         console.error("Error fetching events:", error);
+        return res.error(error.message, "INTERNAL_ERROR", 500);
+    } finally {
+        if (connection) {
+            await sql.close();
+        }
+    }
+});
+
+// Get available filters (games, modes, languages, platforms)
+router.get('/filters', async (req, res) => {
+    let connection;
+    try {
+        await sql.connect(dbConfig);
+        connection = sql;
+
+        const gamesReq = new sql.Request();
+        const modesReq = new sql.Request();
+        const languagesReq = new sql.Request();
+        const platformsReq = new sql.Request();
+
+        const [gamesResult, modesResult, languagesResult, platformsResult] = await Promise.all([
+            gamesReq.query("SELECT GameID, GameName FROM Games WHERE DeletedAt IS NULL ORDER BY GameName;"),
+            modesReq.query("SELECT ModeID, ModeName FROM Modes WHERE DeletedAt IS NULL ORDER BY ModeName;"),
+            languagesReq.query("SELECT LanguageID, LanguageName FROM Languages WHERE DeletedAt IS NULL ORDER BY LanguageName;"),
+            platformsReq.query("SELECT DISTINCT Platform FROM EventsNotDeleted WHERE Platform IS NOT NULL AND Platform <> '' ORDER BY Platform;")
+        ]);
+
+        const games = gamesResult.recordset || [];
+        const modes = modesResult.recordset || [];
+        const languages = languagesResult.recordset || [];
+        const platforms = (platformsResult.recordset || []).map(r => r.Platform).filter(Boolean);
+
+        return res.success({ games, modes, languages, platforms }, "Filters retrieved successfully");
+    } catch (error) {
+        console.error('Error fetching filters:', error);
         return res.error(error.message, "INTERNAL_ERROR", 500);
     } finally {
         if (connection) {
@@ -427,6 +470,10 @@ router.get("/:eventId", async (req, res) => {
                 u.ProfileURL AS OrganizerProfileURL,
                 g.GameID AS GameGameID,
                 g.GameName,
+                m.ModeID AS ModeID,
+                m.ModeName AS ModeName,
+                l.LanguageID AS LanguageID,
+                l.LanguageName AS LanguageName,
                 (SELECT COUNT(DISTINCT TM.UserID) 
                  FROM EventRegistrations ER
                  INNER JOIN Teams T ON ER.TeamID = T.TeamID
@@ -438,6 +485,8 @@ router.get("/:eventId", async (req, res) => {
             FROM EventsNotDeleted e
             INNER JOIN UsersNotDeleted u ON e.CreatedBy = u.UserID
             LEFT JOIN Games g ON e.GameID = g.GameID
+            LEFT JOIN Modes m ON e.ModeID = m.ModeID
+            LEFT JOIN Languages l ON e.LanguageID = l.LanguageID
             WHERE e.EventID = @eventId
         `;
 
@@ -494,6 +543,10 @@ router.get("/:eventId", async (req, res) => {
                 LastModifiedBy: eventData.LastModifiedBy
             }
         });
+
+        // attach mode and language names for clients
+        transformedEvent.mode = eventData.ModeName || null;
+        transformedEvent.language = eventData.LanguageName || null;
 
         return res.success(transformedEvent, "Event retrieved successfully");
     } catch (error) {

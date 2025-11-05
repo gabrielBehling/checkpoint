@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "./api"; // seu axios configurado
 import "../assets/css/CadastroStyle.css";
 
 export default function Evento() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     Title: "",
     Description: "",
     GameID: "",
-    Mode: "",
+    ModeID: "",
     StartDate: "",
     EndDate: "",
     Location: "",
@@ -23,8 +25,31 @@ export default function Evento() {
     Prizes: "",
     CreatedBy: "",
   });
+  const [games, setGames] = useState([]);
+  const [modes, setModes] = useState([]);
+  const [languages, setLanguages] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
 
   const [banner, setBanner] = useState(null);
+
+  useEffect(() => {
+    async function fetchAvailableFilters() {
+      try {
+        const response = await api.get("/events/filters");
+
+        if (response.data.success) {
+          setGames(response.data.data.games);
+          setModes(response.data.data.modes);
+          setLanguages(response.data.data.languages);
+          setPlatforms(response.data.data.platforms);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar filtros disponíveis:", error);
+      }
+    }
+
+    fetchAvailableFilters();
+  }, []);
 
   // Atualiza campos de texto, select e checkbox
   const handleChange = (e) => {
@@ -49,9 +74,6 @@ export default function Evento() {
       const data = new FormData();
       Object.entries(form).forEach(([key, value]) => data.append(key, value));
       if (banner) data.append("BannerFile", banner);
-      console.log(data);
-      
-      
 
       const response = await api.post("/events/", data, {
         headers: {
@@ -59,15 +81,17 @@ export default function Evento() {
         },
       });
 
-      alert("✅ Evento criado com sucesso!");
-      console.log(response.data);
+      if (response.data.success) {
+        alert("✅ Evento criado com sucesso!");
+        navigate("/evento/" + response.data.data.eventId);
+      }
 
       // limpa o formulário
       setForm({
         Title: "",
         Description: "",
         GameID: "",
-        Mode: "",
+        ModeID: "",
         StartDate: "",
         EndDate: "",
         Location: "",
@@ -120,11 +144,27 @@ export default function Evento() {
             <label>Descrição</label>
             <textarea name="Description" value={form.Description} onChange={handleChange} placeholder="Descrição detalhada do evento"></textarea>
 
-            <label>Jogo (Game ID)</label>
-            <input type="text" name="GameID" value={form.GameID} onChange={handleChange} placeholder="ID do jogo" />
+            <div className="form-field-group">
+              <label>Jogo</label>
+              <select name="GameID" value={form.GameID} onChange={handleChange}>
+                <option value="">Selecione o jogo</option>
+                {games.map((game) => (
+                  <option key={game.GameID} value={game.GameID}>
+                    {game.GameName}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <label>Modo</label>
-            <input type="text" name="Mode" value={form.Mode} onChange={handleChange} placeholder="Ex: Eliminação, Grupo, Leaderboard..." />
+            <select name="ModeID" value={form.ModeID} onChange={handleChange}>
+              <option value="">Selecione o modo</option>
+              {modes.map((mode) => (
+                <option key={mode.ModeID} value={mode.ModeID}>
+                  {mode.ModeName}
+                </option>
+              ))}
+            </select>
 
             <label>Localização</label>
             <input type="text" name="Location" value={form.Location} onChange={handleChange} placeholder="Digite o local" />
@@ -151,9 +191,12 @@ export default function Evento() {
               <div className="form-field-group">
                 <label>Idioma</label>
                 <select name="Language" value={form.Language} onChange={handleChange}>
-                  <option value="">Selecione</option>
-                  <option value="Português">Português</option>
-                  <option value="Inglês">Inglês</option>
+                  <option value="">Selecione o idioma</option>
+                  {languages.map((lang) => (
+                    <option key={lang.LanguageID} value={lang.LanguageID}>
+                      {lang.LanguageName}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -175,7 +218,12 @@ export default function Evento() {
             </div>
 
             <label>Plataforma</label>
-            <input type="text" name="Platform" value={form.Platform} onChange={handleChange} placeholder="Ex: Steam, PS5, Xbox..." />
+            <input type="text" name="Platform" value={form.Platform} onChange={handleChange} placeholder="Ex: Steam, PS5, Xbox..." list="platforms" />
+            <datalist id="platforms">
+              {platforms.map((plat, indx) => (
+                <option key={indx} value={plat} />
+              ))}
+            </datalist>
 
             {/* Linha 3: Ticket e Custo */}
             <div className="form-group-row">

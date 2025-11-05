@@ -312,6 +312,42 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
 
 ---
 
+### 4.1. Buscar Filtros Disponíveis
+
+**GET** `/filters`
+
+Retorna listas usadas pelo frontend para popular filtros: jogos, modos, idiomas e plataformas disponíveis (extraídas dos eventos ativos). Este endpoint é público e não requer autenticação.
+
+**Base URL:**
+```
+http://api.localhost/api/events/filters
+```
+
+**Resposta de Sucesso:**
+```json
+{
+  "success": true,
+  "message": "Filters retrieved successfully",
+  "data": {
+    "games": [ { "GameID": 1, "GameName": "Counter Strike 2" }, { "GameID": 2, "GameName": "Minecraft" } ],
+    "modes": [ { "ModeID": 1, "ModeName": "Single Elimination" }, { "ModeID": 2, "ModeName": "Round Robin" } ],
+    "languages": [ { "LanguageID": 1, "LanguageName": "English" }, { "LanguageID": 2, "LanguageName": "Portuguese" } ],
+    "platforms": [ "PC", "PlayStation", "Xbox" ]
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Notas:**
+- `games`, `modes`, `languages` retornam objetos com `ID` e `Name` para facilitar mapeamento no frontend.
+- `platforms` retorna uma lista de strings distintas encontradas nos eventos ativos.
+- Use este endpoint para popular selects/dropdowns no cliente.
+
+**Status Codes:**
+- `200`: Sucesso
+- `500`: Erro interno do servidor
+
+
 ### 5. Buscar Evento por ID
 
 **GET** `/:eventId`
