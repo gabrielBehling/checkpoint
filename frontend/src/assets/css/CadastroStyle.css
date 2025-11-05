@@ -151,7 +151,7 @@ body {
 .col-esquerda textarea,
 .col-direita input,
 .col-direita textarea,
-.col-direita select {
+select {
   width: 100%; /* Centraliza o texto e ocupa toda a largura da coluna */
   padding: 15px;
   border: none;

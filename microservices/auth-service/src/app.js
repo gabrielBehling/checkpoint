@@ -7,7 +7,9 @@ const { object, string } = require("yup");
 const { createClient } = require("redis");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const path = require('path');
 const responseMiddleware = require("./responseMiddleware");
+const profileUpload = require("./middleware/profileUpload");
 
 const app = express();
 
@@ -80,9 +82,13 @@ const dbConfig = {
     },
 };
 
+// Accept JSON bodies as usual
 app.use(express.json());
 app.use(cookieParser());
 app.use(responseMiddleware);
+
+// Serve uploaded profile images
+app.use('/uploads/profiles', express.static(path.join(__dirname, '..', 'uploads', 'profiles')));
 
 // Token management functions
 const generateAccessToken = (user) => {
@@ -195,13 +201,13 @@ app.post("/login", async (req, res) => {
 let registerInputSquema = object({
     username: string().required().max(50),
     email: string().email().required().max(100),
-    password: string().required().matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\.])[A-Za-z\d@$!%*?&\.]{8,}$/, "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character."),
+    password: string().required().matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$/, "Password must be at least 8 characters long and contain at least one letter and one number."),
     userRole: string()
         .matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" })
         .default("Visitor"),
 });
 
-app.post("/register", async (req, res) => {
+app.post("/register", profileUpload, async (req, res) => {
     let input, userId;
     try {
         input = await registerInputSquema.validate(req.body, { disableStackTrace: true });
@@ -226,6 +232,12 @@ app.post("/register", async (req, res) => {
         }
     }
 
+    // If a profile image was uploaded, build the URL to store in DB
+    let profileURL = null;
+    if (req.file) {
+        profileURL = `/uploads/profiles/${req.file.filename}`;
+    }
+
     try {
         await sql.connect(dbConfig);
         const usernameExists = await sql.query`
@@ -244,10 +256,11 @@ app.post("/register", async (req, res) => {
 
         const PasswordHash = await bcrypt.hash(password, 10);
 
+        // Insert including ProfileURL (column must exist in DB)
         const result = await sql.query`
-            INSERT INTO Users (Username, Email, PasswordHash, UserRole)
+            INSERT INTO Users (Username, Email, PasswordHash, UserRole, ProfileURL)
             OUTPUT Inserted.UserID
-            VALUES (${username}, ${email}, ${PasswordHash}, ${userRole});
+            VALUES (${username}, ${email}, ${PasswordHash}, ${userRole}, ${profileURL});
         `;
         userId = result.recordset.shift().UserID; // Get the inserted UserID
     } catch (err) {
@@ -278,7 +291,8 @@ app.post("/register", async (req, res) => {
         {
             userId,
             username,
-            userRole
+            userRole,
+            profileURL
         },
         `User ${username} registered successfully as ${userRole}.`
     );
@@ -429,7 +443,7 @@ app.get("/me", async (req, res) => {
 
         // Fetch user email and basic info from view
         const userRecord = await sql.query`
-            SELECT UserID, Username, UserRole, Email
+            SELECT UserID, Username, UserRole, Email, ProfileURL
             FROM UsersNotDeleted
             WHERE UserID = ${userId};
         `;
@@ -442,6 +456,7 @@ app.get("/me", async (req, res) => {
         const email = userFields.Email;
         const username = userFields.Username;
         const userRole = userFields.UserRole;
+        const profileURL = userFields.ProfileURL;
 
         // Fetch user's event registration history:
         // 1) personal registrations (er.UserID)
@@ -499,6 +514,7 @@ app.get("/me", async (req, res) => {
                 username,
                 userRole,
                 email,
+                profileURL,
                 eventsHistory,
             },
             "User information retrieved successfully"
@@ -539,6 +555,114 @@ app.post("/request-password-reset", async (req, res) => {
         return res.success(null, "If your email is registered, you will receive reset instructions.");
     } catch (err) {
         return res.error("Failed to process password reset request.", "RESET_REQUEST_FAILED", 500);
+    } finally {
+        await sql.close();
+    }
+});
+
+
+// Update user info endpoint
+const updateInputSchema = object({
+    username: string().max(50),
+    email: string().email().max(100),
+    userRole: string().matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" }),
+});
+
+app.put("/update-info", profileUpload, async (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!token) {
+        return res.error("Authentication token required.", "TOKEN_REQUIRED", 401);
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET, { maxAge: "1h" });
+    } catch (err) {
+        return res.error("Invalid or expired token.", "INVALID_TOKEN", 401);
+    }
+
+    let input;
+    try {
+        input = await updateInputSchema.validate(req.body, { disableStackTrace: true });
+    } catch (e) {
+        return res.error(e.message, "VALIDATION_ERROR", 400);
+    }
+
+    const { username, email, userRole } = input;
+    const userId = decoded.userId;
+
+    // If a profile image was uploaded, build the URL to store in DB
+    let profileURL = null;
+    if (req.file) {
+        profileURL = `/uploads/profiles/${req.file.filename}`;
+    }
+
+    try {
+        await sql.connect(dbConfig);
+
+        // Check for unique username/email if updating
+        if (username) {
+            const usernameExists = await sql.query`
+                SELECT * FROM UsersNotDeleted WHERE Username = ${username} AND UserID != ${userId};
+            `;
+            if (usernameExists.recordset.length > 0) {
+                return res.error("Username already exists.", "USERNAME_EXISTS", 400);
+            }
+        }
+        if (email) {
+            const emailExists = await sql.query`
+                SELECT * FROM UsersNotDeleted WHERE Email = ${email} AND UserID != ${userId};
+            `;
+            if (emailExists.recordset.length > 0) {
+                return res.error("Email already exists.", "EMAIL_EXISTS", 400);
+            }
+        }
+
+        // Build update query
+        let updateFields = [];
+        if (username) updateFields.push(`Username = @username`);
+        if (email) updateFields.push(`Email = @email`);
+        if (userRole) updateFields.push(`UserRole = @userRole`);
+        if (profileURL) updateFields.push(`ProfileURL = @profileURL`);
+
+        if (updateFields.length === 0) {
+            return res.error("No valid fields to update.", "VALIDATION_ERROR", 400);
+        }
+
+        // Use parameterized query for safety
+        const request = new sql.Request();
+        if (username) request.input("username", sql.VarChar(50), username);
+        if (email) request.input("email", sql.VarChar(100), email);
+        if (userRole) request.input("userRole", sql.VarChar(20), userRole);
+        if (profileURL) request.input("profileURL", sql.VarChar(255), profileURL);
+        request.input("userId", sql.Int, userId);
+
+        const updateQuery = `UPDATE Users SET ${updateFields.join(", ")} WHERE UserID = @userId AND DeletedAt IS NULL;`;
+        const result = await request.query(updateQuery);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.error("User not found or already deleted.", "USER_NOT_FOUND", 404);
+        }
+
+        // Return updated info
+        const userRecord = await sql.query`
+            SELECT UserID, Username, UserRole, Email, ProfileURL
+            FROM UsersNotDeleted
+            WHERE UserID = ${userId};
+        `;
+        if (userRecord.recordset.length === 0) {
+            return res.error("User not found.", "USER_NOT_FOUND", 404);
+        }
+        const userFields = userRecord.recordset.shift();
+        return res.success({
+            userId: userFields.UserID,
+            username: userFields.Username,
+            userRole: userFields.UserRole,
+            email: userFields.Email,
+            profileURL: userFields.ProfileURL,
+        }, "User info updated successfully.");
+    } catch (err) {
+        return res.error("Database error", "DATABASE_ERROR", 500, err.message);
     } finally {
         await sql.close();
     }

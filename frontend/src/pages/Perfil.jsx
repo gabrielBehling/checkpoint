@@ -1,17 +1,10 @@
-import { React, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import "../assets/css/style-perfil.css";
 
 export default function PerfilPage() {
-  const [userData, setUserData] = useState({
-    username: "",
-    email: "",
-    userRole: "",
-    participacoes: [],
-    profileImage: null,
-    bannerImage: null, // imagem do banner
-  });
+  const [userData, setUserData] = useState({});
 
   const [previewImage, setPreviewImage] = useState(null);
   const [previewBanner, setPreviewBanner] = useState(null);
@@ -20,9 +13,20 @@ export default function PerfilPage() {
     api
       .get("/auth/me/")
       .then((response) => {
-        setUserData(response.data.data);
-        if (response.data.profileImage) setPreviewImage(response.data.profileImage);
-        if (response.data.bannerImage) setPreviewBanner(response.data.bannerImage);
+
+        let data = null;
+        if (response.data.success){
+          data = response.data.data;
+        }
+        
+        setUserData(data || {});
+
+        const profilePath = data?.profileURL || null;
+        if (profilePath) {
+          const src = profilePath.startsWith('http') ? profilePath : `${window.location.origin}/api/auth${profilePath}`;
+          setPreviewImage(src);
+          setUserData(prev => ({ ...(prev || {}), profileURL: src }));
+        }
       })
       .catch((error) => {
         console.error("Erro ao buscar dados do usuário:", error);
@@ -44,7 +48,7 @@ export default function PerfilPage() {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
-          setUserData((prev) => ({ ...prev, profileImage: res.data.imageUrl }));
+          setUserData((prev) => ({ ...prev, profileURL: res.data.imageUrl }));
         })
         .catch((err) => {
           console.error("Erro ao enviar imagem de perfil:", err);
@@ -184,7 +188,7 @@ export default function PerfilPage() {
               {userData.eventsHistory.map((evento, index) => (
                 <div className="card" key={index}>
                   <h4>{evento.title}</h4>
-                  <p>{new Date(evento.startDate)}</p>
+                  <p>{new Date(evento.startDate).toLocaleDateString("pt-br")}</p>
                 </div>
               ))}
             </div>

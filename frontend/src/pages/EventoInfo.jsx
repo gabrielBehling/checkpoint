@@ -47,7 +47,7 @@ export default function EventoInfo() {
   return (
     <main className="evento-container">
       <img
-        src={evento.BannerURL}
+        src={"http://checkpoint.localhost/api/events" + evento.bannerURL}
         alt="Banner do Evento"
         className="evento-banner"
       />
@@ -56,7 +56,7 @@ export default function EventoInfo() {
       <p>{evento.description}</p>
 
       <section className="evento-info">
-        <p><strong>Jogo ID:</strong> {evento.gameId}</p>
+        <p><strong>Jogo:</strong> {evento.game.gameName}</p>
         <p><strong>Modo:</strong> {evento.mode}</p>
         <p><strong>Data de Início:</strong> {formatarData(evento.startDate)}</p>
         <p><strong>Data de Término:</strong> {formatarData(evento.endDate)}</p>

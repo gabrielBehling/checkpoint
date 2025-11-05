@@ -7,6 +7,7 @@ CREATE TABLE Users (
     Username NVARCHAR(50) NOT NULL,
     Email NVARCHAR(100) NOT NULL,
     PasswordHash NVARCHAR(255) NOT NULL,
+    ProfileURL NVARCHAR(255),
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
     LastLogin DATETIME DEFAULT NULL,
@@ -63,19 +64,50 @@ INSERT INTO Games (GameName) VALUES
 ('Super Mario Odyssey');
 GO
 
+-- MODES
+CREATE TABLE Modes (
+    ModeID INT PRIMARY KEY IDENTITY(1,1),
+    ModeName NVARCHAR(100) NOT NULL UNIQUE,
+    Description NVARCHAR(255) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    DeletedAt DATETIME DEFAULT NULL
+);
+GO
+
+INSERT INTO Modes (ModeName, Description) VALUES
+('Single Elimination', 'Bracket single elimination'),
+('Round Robin', 'Round robin schedule'),
+('Leaderboard', 'Points-based leaderboard');
+GO
+
+-- LANGUAGES
+CREATE TABLE Languages (
+    LanguageID INT PRIMARY KEY IDENTITY(1,1),
+    LanguageName NVARCHAR(100) NOT NULL UNIQUE,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    DeletedAt DATETIME DEFAULT NULL
+);
+GO
+
+INSERT INTO Languages (LanguageName) VALUES
+('English'),
+('Portuguese'),
+('Spanish');
+GO
+
 -- EVENTS
 CREATE TABLE Events (
     EventID INT PRIMARY KEY IDENTITY(1,1),
     Title NVARCHAR(100) NOT NULL,
     Description NVARCHAR(MAX),
     GameID INT,
-    Mode NVARCHAR(50),
+    ModeID INT NULL,
     StartDate DATETIME NOT NULL,
     EndDate DATETIME NOT NULL,
     Location NVARCHAR(255),
     Ticket DECIMAL(10,2),
     ParticipationCost DECIMAL(10,2),
-    Language NVARCHAR(50),
+    LanguageID INT NULL,
     Platform NVARCHAR(100),
     IsOnline BIT NOT NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
@@ -91,10 +123,13 @@ CREATE TABLE Events (
     BannerURL NVARCHAR(255),
     Status VARCHAR(20) DEFAULT 'Active' CHECK (Status IN ('Active', 'Canceled', 'Finished')),
     FOREIGN KEY (GameID) REFERENCES Games(GameID),
+    FOREIGN KEY (ModeID) REFERENCES Modes(ModeID),
+    FOREIGN KEY (LanguageID) REFERENCES Languages(LanguageID),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
     FOREIGN KEY (LastModifiedBy) REFERENCES Users(UserID)
 );
 GO
+
 
 -- EVENT REGISTRATIONS
 CREATE TABLE EventRegistrations (
@@ -222,6 +257,7 @@ CREATE VIEW dbo.UsersNotDeleted AS
 SELECT 
     UserID,
     Username,
+    ProfileURL,
     Email,
     PasswordHash,
     UserRole,
@@ -251,13 +287,13 @@ SELECT
     Title,
     Description,
     GameID,
-    Mode,
+    ModeID,
     StartDate,
     EndDate,
     Location,
     Ticket,
     ParticipationCost,
-    Language,
+    LanguageID,
     Platform,
     IsOnline,
     CreatedAt,

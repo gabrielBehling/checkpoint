@@ -80,38 +80,36 @@ Verifica o status do serviço.
 
 **POST** `/`
 
-Cria um novo evento.
+Cria um novo evento. Suporta upload de banner através de `multipart/form-data`.
 
 **Headers:**
 
 ```
 Cookie: accessToken=<jwt_token>
+Content-Type: multipart/form-data
 ```
 
-**Body:**
-
-```json
-{
-  "Title": "Torneio de CS2",
-  "Description": "Campeonato aberto de Counter Strike 2",
-  "GameID": 1,
-  "Mode": "5v5",
-  "StartDate": "2024-02-01T14:00:00Z",
-  "EndDate": "2024-02-01T18:00:00Z",
-  "Location": "Online",
-  "Ticket": 50.00,
-  "ParticipationCost": 100.00,
-  "Language": "Português",
-  "Platform": "PC",
-  "IsOnline": true,
-  "MaxParticipants": 100,
-  "TeamSize": 5,
-  "MaxTeams": 20,
-  "Rules": "Melhor de 3 mapas...",
-  "Prizes": "1º lugar: R$ 1000,00",
-  "BannerURL": "[https://example.com/banner.jpg](https://example.com/banner.jpg)",
-  "Status": "Active"
-}
+**Form Data:**
+```
+Title: "Torneio de CS2"
+Description: "Campeonato aberto de Counter Strike 2"
+GameID: 1
+Mode: "5v5"
+StartDate: "2024-02-01T14:00:00Z"
+EndDate: "2024-02-01T18:00:00Z"
+Location: "Online"
+Ticket: 50.00
+ParticipationCost: 100.00
+Language: "Português"
+Platform: "PC"
+IsOnline: true
+MaxParticipants: 100
+TeamSize: 5
+MaxTeams: 20
+Rules: "Melhor de 3 mapas..."
+Prizes: "1º lugar: R$ 1000,00"
+BannerFile: [FILE] // Campo de upload do banner
+```
 ```
 
 **Campos Obrigatórios:**
@@ -121,6 +119,16 @@ Cookie: accessToken=<jwt_token>
   * `StartDate` (date)
   * `EndDate` (date)
   * `IsOnline` (boolean)
+
+**Campo de Upload:**
+- `BannerFile`: Arquivo de imagem (opcional)
+  - Formatos suportados: JPEG, PNG, GIF
+  - Tamanho máximo: 5MB
+
+**Campo de Upload:**
+- `BannerFile`: Arquivo de imagem (opcional)
+  - Formatos suportados: JPEG, PNG, GIF
+  - Tamanho máximo: 5MB
 
 **Resposta de Sucesso:**
 
@@ -148,26 +156,32 @@ Cookie: accessToken=<jwt_token>
 
 **PUT** `/:eventId`
 
-Atualiza um evento existente. Apenas o criador do evento pode atualizá-lo.
+Atualiza um evento existente. Suporta atualização do banner através de `multipart/form-data`. Se um novo banner for enviado, o antigo será removido automaticamente. Apenas o criador do evento pode atualizá-lo.
 
 **Headers:**
 
 ```
 Cookie: accessToken=<jwt_token>
+Content-Type: multipart/form-data
 ```
 
 **Parâmetros:**
 
   * `eventId` (number) - ID do evento
 
-**Body:** (campos opcionais)
+**Form Data:** (campos opcionais)
+```
+Title: "Novo título"
+Description: "Nova descrição"
+Status: "Canceled"
+BannerFile: [FILE] // Campo de upload do novo banner
+```
 
-```json
-{
-  "Title": "Novo título",
-  "Description": "Nova descrição",
-  "Status": "Canceled"
-}
+**Campo de Upload:**
+- `BannerFile`: Arquivo de imagem (opcional)
+  - Formatos suportados: JPEG, PNG, GIF
+  - Tamanho máximo: 5MB
+  - Se fornecido, substitui o banner existente
 ```
 
 **Resposta de Sucesso:**
@@ -302,7 +316,8 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
         "status": "Active",
         "organizer": {
           "userId": 123,
-          "username": "organizer_name"
+          "username": "organizer_name",
+          "profileURL": "https://example.com/profiles/organizer_name.png"
         }
       }
     ],
@@ -318,6 +333,48 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
+
+**Status Codes:**
+- `200`: Sucesso
+- `500`: Erro interno do servidor
+
+---
+
+### 4.1. Buscar Filtros Disponíveis
+
+**GET** `/filters`
+
+Retorna listas usadas pelo frontend para popular filtros: jogos, modos, idiomas e plataformas disponíveis (extraídas dos eventos ativos). Este endpoint é público e não requer autenticação.
+
+**Base URL:**
+```
+http://api.localhost/api/events/filters
+```
+
+**Resposta de Sucesso:**
+```json
+{
+  "success": true,
+  "message": "Filters retrieved successfully",
+  "data": {
+    "games": [ { "GameID": 1, "GameName": "Counter Strike 2" }, { "GameID": 2, "GameName": "Minecraft" } ],
+    "modes": [ { "ModeID": 1, "ModeName": "Single Elimination" }, { "ModeID": 2, "ModeName": "Round Robin" } ],
+    "languages": [ { "LanguageID": 1, "LanguageName": "English" }, { "LanguageID": 2, "LanguageName": "Portuguese" } ],
+    "platforms": [ "PC", "PlayStation", "Xbox" ]
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Notas:**
+- `games`, `modes`, `languages` retornam objetos com `ID` e `Name` para facilitar mapeamento no frontend.
+- `platforms` retorna uma lista de strings distintas encontradas nos eventos ativos.
+- Use este endpoint para popular selects/dropdowns no cliente.
+
+**Status Codes:**
+- `200`: Sucesso
+- `500`: Erro interno do servidor
+
 
 ### 5. Buscar Evento por ID
 **GET** `/:eventId`
@@ -371,7 +428,8 @@ Cookie: accessToken=\<jwt\_token\>
     "createdBy": {
       "userId": 123,
       "username": "organizer_name",
-      "userRole": "Organizer"
+      "userRole": "Organizer",
+      "profileURL": "https://example.com/profiles/organizer_name.png"
     },
     "isRegistered": false,
     "metadata": {
@@ -500,7 +558,8 @@ Cookie: accessToken=<jwt_token>
       "captain": {
         "userId": 123,
         "username": "john_doe",
-        "userRole": "Player"
+        "userRole": "Player",
+        "profileURL": "https://example.com/profiles/john_doe.png"
       },
       "memberCount": 4,
       "maxMembers": 5,
@@ -547,7 +606,8 @@ Retorna informações detalhadas de um time específico, incluindo lista de memb
     "captain": {
       "userId": 123,
       "username": "john_doe",
-      "userRole": "Player"
+      "userRole": "Player",
+      "profileURL": "https://example.com/profiles/john_doe.png"
     },
     "memberCount": 4,
     "maxMembers": 5,
@@ -558,14 +618,16 @@ Retorna informações detalhadas de um time específico, incluindo lista de memb
         "username": "john_doe",
         "role": "Captain",
         "userRole": "Player",
-        "joinedAt": "2024-01-01T10:00:00.000Z"
+        "joinedAt": "2024-01-01T10:00:00.000Z",
+        "profileURL": "https://example.com/profiles/john_doe.png"
       },
       {
         "userId": 456,
         "username": "jane_doe",
         "role": "Player",
         "userRole": "Player",
-        "joinedAt": "2024-01-01T11:00:00.000Z"
+        "joinedAt": "2024-01-01T11:00:00.000Z",
+        "profileURL": "https://example.com/profiles/jane_doe.png"
       }
     ]
   },
@@ -816,7 +878,144 @@ Cookie: accessToken=\<jwt\_token\>
 ```
 
 **Resposta de Erro (403 - Não autorizado):**
+```json
+{
+  "success": false,
+  "message": "You are not authorized to manage this event's registrations.",
+  "error": "UNAUTHORIZED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
 
+**Resposta de Erro (404 - Evento não encontrado):**
+```json
+{
+  "success": false,
+  "message": "Event not found.",
+  "error": "EVENT_NOT_FOUND",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (404 - Inscrição não encontrada):**
+```json
+{
+  "success": false,
+  "message": "Team registration not found for this event.",
+  "error": "REGISTRATION_NOT_FOUND",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+---
+
+
+## 🗃️ Modelo de Dados
+
+### Evento
+Todos os campos são retornados em **camelCase** na resposta JSON.
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `eventId` | number | ID único do evento |
+| `title` | string | Título do evento |
+| `description` | string | Descrição detalhada |
+| `gameId` | number | ID do jogo |
+| `game` | object | Objeto com informações do jogo (quando disponível) |
+| `mode` | string | Modo de jogo |
+| `startDate` | datetime | Data/hora de início |
+| `endDate` | datetime | Data/hora de término |
+| `location` | string | Local do evento |
+| `ticket` | decimal | Preço do ingresso |
+| `participationCost` | decimal | Custo de participação |
+| `language` | string | Idioma principal |
+| `platform` | string | Plataforma (PC, Console, etc) |
+| `isOnline` | boolean | Evento online |
+| `maxParticipants` | number | Máximo de participantes |
+| `currentParticipants` | number | Participantes atuais (calculado) |
+| `availableSpots` | number | Vagas disponíveis (calculado) |
+| `teamSize` | number | Tamanho do time |
+| `maxTeams` | number | Máximo de times |
+| `teamCount` | number | Quantidade atual de times (calculado) |
+| `availableTeamSlots` | number | Vagas disponíveis para times (calculado) |
+| `rules` | string | Regras do evento |
+| `prizes` | string | Premiação |
+| `bannerURL` | string | URL do banner |
+| `status` | string | Status: Active, Canceled, Finished |
+| `createdBy` | object | Objeto com informações do organizador |
+| `isRegistered` | boolean | Se o usuário autenticado está registrado (apenas GET /:eventId) |
+| `metadata` | object | Metadados (createdAt, updatedAt, lastModifiedBy) |
+
+### Time
+Todos os campos são retornados em **camelCase** na resposta JSON.
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `teamId` | number | ID único do time |
+| `teamName` | string | Nome do time |
+| `logoURL` | string | URL do logo |
+| `createdBy` | number | ID do criador (apenas na estrutura básica) |
+| `captain` | object | Objeto com informações do capitão |
+| `chatID` | uuid | ID do chat do time |
+| `eventId` | number | ID do evento associado |
+| `status` | string | Status do registro no evento |
+| `registeredAt` | datetime | Data de registro no evento |
+| `memberCount` | number | Quantidade de membros |
+| `maxMembers` | number | Máximo de membros permitidos |
+| `isFull` | boolean | Se o time está cheio |
+| `canJoin` | boolean | Se o usuário pode entrar no time (quando autenticado) |
+| `members` | array | Lista de membros do time (apenas GET /teams/:teamId) |
+
+### Organizador/Capitão
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `userId` | number | ID do usuário |
+| `username` | string | Nome de usuário |
+| `userRole` | string | Role do usuário |
+| `profileURL` | string | URL da foto de perfil do usuário |
+
+---
+
+## 🛡️ Regras de Negócio
+
+### Permissões
+- Apenas usuários autenticados podem criar/editar eventos
+- Apenas o criador do evento pode editá-lo ou deletá-lo
+- Times podem ser criados por qualquer usuário autenticado
+- Apenas o capitão do time pode deletar o time ou remover membros
+- Membros podem sair voluntariamente do time (remover a si mesmos)
+
+### Validações
+- Data de início deve ser anterior à data de término
+- Limite de times respeita `MaxTeams` do evento
+- Limite de membros por time respeita `TeamSize` do evento
+- Um usuário só pode criar um time por evento
+- Status válidos: `Active`, `Canceled`, `Finished`
+
+### Filtros Disponíveis
+- **Texto**: `search` (título, descrição, organizador)
+- **Data/Hora**: `date`, `time`
+- **Localização**: `place`, `isOnline`
+- **Jogo**: `game`, `mode`, `platform`
+- **Configurações**: `groupSize`, `maxParticipants`
+- **Financeiro**: `ticket`, `participationCost`
+- **Outros**: `language`, `status`, `prize`
+
+---
+
+## 🚨 Tratamento de Erros
+
+### Códigos de Status HTTP
+- `200`: Sucesso
+- `201`: Criado com sucesso
+- `400`: Dados inválidos ou validação falhou
+- `401`: Token inválido ou não fornecido
+- `403`: Sem permissão para a operação
+- `404`: Recurso não encontrado
+- `500`: Erro interno do servidor
+
+### Exemplo de Resposta de Erro:
 ```json
 {
   "success": false,

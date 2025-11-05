@@ -124,64 +124,23 @@ Autentica um usuário e retorna tokens de acesso.
 ### 3. Registro
 **POST** `/register`
 
-Cria uma nova conta de usuário.
+Cria uma nova conta de usuário. Suporta upload de foto de perfil via `multipart/form-data`.
 
-**Body**:
-```json
-{
-  "username": "novousuario",
-  "email": "novo@email.com",
-  "password": "senha123",
-  "userRole": "Player"
-}
+**Headers:**
+```
+Content-Type: multipart/form-data
+```
+
+**Form Data:**
+```
+username: "novousuario"
+email: "novo@email.com"
+password: "senha123"
+userRole: "Player"
+ProfileFile: [FILE] // campo opcional para foto de perfil
 ```
 
 **Roles Disponíveis**: `Visitor`, `Player`, `Organizer`, `Administrator`
-
-**Nota**: Para criar uma conta com role `Administrator`, é necessário enviar um token de administrador válido no cookie `token`.
-
-**Resposta de Sucesso:**
-```json
-{
-  "success": true,
-  "message": "User novousuario registered successfully as Player.",
-  "data": {
-    "userId": 456,
-    "username": "novousuario",
-    "userRole": "Player"
-  },
-  "timestamp": "2024-01-01T10:00:00.000Z"
-}
-```
-
-**Cookies Set**:
-- `accessToken`: JWT válido por 1 hora
-- `refreshToken`: JWT válido por 7 dias
-
-**Status Codes:**
-- `200`: Registro bem-sucedido
-- `400`: Dados inválidos, username ou email já existente
-- `401`: Erro de validação, token inválido ou sem permissão
-
-**Resposta de Erro (Username Existente):**
-```json
-{
-  "success": false,
-  "message": "Username already exists.",
-  "error": "USERNAME_EXISTS",
-  "timestamp": "2024-01-01T10:00:00.000Z"
-}
-```
-
-**Resposta de Erro (Email Existente):**
-```json
-{
-  "success": false,
-  "message": "Email already exists.",
-  "error": "EMAIL_EXISTS",
-  "timestamp": "2024-01-01T10:00:00.000Z"
-}
-```
 
 ---
 
@@ -315,6 +274,7 @@ Cookie: accessToken=<token>
     "username": "usuario",
     "userRole": "Player",
     "email": "usuario@email.com",
+    "profileURL": "/uploads/profiles/profile-1234-1234.png",
     "eventsHistory": [
       {
         "registrationId": 10,
@@ -362,9 +322,97 @@ Notes:
 
 ---
 
-### 8. Recuperação de Senha
+### 8. Atualizar Informações do Usuário
+**PUT** `/update-info`
 
-#### 8.1 Solicitar Reset
+Atualiza informações do usuário autenticado. Permite alterar `username`, `email`, `userRole` e/ou foto de perfil.
+
+**Headers:**
+```
+Cookie: accessToken=<token>
+Content-Type: multipart/form-data
+```
+
+**Form Data:**
+```
+username: "novonome" (opcional)
+email: "novo@email.com" (opcional)
+userRole: "Player" | "Organizer" | "Visitor" | "Administrator" (opcional)
+ProfileFile: [FILE] // campo opcional para foto de perfil
+```
+
+**Validações:**
+- Se `username` ou `email` já existirem para outro usuário, retorna erro.
+- Se nenhum campo válido for enviado, retorna erro.
+- Para alterar para `Administrator`, é necessário já ser `Administrator`.
+
+**Resposta de Sucesso:**
+```json
+{
+  "success": true,
+  "message": "User info updated successfully.",
+  "data": {
+    "userId": 123,
+    "username": "novonome",
+    "userRole": "Player",
+    "email": "novo@email.com",
+    "profileURL": "/uploads/profiles/profile-1234-1234.png"
+  },
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Status Codes:**
+- `200`: Informações atualizadas com sucesso
+- `400`: Dados inválidos, username ou email já existente, nenhum campo válido
+- `401`: Token inválido ou ausente
+- `404`: Usuário não encontrado ou já deletado
+- `500`: Erro no banco de dados
+
+**Resposta de Erro (Username Existente):**
+```json
+{
+  "success": false,
+  "message": "Username already exists.",
+  "error": "USERNAME_EXISTS",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (Email Existente):**
+```json
+{
+  "success": false,
+  "message": "Email already exists.",
+  "error": "EMAIL_EXISTS",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (Campos Inválidos):**
+```json
+{
+  "success": false,
+  "message": "No valid fields to update.",
+  "error": "VALIDATION_ERROR",
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Exemplo de Uso:**
+```bash
+curl -X PUT http://checkpoint.localhost/api/auth/update-info \
+  -H "Cookie: accessToken=your_token" \
+  -F "username=novonome" \
+  -F "email=novo@email.com" \
+  -F "ProfileFile=@/caminho/para/foto.png"
+```
+
+---
+
+### 9. Recuperação de Senha
+
+#### 9.1 Solicitar Reset
 **POST** `/request-password-reset`
 
 Envia um email com link para resetar a senha.
@@ -402,7 +450,7 @@ Envia um email com link para resetar a senha.
 }
 ```
 
-#### 8.2 Resetar Senha
+#### 9.2 Resetar Senha
 **POST** `/reset-password`
 
 Reseta a senha usando o token recebido por email.

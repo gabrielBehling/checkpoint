@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 const responseMiddleware = require("./responseMiddleware");
 
@@ -13,11 +14,15 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(responseMiddleware);
 
+app.use("/uploads/banners", express.static(path.join(__dirname, "..", "uploads", "banners")));
+
 app.use("/", eventsControllers);
 
 app.use("/", matchControlles)
 
 app.use("/", teamsControllers);
+
+// Serve static banner files
 
 app.get("/health", (req, res) => {
     res.success({ status: "OK" }, "Service is healthy");
