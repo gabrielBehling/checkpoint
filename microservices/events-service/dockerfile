@@ -6,6 +6,8 @@ RUN npm ci --omit=dev
 FROM builder
 COPY . .
 RUN apk add --no-cache curl # Para health checks
+RUN mkdir -p /app/uploads/banners
+VOLUME ["/app/uploads"]
 HEALTHCHECK --interval=30s --timeout=5s \
   CMD curl -f http://localhost:3000/health || exit 1
 

@@ -74,36 +74,35 @@ Verifica o status do serviço.
 ### 1. Criar Evento
 **POST** `/`
 
-Cria um novo evento.
+Cria um novo evento. Suporta upload de banner através de `multipart/form-data`.
 
 **Headers:**
 ```
 Cookie: accessToken=<jwt_token>
+Content-Type: multipart/form-data
 ```
 
-**Body:**
-```json
-{
-  "Title": "Torneio de CS2",
-  "Description": "Campeonato aberto de Counter Strike 2",
-  "GameID": 1,
-  "Mode": "5v5",
-  "StartDate": "2024-02-01T14:00:00Z",
-  "EndDate": "2024-02-01T18:00:00Z",
-  "Location": "Online",
-  "Ticket": 50.00,
-  "ParticipationCost": 100.00,
-  "Language": "Português",
-  "Platform": "PC",
-  "IsOnline": true,
-  "MaxParticipants": 100,
-  "TeamSize": 5,
-  "MaxTeams": 20,
-  "Rules": "Melhor de 3 mapas...",
-  "Prizes": "1º lugar: R$ 1000,00",
-  "BannerURL": "https://example.com/banner.jpg",
-  "Status": "Active"
-}
+**Form Data:**
+```
+Title: "Torneio de CS2"
+Description: "Campeonato aberto de Counter Strike 2"
+GameID: 1
+Mode: "5v5"
+StartDate: "2024-02-01T14:00:00Z"
+EndDate: "2024-02-01T18:00:00Z"
+Location: "Online"
+Ticket: 50.00
+ParticipationCost: 100.00
+Language: "Português"
+Platform: "PC"
+IsOnline: true
+MaxParticipants: 100
+TeamSize: 5
+MaxTeams: 20
+Rules: "Melhor de 3 mapas..."
+Prizes: "1º lugar: R$ 1000,00"
+BannerFile: [FILE] // Campo de upload do banner
+```
 ```
 
 **Campos Obrigatórios:**
@@ -112,6 +111,11 @@ Cookie: accessToken=<jwt_token>
 - `StartDate` (date)
 - `EndDate` (date)
 - `IsOnline` (boolean)
+
+**Campo de Upload:**
+- `BannerFile`: Arquivo de imagem (opcional)
+  - Formatos suportados: JPEG, PNG, GIF
+  - Tamanho máximo: 5MB
 
 **Resposta de Sucesso:**
 ```json
@@ -136,23 +140,30 @@ Cookie: accessToken=<jwt_token>
 ### 2. Atualizar Evento
 **PUT** `/:eventId`
 
-Atualiza um evento existente. Apenas o criador do evento pode atualizá-lo.
+Atualiza um evento existente. Suporta atualização do banner através de `multipart/form-data`. Se um novo banner for enviado, o antigo será removido automaticamente. Apenas o criador do evento pode atualizá-lo.
 
 **Headers:**
 ```
 Cookie: accessToken=<jwt_token>
+Content-Type: multipart/form-data
 ```
 
 **Parâmetros:**
 - `eventId` (number) - ID do evento
 
-**Body:** (campos opcionais)
-```json
-{
-  "Title": "Novo título",
-  "Description": "Nova descrição",
-  "Status": "Canceled"
-}
+**Form Data:** (campos opcionais)
+```
+Title: "Novo título"
+Description: "Nova descrição"
+Status: "Canceled"
+BannerFile: [FILE] // Campo de upload do novo banner
+```
+
+**Campo de Upload:**
+- `BannerFile`: Arquivo de imagem (opcional)
+  - Formatos suportados: JPEG, PNG, GIF
+  - Tamanho máximo: 5MB
+  - Se fornecido, substitui o banner existente
 ```
 
 **Resposta de Sucesso:**

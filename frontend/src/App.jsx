@@ -82,7 +82,7 @@ function App() {
                 const newCarouselData = response.data.data.data.map((event, index) => ({
                     id: event.eventId,
                     src: event.bannerURL && event.bannerURL.trim() !== "" 
-                        ? event.bannerURL 
+                        ? "http://checkpoint.localhost/api/events" + event.bannerURL 
                         : FALLBACK_IMAGE_SRC,
                     alt: event.title || "Evento sem título",
                     link: `/evento/${event.eventId}/`

@@ -47,7 +47,7 @@ export default function EventoInfo() {
   return (
     <main className="evento-container">
       <img
-        src={evento.BannerURL}
+        src={"http://checkpoint.localhost/api/events" + evento.bannerURL}
         alt="Banner do Evento"
         className="evento-banner"
       />

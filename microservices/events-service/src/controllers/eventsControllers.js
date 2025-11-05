@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const sql = require("mssql");
+const path = require("path");
+const fs = require("fs");
 const { object, string, date, number, boolean } = require("yup");
 const authMiddleware = require("../authMiddleware");
+const bannerUpload = require("../middleware/bannerUpload");
 const { transformEvent, transformEventList, createPagination } = require("../utils/dataTransformers");
 
 const dbConfig = {
@@ -35,12 +38,11 @@ let createEventSchema = object({
     MaxTeams: number(),
     Rules: string(),
     Prizes: string(),
-    BannerURL: string().url(),
     Status: string().oneOf(['Active', 'Canceled', 'Finished']).default('Active'),
 });
 
 // Create a new event
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, bannerUpload, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
 
@@ -48,9 +50,14 @@ router.post("/", authMiddleware, async (req, res) => {
             return res.error("End date must be after start date", "INVALID_DATE_RANGE", 400);
         }
 
-        const userId = req.user.userId;
+        // Process banner if one was uploaded
+        let bannerURL = null;
+        if (req.file) {
+            // Create a relative URL path from the uploads folder
+            bannerURL = `/uploads/banners/${req.file.filename}`;
+        }
 
-        await sql.connect(dbConfig);
+        const userId = req.user.userId;        await sql.connect(dbConfig);
         const result = await sql.query`
             INSERT INTO Events (
                 Title, Description, GameID, Mode, StartDate, EndDate, Location, 
@@ -67,7 +74,7 @@ router.post("/", authMiddleware, async (req, res) => {
                 ${eventData.Platform || null}, ${eventData.IsOnline}, 
                 ${eventData.MaxParticipants || null}, ${eventData.TeamSize || null}, 
                 ${eventData.MaxTeams || null}, ${eventData.Rules || null}, 
-                ${eventData.Prizes || null}, ${eventData.BannerURL || null}, 
+                ${eventData.Prizes || null}, ${bannerURL}, 
                 ${eventData.Status || 'Active'}, ${userId}
             );
         `;
@@ -115,12 +122,12 @@ let updateEventSchema = object({
     MaxTeams: number(),
     Rules: string(),
     Prizes: string(),
-    BannerURL: string().url(),
+    BannerURL: string(),
     Status: string().oneOf(['Active', 'Canceled', 'Finished']),
 });
 
 // Update an event
-router.put("/:eventId", authMiddleware, async (req, res) => {
+router.put("/:eventId", authMiddleware, bannerUpload, async (req, res) => {
     const eventId = parseInt(req.params.eventId);
     if (isNaN(eventId)) {
         return res.error("Invalid eventId", "INVALID_EVENT_ID", 400);
@@ -128,6 +135,27 @@ router.put("/:eventId", authMiddleware, async (req, res) => {
     try {
         const eventData = await updateEventSchema.validate(req.body);
         const userId = req.user.userId;
+
+        // Process banner if one was uploaded
+        if (req.file) {
+            // Create a relative URL path from the uploads folder
+            eventData.BannerURL = `/uploads/banners/${req.file.filename}`;
+
+            // Delete old banner if exists
+            await sql.connect(dbConfig);
+            const oldBannerResult = await sql.query`
+                SELECT BannerURL FROM Events 
+                WHERE EventId = ${eventId} AND CreatedBy = ${userId} AND DeletedAt IS NULL;
+            `;
+            
+            if (oldBannerResult.recordset[0]?.BannerURL) {
+                const oldBannerPath = path.join(__dirname, '..', '..', oldBannerResult.recordset[0].BannerURL);
+                if (fs.existsSync(oldBannerPath)) {
+                    fs.unlinkSync(oldBannerPath);
+                }
+            }
+            await sql.close();
+        }
         
         await sql.connect(dbConfig);
         const result = await sql.query`update Events set
