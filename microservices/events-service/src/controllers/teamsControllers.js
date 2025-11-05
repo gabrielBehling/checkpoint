@@ -143,6 +143,7 @@ router.get("/:eventId/teams", async (req, res) => {
                     U.UserID AS CaptainUserID,
                     U.Username AS CaptainUsername,
                     U.UserRole AS CaptainRole,
+                    U.ProfileURL AS CaptainProfileURL,
                     (SELECT COUNT(*) FROM TeamMembers TM WHERE TM.TeamId = T.TeamId AND TM.DeletedAt IS NULL) AS MemberCount,
                     E.TeamSize AS MaxMembers,
                     CASE 
@@ -166,6 +167,7 @@ router.get("/:eventId/teams", async (req, res) => {
                     U.UserID AS CaptainUserID,
                     U.Username AS CaptainUsername,
                     U.UserRole AS CaptainRole,
+                    U.ProfileURL AS CaptainProfileURL,
                     (SELECT COUNT(*) FROM TeamMembers TM WHERE TM.TeamId = T.TeamId AND TM.DeletedAt IS NULL) AS MemberCount,
                     E.TeamSize AS MaxMembers
                 FROM TeamsNotDeleted T
@@ -188,7 +190,8 @@ router.get("/:eventId/teams", async (req, res) => {
                 captain: {
                     UserID: team.CaptainUserID,
                     Username: team.CaptainUsername,
-                    UserRole: team.CaptainRole
+                    UserRole: team.CaptainRole,
+                    ProfileURL: team.CaptainProfileURL || null
                 },
                 maxMembers: team.MaxMembers,
                 canJoin: userId && team.CanJoin !== undefined ? team.CanJoin === 1 : undefined
@@ -227,6 +230,7 @@ router.get("/teams/:teamId", async (req, res) => {
                 U.UserID AS CaptainUserID,
                 U.Username AS CaptainUsername,
                 U.UserRole AS CaptainRole,
+                U.ProfileURL AS CaptainProfileURL,
                 E.TeamSize AS MaxMembers
             FROM TeamsNotDeleted T
             INNER JOIN EventRegistrations ER ON T.TeamId = ER.TeamID
@@ -251,7 +255,8 @@ router.get("/teams/:teamId", async (req, res) => {
                 TM.Role,
                 TM.JoinedAt,
                 U.Username,
-                U.UserRole
+                U.UserRole,
+                U.ProfileURL
             FROM TeamMembers TM
             INNER JOIN UsersNotDeleted U ON TM.UserID = U.UserID
             WHERE TM.TeamId = @teamId AND TM.DeletedAt IS NULL
@@ -266,7 +271,8 @@ router.get("/teams/:teamId", async (req, res) => {
             username: member.Username,
             role: member.Role,
             userRole: member.UserRole,
-            joinedAt: member.JoinedAt
+            joinedAt: member.JoinedAt,
+            profileURL: member.ProfileURL || null
         }));
 
         const memberCount = members.length;
@@ -276,7 +282,8 @@ router.get("/teams/:teamId", async (req, res) => {
             captain: {
                 UserID: teamData.CaptainUserID,
                 Username: teamData.CaptainUsername,
-                UserRole: teamData.CaptainRole
+                UserRole: teamData.CaptainRole,
+                ProfileURL: teamData.CaptainProfileURL || null
             },
             members,
             maxMembers: teamData.MaxMembers,

@@ -7,6 +7,7 @@ CREATE TABLE Users (
     Username NVARCHAR(50) NOT NULL,
     Email NVARCHAR(100) NOT NULL,
     PasswordHash NVARCHAR(255) NOT NULL,
+    ProfileURL NVARCHAR(255),
     CreatedAt DATETIME DEFAULT GETDATE(),
     EditedAt DATETIME DEFAULT NULL,
     LastLogin DATETIME DEFAULT NULL,
@@ -222,6 +223,7 @@ CREATE VIEW dbo.UsersNotDeleted AS
 SELECT 
     UserID,
     Username,
+    ProfileURL,
     Email,
     PasswordHash,
     UserRole,

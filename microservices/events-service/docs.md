@@ -288,7 +288,8 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
         "status": "Active",
         "organizer": {
           "userId": 123,
-          "username": "organizer_name"
+          "username": "organizer_name",
+          "profileURL": "https://example.com/profiles/organizer_name.png"
         }
       }
     ],
@@ -362,7 +363,8 @@ Cookie: accessToken=<jwt_token>
     "createdBy": {
       "userId": 123,
       "username": "organizer_name",
-      "userRole": "Organizer"
+      "userRole": "Organizer",
+      "profileURL": "https://example.com/profiles/organizer_name.png"
     },
     "isRegistered": false,
     "metadata": {
@@ -477,7 +479,8 @@ Cookie: accessToken=<jwt_token>
       "captain": {
         "userId": 123,
         "username": "john_doe",
-        "userRole": "Player"
+        "userRole": "Player",
+        "profileURL": "https://example.com/profiles/john_doe.png"
       },
       "memberCount": 4,
       "maxMembers": 5,
@@ -520,7 +523,8 @@ Retorna informações detalhadas de um time específico, incluindo lista de memb
     "captain": {
       "userId": 123,
       "username": "john_doe",
-      "userRole": "Player"
+      "userRole": "Player",
+      "profileURL": "https://example.com/profiles/john_doe.png"
     },
     "memberCount": 4,
     "maxMembers": 5,
@@ -531,14 +535,16 @@ Retorna informações detalhadas de um time específico, incluindo lista de memb
         "username": "john_doe",
         "role": "Captain",
         "userRole": "Player",
-        "joinedAt": "2024-01-01T10:00:00.000Z"
+        "joinedAt": "2024-01-01T10:00:00.000Z",
+        "profileURL": "https://example.com/profiles/john_doe.png"
       },
       {
         "userId": 456,
         "username": "jane_doe",
         "role": "Player",
         "userRole": "Player",
-        "joinedAt": "2024-01-01T11:00:00.000Z"
+        "joinedAt": "2024-01-01T11:00:00.000Z",
+        "profileURL": "https://example.com/profiles/jane_doe.png"
       }
     ]
   },
@@ -781,6 +787,7 @@ Todos os campos são retornados em **camelCase** na resposta JSON.
 | `userId` | number | ID do usuário |
 | `username` | string | Nome de usuário |
 | `userRole` | string | Role do usuário |
+| `profileURL` | string | URL da foto de perfil do usuário |
 
 ---
 

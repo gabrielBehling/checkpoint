@@ -59,6 +59,7 @@ services:
       - "3001:3000"
     volumes:
       - ./microservices/auth-service/src:/app/src
+      - ./microservices/auth-service/uploads:/app/uploads
       - /app/node_modules
     depends_on:
       mssql:

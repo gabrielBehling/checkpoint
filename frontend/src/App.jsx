@@ -21,6 +21,13 @@ function App() {
     const [loadingEventosAlta, setLoadingEventosAlta] = useState(true);
     const { user, logout } = useAuth();
 
+    const getProfileSrc = (profilePath) => {
+        if (!profilePath) return null;
+        if (profilePath.startsWith('http')) return profilePath;
+        // profilePath is expected to be like '/uploads/profiles/..'
+        return `${window.location.origin}/api/auth${profilePath}`;
+    };
+
     const fetchEventosEmAlta = async () => {
         setLoadingEventosAlta(true);
         try {
@@ -172,10 +179,18 @@ function App() {
                                         Logout
                                     </button>
                                 </li>
-                                <li>
-                                    <span className="user-welcome">
-                                        <li><a href="/perfil">Olá, {user.username}</a></li>
-                                    </span>
+                                <li className="user-welcome">
+                                    <Link to="/perfil" className="user-link">
+                                        {user?.profileURL ? (
+                                            <img
+                                                src={getProfileSrc(user.profileURL)}
+                                                alt={user.username}
+                                                className="nav-avatar"
+                                                style={{ width: 28, height: 28, borderRadius: '50%', marginRight: 8 }}
+                                            />
+                                        ) : null}
+                                        Olá, {user.username}
+                                    </Link>
                                 </li>
                             </>
                         )}

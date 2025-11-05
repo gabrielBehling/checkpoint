@@ -12,6 +12,8 @@ COPY . .
 
 # Configurações de segurança
 RUN apk add --no-cache tini
+RUN mkdir -p /app/uploads/profiles
+VOLUME ["/app/uploads"]
 USER node
 EXPOSE 3000
 

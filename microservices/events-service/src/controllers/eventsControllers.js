@@ -287,6 +287,7 @@ router.get("/", async (req, res) => {
             SELECT 
                 e.*,
                 u.Username AS OrganizerUsername,
+                u.ProfileURL AS OrganizerProfileURL,
                 g.GameName,
                 (SELECT COUNT(DISTINCT TM.UserID) 
                  FROM EventRegistrations ER
@@ -371,9 +372,11 @@ router.get("/", async (req, res) => {
             includeGame: true 
         });
 
-        // Enriquecer eventos com estatísticas
-        const enrichedEvents = events.map(event => {
+        // Enriquecer eventos com estatísticas e adicionar OrganizerProfileURL
+        const enrichedEvents = events.map((event, idx) => {
             const eventObj = { ...event };
+            // Add organizer profileURL from raw recordset
+            eventObj.organizerProfileURL = eventsResult.recordset[idx].OrganizerProfileURL || null;
             if (eventObj.maxParticipants && eventObj.CurrentParticipants !== undefined) {
                 eventObj.currentParticipants = eventObj.CurrentParticipants || 0;
                 eventObj.availableSpots = eventObj.maxParticipants - eventObj.currentParticipants;
@@ -421,6 +424,7 @@ router.get("/:eventId", async (req, res) => {
                 u.UserID AS OrganizerUserID,
                 u.Username AS OrganizerUsername,
                 u.UserRole AS OrganizerRole,
+                u.ProfileURL AS OrganizerProfileURL,
                 g.GameID AS GameGameID,
                 g.GameName,
                 (SELECT COUNT(DISTINCT TM.UserID) 
@@ -472,7 +476,8 @@ router.get("/:eventId", async (req, res) => {
             organizer: {
                 UserID: eventData.OrganizerUserID,
                 Username: eventData.OrganizerUsername,
-                UserRole: eventData.OrganizerRole
+                UserRole: eventData.OrganizerRole,
+                ProfileURL: eventData.OrganizerProfileURL || null
             },
             game: eventData.GameGameID ? {
                 GameID: eventData.GameGameID,

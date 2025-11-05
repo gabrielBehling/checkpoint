@@ -9,8 +9,7 @@ export default function PerfilPage() {
     email: "",
     userRole: "",
     participacoes: [],
-    profileImage: null,
-    bannerImage: null, // imagem do banner
+    profileURL: null
   });
 
   const [previewImage, setPreviewImage] = useState(null);
@@ -20,9 +19,15 @@ export default function PerfilPage() {
     api
       .get("/auth/me/")
       .then((response) => {
-        setUserData(response.data.data);
-        if (response.data.profileImage) setPreviewImage(response.data.profileImage);
-        if (response.data.bannerImage) setPreviewBanner(response.data.bannerImage);
+        const data = response.data && response.data.data ? response.data.data : response.data;
+        setUserData(data || {});
+
+        const profilePath = data?.profileURL || null;
+        if (profilePath) {
+          const src = profilePath.startsWith('http') ? profilePath : `${window.location.origin}/api/auth${profilePath}`;
+          setPreviewImage(src);
+          setUserData(prev => ({ ...(prev || {}), profileURL: src }));
+        }
       })
       .catch((error) => {
         console.error("Erro ao buscar dados do usuário:", error);
@@ -44,7 +49,7 @@ export default function PerfilPage() {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
-          setUserData((prev) => ({ ...prev, profileImage: res.data.imageUrl }));
+          setUserData((prev) => ({ ...prev, profileURL: res.data.imageUrl }));
         })
         .catch((err) => {
           console.error("Erro ao enviar imagem de perfil:", err);

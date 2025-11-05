@@ -14,6 +14,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [type, setType] = useState("Player"); // Estado para o rádio button
+    const [profileFile, setProfileFile] = useState(null);
 
     function handleEmailChange(e) {
         setEmail(e.target.value);
@@ -43,13 +44,16 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
             return;
         }
 
-        api.post("/auth/register", {
-            email: email,
-            username: nome,
-            password: password,
-            passwordConfirm: passwordConfirm,
-            userRole: type,
-        }).then(function (response) {
+        // Build form data to support profile image upload
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('username', nome);
+        formData.append('password', password);
+        formData.append('passwordConfirm', passwordConfirm);
+        formData.append('userRole', type);
+        if (profileFile) formData.append('ProfileFile', profileFile);
+
+        api.post("/auth/register", formData).then(function (response) {
             if (response.data.success) {
                 alert("Cadastro realizado com sucesso!");
                 checkAuth();
@@ -102,6 +106,15 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         name="username"
                     />
 
+                    {/* Foto de Perfil (opcional) */}
+                    <label htmlFor="profile-file">Foto de Perfil (opcional)</label>
+                    <input
+                        type="file"
+                        id="profile-file"
+                        accept="image/*"
+                        onChange={(e) => setProfileFile(e.target.files && e.target.files[0])}
+                    />
+
                     {/* Senha */}
                     <label htmlFor="senha-cadastro">Senha</label>
                     <input
@@ -112,7 +125,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         value={password}
                         onChange={handlePasswordChange}
                         name="password"
-                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#]{8,}$"
                         title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres."
                     />
                     <small style={{ color: '#666', fontSize: '0.8em', marginTop: '4px' }}>
