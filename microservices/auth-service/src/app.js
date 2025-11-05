@@ -201,7 +201,7 @@ app.post("/login", async (req, res) => {
 let registerInputSquema = object({
     username: string().required().max(50),
     email: string().email().required().max(100),
-    password: string().required().matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#]{8,}$/, "Password must be at least 8 characters long and contain at least one letter and one number."),
+    password: string().required().matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$/, "Password must be at least 8 characters long and contain at least one letter and one number."),
     userRole: string()
         .matches(/(Administrator|Player|Organizer|Visitor)/, { excludeEmptyString: true, message: "Invalid user role. Allowed roles are Administrator, Player, Organizer and Visitor" })
         .default("Visitor"),

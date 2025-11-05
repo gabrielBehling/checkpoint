@@ -125,7 +125,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         value={password}
                         onChange={handlePasswordChange}
                         name="password"
-                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#]{8,}$"
+                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$"
                         title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres."
                     />
                     <small style={{ color: '#666', fontSize: '0.8em', marginTop: '4px' }}>
