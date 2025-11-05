@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./Pesquisa.css";
+import "../../css/Pesquisa.css";
 
 export default function BuscarEventos() {
   const [events, setEvents] = useState([]);
