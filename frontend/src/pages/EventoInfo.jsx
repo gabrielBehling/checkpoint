@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "./api"; 
 import "../assets/css/EventoInfo.css"; 
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 
 export default function EventoInfo() {
@@ -11,6 +12,7 @@ export default function EventoInfo() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const { eventId } = useParams();
+  const { user } = useAuth();
   
   useEffect(() => {
     async function carregarDados() {
@@ -77,6 +79,11 @@ export default function EventoInfo() {
       <Link to={`/evento/${evento.eventId}/inscricao`}>
       <button className="btn-inscricao">Inscrever-se</button>
       </Link>
+      {user || user?.userRole === "administrator" || user?.userRole === "organizer" ? (
+        <Link to={`/evento/${evento.eventId}/editarEvento`}>
+          <button className="btn-inscricao">Editar Evento</button>
+        </Link>
+      ) : null}
 
       <section className="comments-section">
         <h3>Comentários</h3>
