@@ -19,7 +19,7 @@ export default function Evento() {
     Location: "",
     Ticket: "",
     ParticipationCost: "",
-    Language: "",
+    LanguageID: "",
     Platform: "",
     IsOnline: false,
     MaxParticipants: "",
@@ -92,7 +92,7 @@ export default function Evento() {
         Location: "",
         Ticket: "",
         ParticipationCost: "",
-        Language: "",
+        LanguageID: "",
         Platform: "",
         IsOnline: false,
         MaxParticipants: "",
@@ -248,8 +248,8 @@ export default function Evento() {
               <div className="form-field-group">
                 <label>Idioma</label>
                 <select
-                  name="Language"
-                  value={form.Language}
+                  name="LanguageID"
+                  value={form.LanguageID}
                   onChange={handleChange}
                 >
                   <option value="">Selecione o idioma</option>

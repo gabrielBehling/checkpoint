@@ -94,13 +94,13 @@ Content-Type: multipart/form-data
 Title: "Torneio de CS2"
 Description: "Campeonato aberto de Counter Strike 2"
 GameID: 1
-Mode: "5v5"
+ModeID: 1
 StartDate: "2024-02-01T14:00:00Z"
 EndDate: "2024-02-01T18:00:00Z"
 Location: "Online"
 Ticket: 50.00
 ParticipationCost: 100.00
-Language: "Português"
+LanguageID: "1"
 Platform: "PC"
 IsOnline: true
 MaxParticipants: 100
@@ -109,7 +109,6 @@ MaxTeams: 20
 Rules: "Melhor de 3 mapas..."
 Prizes: "1º lugar: R$ 1000,00"
 BannerFile: [FILE] // Campo de upload do banner
-```
 ```
 
 **Campos Obrigatórios:**
@@ -123,12 +122,7 @@ BannerFile: [FILE] // Campo de upload do banner
 **Campo de Upload:**
 - `BannerFile`: Arquivo de imagem (opcional)
   - Formatos suportados: JPEG, PNG, GIF
-  - Tamanho máximo: 5MB
-
-**Campo de Upload:**
-- `BannerFile`: Arquivo de imagem (opcional)
-  - Formatos suportados: JPEG, PNG, GIF
-  - Tamanho máximo: 5MB
+  - Tamanho máximo: 10MB
 
 **Resposta de Sucesso:**
 
