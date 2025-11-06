@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import "../assets/css/style-perfil.css";
+import LOGO_IMG from "../assets/img/logo.png"; // ✅ Logo adicionada
 
 export default function PerfilPage() {
   const [userData, setUserData] = useState({});
-
   const [previewImage, setPreviewImage] = useState(null);
   const [previewBanner, setPreviewBanner] = useState(null);
 
@@ -13,19 +13,20 @@ export default function PerfilPage() {
     api
       .get("/auth/me/")
       .then((response) => {
-
         let data = null;
-        if (response.data.success){
+        if (response.data.success) {
           data = response.data.data;
         }
-        
+
         setUserData(data || {});
 
         const profilePath = data?.profileURL || null;
         if (profilePath) {
-          const src = profilePath.startsWith('http') ? profilePath : `${window.location.origin}/api/auth${profilePath}`;
+          const src = profilePath.startsWith("http")
+            ? profilePath
+            : `${window.location.origin}/api/auth${profilePath}`;
           setPreviewImage(src);
-          setUserData(prev => ({ ...(prev || {}), profileURL: src }));
+          setUserData((prev) => ({ ...(prev || {}), profileURL: src }));
         }
       })
       .catch((error) => {
@@ -33,7 +34,6 @@ export default function PerfilPage() {
       });
   }, []);
 
-  // ====== TROCA FOTO DE PERFIL ======
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -48,7 +48,10 @@ export default function PerfilPage() {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
-          setUserData((prev) => ({ ...prev, profileURL: res.data.imageUrl }));
+          setUserData((prev) => ({
+            ...prev,
+            profileURL: res.data.imageUrl,
+          }));
         })
         .catch((err) => {
           console.error("Erro ao enviar imagem de perfil:", err);
@@ -56,7 +59,6 @@ export default function PerfilPage() {
     }
   };
 
-  // ====== TROCA BANNER ======
   const handleBannerChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -71,7 +73,10 @@ export default function PerfilPage() {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
-          setUserData((prev) => ({ ...prev, bannerImage: res.data.bannerUrl }));
+          setUserData((prev) => ({
+            ...prev,
+            bannerImage: res.data.bannerUrl,
+          }));
         })
         .catch((err) => {
           console.error("Erro ao enviar banner:", err);
@@ -82,16 +87,21 @@ export default function PerfilPage() {
   return (
     <div className="perfil-container">
       <header>
+        {/* ✅ Logo circular adicionada */}
         <div className="logo">
-          <a href="/">Logo</a>
+          <Link to="/">
+            <div className="logo-circle">
+              <img src={LOGO_IMG} alt="Logo do site" />
+            </div>
+          </Link>
         </div>
+
         <nav>
           <a href="#">Eventos</a>
           <a href="#">Jogos</a>
         </nav>
       </header>
 
-      {/* ====== BANNER PERFIL ====== */}
       <section className="perfil-banner">
         <div
           className="background-img"
@@ -101,7 +111,6 @@ export default function PerfilPage() {
               : "linear-gradient(135deg, #241D3B, #100C1F)",
           }}
         >
-          {/* Botão para alterar banner */}
           <label htmlFor="upload-banner" className="edit-banner-btn">
             Alterar Banner
             <input
@@ -152,7 +161,6 @@ export default function PerfilPage() {
         </div>
       </section>
 
-      {/* ====== CONTEÚDO PRINCIPAL ====== */}
       <main>
         <aside className="info-box">
           <h3>Informações:</h3>
@@ -188,7 +196,9 @@ export default function PerfilPage() {
               {userData.eventsHistory.map((evento, index) => (
                 <div className="card" key={index}>
                   <h4>{evento.title}</h4>
-                  <p>{new Date(evento.startDate).toLocaleDateString("pt-br")}</p>
+                  <p>
+                    {new Date(evento.startDate).toLocaleDateString("pt-br")}
+                  </p>
                 </div>
               ))}
             </div>

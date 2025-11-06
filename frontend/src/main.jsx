@@ -16,7 +16,7 @@ const CriarTime = React.lazy(() => import("./pages/CriarTime"));
 const EditarEvento = React.lazy(() => import("./pages/EditarEvento"))
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const About_Us = React.lazy(() => import("./pages/About_Us"))
-const PesquisaEvento = React.lazy(() => import("./pages/PesquisaEventos"))
+const PesquisaEvento = React.lazy(() => import("./pages/Pesquisa"))
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>

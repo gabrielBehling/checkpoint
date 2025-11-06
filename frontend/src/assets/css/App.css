@@ -1,4 +1,6 @@
-/* ===== RESET ===== */
+/* =======================================================
+   RESET
+======================================================= */
 * {
   margin: 0;
   padding: 0;
@@ -13,15 +15,16 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== HEADER / NAVBAR ===== */
-
+/* =======================================================
+   HEADER / NAVBAR
+======================================================= */
 header {
   background-color: #0f1333;
   position: sticky;
   top: 0;
   z-index: 1000;
-  width: 100vw; /* garante que o fundo vá até as bordas da tela */
-  padding: 18px 0; /* padding vertical apenas */
+  width: 100vw;
+  padding: 18px 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
@@ -29,18 +32,52 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px; /* limita só o conteúdo */
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 60px; /* espaçamento lateral do conteúdo */
+  padding: 0 60px;
   width: 100%;
 }
 
+/* --- Logo circular --- */
 .navbar .logo {
-  font-weight: bold;
-  font-size: 20px;
-  color: #fff;
+  display: flex;
+  align-items: center;
 }
 
+.logo a {
+  text-decoration: none;
+}
+
+.logo-circle {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+.logo-circle img {
+  width: 80%;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+
+.logo-circle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(77, 142, 255, 0.6);
+}
+
+.logo-circle:hover img {
+  transform: scale(1.05);
+}
+
+/* --- Itens da navbar --- */
 .navbar ul {
   list-style: none;
   display: flex;
@@ -55,8 +92,7 @@ header {
   transition: color 0.3s;
 }
 
-.navbar ul li a:hover,
-.navbar .logo a:hover {
+.navbar ul li a:hover {
   color: #4d8eff;
 }
 
@@ -64,16 +100,6 @@ header {
   display: flex;
   align-items: center;
   gap: 25px;
-}
-
-.navbar-right a {
-  color: #fff;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.navbar-right a:hover {
-  color: #4d8eff;
 }
 
 #pesquisa {
@@ -90,13 +116,45 @@ header {
   color: #aaa;
 }
 
-/* ===== HERO / CARROSSEL ===== */
+/* --- Botão de Logout --- */
+.navbar ul li .logout-btn {
+  padding: 8px 15px;
+  border: none;
+  background-color: #ff6b3c;
+  color: #0a0d2a;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.1s ease, color 0.3s ease;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.navbar ul li .logout-btn:hover {
+  background-color: #ff875b;
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.navbar ul li .logout-btn:active {
+  background-color: #e65c34;
+  transform: translateY(0);
+}
+
+.navbar ul li:has(.logout-btn) a {
+  color: inherit;
+}
+
+/* =======================================================
+   HERO / CARROSSEL
+======================================================= */
 .hero {
   padding: 60px 0 40px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
 }
 
 .carousel {
@@ -167,7 +225,9 @@ header {
   transform: translateX(400px) scale(0.8) rotateY(-30deg);
 }
 
-/* ===== CONTROLES ===== */
+/* =======================================================
+   CONTROLES DO CARROSSEL
+======================================================= */
 .controls {
   width: 100%;
   text-align: center;
@@ -189,7 +249,9 @@ header {
   background: #ff875b;
 }
 
-/* ===== CTA ===== */
+/* =======================================================
+   CALL TO ACTION (CTA)
+======================================================= */
 .cta {
   max-width: 600px;
   margin: 60px auto;
@@ -218,7 +280,9 @@ header {
   background-color: #ff875b;
 }
 
-/* ===== EVENTOS ===== */
+/* =======================================================
+   SEÇÃO DE EVENTOS
+======================================================= */
 .eventos {
   padding: 60px 80px;
   max-width: 1400px;
@@ -300,19 +364,21 @@ header {
   color: #ddd;
 }
 
-/* ===== RODAPÉ ===== */
+/* =======================================================
+   RODAPÉ
+======================================================= */
 footer {
   background-color: #ff875b;
-  padding: 30px 0; /* padding vertical */
+  padding: 30px 0;
   text-align: center;
   color: #fff;
-  width: 100vw; /* ocupa a tela toda */
+  width: 100vw;
 }
 
 footer .footer-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 40px; /* padding lateral interno */
+  padding: 0 40px;
 }
 
 footer ul {
@@ -335,8 +401,9 @@ footer ul li a:hover {
   color: #0a0d2a;
 }
 
-
-/* ===== RESPONSIVIDADE ===== */
+/* =======================================================
+   RESPONSIVIDADE
+======================================================= */
 @media (max-width: 1100px) {
   header {
     padding: 15px 30px;
