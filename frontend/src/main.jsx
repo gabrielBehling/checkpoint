@@ -17,6 +17,7 @@ const EditarEvento = React.lazy(() => import("./pages/EditarEvento"))
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const About_Us = React.lazy(() => import("./pages/About_Us"))
 const PesquisaEvento = React.lazy(() => import("./pages/Pesquisa"))
+const ResetPassword = React.lazy(() => import("./pages/ResetPassword"))
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -30,6 +31,8 @@ createRoot(document.getElementById("root")).render(
 
           <Route path="/evento/:eventId" element={<EventoInfo />} />
           <Route path="/search" element={<PesquisaEvento />} />
+          
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Rotas protegidas */}
           <Route element={<ProtectedRoutes />}>

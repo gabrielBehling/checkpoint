@@ -61,9 +61,9 @@ export default function ConfirmResetPasswordPage() {
     
     // 3. Enviar para a API
     // (Ajuste o endpoint e o payload conforme sua API)
-    api.post("/auth/confirm-reset/", {
+    api.post("/auth/reset-password", {
       token: token,
-      password: password 
+      newPassword: password 
     })
     .then((res) => {
       setLoading(false);
