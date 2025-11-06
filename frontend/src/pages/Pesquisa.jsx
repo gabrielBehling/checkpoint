@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "../../css/Pesquisa.css";
+import api from "./api";
+import "../assets/css/PesquisaEvento.css";
 
 export default function BuscarEventos() {
   const [events, setEvents] = useState([]);
@@ -17,10 +17,12 @@ export default function BuscarEventos() {
 
  
   useEffect(() => {
-    axios
-      .get("http://api.localhost/api/events/filters")
+    api
+      .get("/events/filters/")
       .then((response) => {
-        setFilters(response.data);
+        if (response.data.success){
+          setFilters(response.data.data);
+        }
       })
       .catch((error) => console.error("Erro ao carregar filtros:", error));
   }, []);
@@ -29,11 +31,11 @@ export default function BuscarEventos() {
   const fetchEvents = () => {
     setLoading(true);
     setNoResults(false);
-    axios
-      .get("http://api.localhost/api/events", { params: selectedFilters })
+    api
+      .get("/events/", { params: selectedFilters })
       .then((response) => {
-        setEvents(response.data);
-        setNoResults(response.data.length === 0);
+        setEvents(response.data.data.data);
+        setNoResults(response.data.data.length === 0);
       })
       .catch((error) => console.error("Erro ao buscar eventos:", error))
       .finally(() => setLoading(false));
@@ -67,32 +69,32 @@ export default function BuscarEventos() {
 
           <div className="filter-group">
             <h3>Jogo</h3>
-            {filters.games.map((g) => (
-              <label key={g}>
+            {/* {filters.games.map((g) => (
+              <label key={g.GameID}>
                 <input
                   type="radio"
                   name="game"
-                  value={g}
-                  checked={selectedFilters.game === g}
+                  value={g.GameName}
+                  checked={selectedFilters.game === g.GameName}
                   onChange={handleFilterChange}
                 />
                 {g}
               </label>
-            ))}
+            ))} */}
           </div>
 
           <div className="filter-group">
             <h3>Modo</h3>
             {filters.modes.map((m) => (
-              <label key={m}>
+              <label key={m.ModeID}>
                 <input
                   type="radio"
                   name="mode"
-                  value={m}
-                  checked={selectedFilters.mode === m}
+                  value={m.ModeName}
+                  checked={selectedFilters.mode === m.ModeName}
                   onChange={handleFilterChange}
                 />
-                {m}
+                {m.ModeName}
               </label>
             ))}
           </div>
@@ -100,15 +102,15 @@ export default function BuscarEventos() {
           <div className="filter-group">
             <h3>Idioma</h3>
             {filters.languages.map((l) => (
-              <label key={l}>
+              <label key={l.LanguageID}>
                 <input
                   type="radio"
                   name="language"
-                  value={l}
-                  checked={selectedFilters.language === l}
+                  value={l.LanguageName}
+                  checked={selectedFilters.language === l.LanguageName}
                   onChange={handleFilterChange}
                 />
-                {l}
+                {l.LanguageName}
               </label>
             ))}
           </div>
@@ -147,17 +149,17 @@ export default function BuscarEventos() {
             <p className="no-results">Nenhum evento encontrado.</p>
           ) : (
             <div className="event-list">
-              {events.map((event) => (
-                <div key={event.id} className="event-card">
+              {console.log(events) || events.map((event) => (
+                <div key={event.eventId} className="event-card">
                   <h4>{event.title}</h4>
                   <p>
-                    <strong>Jogo:</strong> {event.game}
+                    <strong>Jogo:</strong> {event.gameName}
                   </p>
                   <p>
-                    <strong>Modo:</strong> {event.mode}
+                    <strong>Modo:</strong> {event.modeName}
                   </p>
                   <p>
-                    <strong>Idioma:</strong> {event.language}
+                    <strong>Idioma:</strong> {event.languageName}
                   </p>
                   <p>
                     <strong>Plataforma:</strong> {event.platform}

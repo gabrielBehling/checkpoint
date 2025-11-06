@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://api.localhost/api/events
+http://checkpoint.localhost/api/events
 
 ````
 
@@ -345,11 +345,6 @@ GET /api/events?game=CS2&isOnline=true&status=Active&search=torneio&page=1&limit
 **GET** `/filters`
 
 Retorna listas usadas pelo frontend para popular filtros: jogos, modos, idiomas e plataformas disponíveis (extraídas dos eventos ativos). Este endpoint é público e não requer autenticação.
-
-**Base URL:**
-```
-http://api.localhost/api/events/filters
-```
 
 **Resposta de Sucesso:**
 ```json
@@ -1676,7 +1671,7 @@ Todos os campos são retornados em **camelCase** na resposta JSON.
 ### Criar um Torneio Online
 
 ```bash
-curl -X POST [http://api.localhost/api/events](http://api.localhost/api/events) \
+curl -X POST [http://checkpoint.localhost/api/events](http://checkpoint.localhost/api/events) \
   -H "Cookie: accessToken=your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1695,14 +1690,14 @@ curl -X POST [http://api.localhost/api/events](http://api.localhost/api/events) 
 ### Buscar Eventos Ativos de CS2 com Paginação
 
 ```bash
-curl "[http://api.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10](http://api.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10)" \
+curl "[http://checkpoint.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10](http://checkpoint.localhost/api/events?game=CS2&status=Active&isOnline=true&page=1&limit=10)" \
   -H "Cookie: accessToken=your_jwt_token"
 ```
 
 ### Criar Time para um Evento
 
 ```bash
-curl -X POST [http://api.localhost/api/events/1/teams](http://api.localhost/api/events/1/teams) \
+curl -X POST [http://checkpoint.localhost/api/events/1/teams](http://checkpoint.localhost/api/events/1/teams) \
   -H "Cookie: accessToken=your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1714,14 +1709,14 @@ curl -X POST [http://api.localhost/api/events/1/teams](http://api.localhost/api/
 ### Entrar em um Time
 
 ```bash
-curl -X POST [http://api.localhost/api/events/teams/1/join](http://api.localhost/api/events/teams/1/join) \
+curl -X POST [http://checkpoint.localhost/api/events/teams/1/join](http://checkpoint.localhost/api/events/teams/1/join) \
   -H "Cookie: accessToken=your_jwt_token"
 ```
 
 ### Aprovar Inscrição de um Time (Dono do Evento)
 
 ```bash
-curl -X PUT [http://api.localhost/api/events/1/teams/1/status](http://api.localhost/api/events/1/teams/1/status) \
+curl -X PUT [http://checkpoint.localhost/api/events/1/teams/1/status](http://checkpoint.localhost/api/events/1/teams/1/status) \
   -H "Cookie: accessToken=your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{
