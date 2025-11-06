@@ -84,6 +84,10 @@ export default function LoginPage() {
             <div className="link-info" style={{ marginTop: '50px' }}>
                 Ainda não possui uma conta? <Link to="/cadastro">Cadastre-se</Link>
             </div>
+
+            <div className="link-info" style={{marginTop: '50px'}}>
+               Esqueceu a senha? faça uma nova. <Link to="/resetpassword">Resetar senha</Link>
+            </div>
             {/* Nota: Mudei href="cadastro.html" para Link to="/cadastro" que é o padrão em React Router */}
 
         </form>
