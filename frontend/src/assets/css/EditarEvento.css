@@ -1,0 +1,214 @@
+/*
+ * ===================================
+ * ARQUIVO: EditEventPage.css
+ * ===================================
+ * Tema consistente com o restante do sistema:
+ * Fundo: #0B0C1D / #12133A (degradê)
+ * Cards e inputs: #1A1C42 / #2A2D5E
+ * Botões e destaques: #4D5BF9 (azul primário)
+ * Texto: #F5F5F5 / #B0B0D0 (secundário)
+ */
+
+/* ====== RESET GLOBAL ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+body {
+  background: linear-gradient(180deg, #0b0c1d 0%, #12133a 100%);
+  color: #f5f5f5;
+  overflow-x: hidden;
+}
+
+/* ====== CONTAINER PRINCIPAL ====== */
+.container {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 30px;
+}
+
+/* ====== FORMULÁRIO ====== */
+.form-evento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  background: rgba(26, 28, 66, 0.8);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+}
+
+/* ====== COLUNAS ====== */
+.col-esquerda,
+.col-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.col-direita h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #8ba0ff;
+}
+
+/* ====== LABELS ====== */
+label {
+  font-weight: 500;
+  color: #b0b0d0;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+/* ====== INPUTS ====== */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+  background: #2a2d5e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #4d5bf9;
+  background: #303374;
+}
+
+/* ====== BANNER UPLOAD ====== */
+.banner-upload {
+  background: #1a1c42;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  color: #8ba0ff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.banner-upload:hover {
+  background: rgba(77, 91, 249, 0.1);
+  border-color: #4d5bf9;
+}
+
+.preview-banner {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ====== GRUPOS DE INPUTS ====== */
+.form-group-row {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.form-group-row .form-field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group-row.three-cols .form-field-group {
+  flex: 1;
+}
+
+/* ====== CHECKBOX ====== */
+.tipo-evento {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tipo-evento input[type="checkbox"] {
+  accent-color: #4d5bf9;
+  transform: scale(1.1);
+}
+
+/* ====== BOTÃO ====== */
+.btn {
+  background: #4d5bf9;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 20px;
+  align-self: flex-start;
+}
+
+.btn:hover {
+  background: #6372ff;
+  transform: translateY(-1px);
+}
+
+/* ====== ESTADOS ====== */
+.loading,
+.error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.loading h1,
+.error h1 {
+  color: #8ba0ff;
+}
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2d5e;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3d7a;
+}
+
+/* ====== RESPONSIVIDADE ====== */
+@media (max-width: 900px) {
+  .form-evento {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 25px;
+  }
+
+  .container {
+    padding: 20px;
+    margin: 30px auto;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}

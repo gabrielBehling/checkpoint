@@ -3,58 +3,54 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* Fonte da imagem parece ser sans-serif, mas vou priorizar uma mais limpa */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* * CORES PRINCIPAIS
- * Fundo: #100C1F (Azul Marinho Escuro/Quase Preto)
- * Input Background: #241D3B (Roxo/Azul Escuro)
- * Texto/Destaque: #4A90E2 (Azul Vibrante) / Branco
- */
+/* CORES PRINCIPAIS */
+:root {
+    --fundo: #100C1F;
+    --input-bg: #241D3B;
+    --azul: #4A90E2;
+    --branco: #ffffff;
+    --cinza: rgba(150, 150, 150, 0.7);
+    --laranja: #ff5500;
+}
 
 body {
-    /* Fundo escuro */
-    background: #100C1F; 
-    /* Cor de texto principal para o corpo, mas vamos usar branco no formulário */
-    color: #ffffff; 
-    display: flex; /* Centralizar o conteúdo principal */
+    background: var(--fundo);
+    color: var(--branco);
+    display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Ocupa a altura total da viewport */
+    min-height: 100vh;
     padding: 20px;
 }
 
-/* Removido o estilo do .topbar, pois a imagem mostra uma tela full-screen de autenticação */
-
-/* CONTAINER - Alterado para alinhar com o layout da imagem (centralizado e com um leve degradê na borda) */
 .container {
-    padding: 0; /* O padding virá dentro de cada form */
     display: flex;
-    /* Ajustei para que, se você usar uma página com os dois lado a lado, funcione */
-    gap: 50px; 
-    /* Retirado flex-direction: column; para permitir layouts lado a lado */
     justify-content: center;
-    align-items: flex-start; /* Alinha o topo se estiverem lado a lado */
+    align-items: flex-start;
     width: 100%;
     max-width: 1200px;
 }
 
-/* FORMULÁRIOS DE AUTENTICAÇÃO (LOGIN e CADASTRO) */
-.form-auth { /* Nova classe para agrupar estilos de login e cadastro */
-    background: transparent; /* Fundo transparente para mostrar o background do body */
+.form-auth {
+    background: transparent;
     text-align: center;
-    width: 450px; /* Largura definida para cada formulário */
-    padding: 40px 60px; /* Padding interno */
-    border-radius: 8px;
-    
-    /* Degradê sutil na borda para dar o efeito de luz/imersão da imagem */
-    border: 1px solid rgba(74, 144, 226, 0.3); 
-    box-shadow: 0 0 50px rgba(74, 144, 226, 0.1); 
+    width: 450px;
+    padding: 40px 60px;
+    border-radius: 10px;
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    box-shadow: 0 0 40px rgba(74, 144, 226, 0.1);
+    transition: all 0.3s ease;
 }
 
-/* LOGO CHECKPOINT */
-.logo-auth { /* Estilização do logo 'CHECKPOINT' e o círculo */
+.form-auth:hover {
+    box-shadow: 0 0 60px rgba(74, 144, 226, 0.2);
+}
+
+/* LOGO */
+.logo-auth {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,7 +60,7 @@ body {
 .logo-auth .circle {
     width: 30px;
     height: 30px;
-    background: #f0f0f0; /* Círculo branco */
+    background: var(--branco);
     border-radius: 50%;
     margin-right: 10px;
 }
@@ -72,105 +68,149 @@ body {
 .logo-auth .text {
     font-size: 24px;
     font-weight: bold;
-    color: #f0f0f0; /* Texto CHECKPOINT branco */
+    color: var(--branco);
     letter-spacing: 2px;
 }
 
-/* TÍTULOS (CADASTRE-SE / LOGIN) */
+/* TÍTULOS */
 .form-auth h1 {
     font-size: 32px;
     margin-bottom: 30px;
-    color: #4A90E2; /* Cor azul vibrante */
+    color: var(--azul);
     letter-spacing: 5px;
-    font-weight: lighter; /* O texto na imagem parece ser mais fino */
+    font-weight: 300;
     text-transform: uppercase;
 }
 
-/* FORMULÁRIO GERAL */
+/* FORM */
 .form-auth form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Espaçamento maior entre os campos */
+    gap: 18px;
     text-align: left;
 }
 
-/* LABELS (E-mail, Nome de Usuário, Senha) */
 .form-auth label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #f0f0f0; /* Labels em branco */
-    margin-bottom: -10px; /* Aproxima a label do input */
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--branco);
 }
 
-/* CAMPOS DE INPUT */
 .form-auth input[type="email"],
 .form-auth input[type="text"],
 .form-auth input[type="password"] {
-    padding: 15px;
+    padding: 14px;
     border: none;
-    border-radius: 4px;
-    background: #241D3B; /* Fundo roxo/azul escuro do input */
-    color: #f0f0f0; /* Texto digitado em branco */
-    font-size: 16px;
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--branco);
+    font-size: 15px;
+    transition: all 0.2s ease;
 }
 
-/* Placeholder (Texto "Insira seu endereço de e-mail...") */
+.form-auth input:focus {
+    outline: 2px solid var(--azul);
+    background: #2f2552;
+}
+
 .form-auth ::placeholder {
-    color: rgba(150, 150, 150, 0.7); /* Cor cinza mais suave */
+    color: var(--cinza);
 }
 
-/* INFORMAÇÕES ADICIONAIS E LINKS */
-.form-auth .link-info, .form-auth .type-selection {
-    text-align: center;
-    margin-top: 10px;
+/* INPUT FILE (botão de upload de imagem) */
+.form-auth input[type="file"] {
+    display: none; /* Esconde o input real */
 }
 
-.form-auth .link-info a, .form-auth .auth-bottom-link a {
-    color: #4A90E2; /* Link em azul vibrante */
-    text-decoration: none;
+/* Botão personalizado - versão laranja */
+#profile-file + label[for="profile-file"] {
+    display: inline-block;
+    background: linear-gradient(90deg, var(--laranja), #ff7b32);
+    color: var(--branco);
     font-weight: bold;
+    padding: 10px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.3s ease;
+    width: fit-content;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
 }
 
-/* Tipo de Conta (Checkbox/Radio) */
+#profile-file + label[for="profile-file"]:hover {
+    background: linear-gradient(90deg, #ff7733, #ff994d);
+    box-shadow: 0 0 15px rgba(255, 119, 51, 0.6);
+    transform: scale(1.03);
+}
+
+/* Mostra o nome do arquivo selecionado */
+.file-name {
+    color: var(--cinza);
+    font-size: 0.9em;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* RADIO BUTTONS */
 .type-selection {
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 10px;
     margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.type-selection p {
+    width: 100%;
+    text-align: center;
+    color: var(--cinza);
 }
 
 .type-selection label {
     font-weight: normal;
-    color: #f0f0f0;
+    color: var(--branco);
+    cursor: pointer;
 }
 
-/* Link na parte inferior ("Já possui uma conta? Log-in") */
-.auth-bottom-link {
-    text-align: center;
-    margin-top: 40px;
+.type-selection input {
+    accent-color: var(--azul);
+    margin-right: 5px;
 }
 
-/* O botão .btn não está visível na imagem, mas vou manter o estilo padrão */
+/* BOTÃO DE CADASTRAR */
 .btn {
-    /* Mantido o estilo de botão original, mas ajuste a cor se for necessário */
-    background: #ff5500; 
-    color: white;
+    background: var(--laranja);
+    color: var(--branco);
     border: none;
     padding: 12px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s ease;
 }
 
-
-/* --- CSS para Form Evento e outros não relacionados à imagem (mantido inalterado) --- */
-
-/* FORM EVENTO */
-/* Se estiver usando essas classes, considere adicionar um fundo escuro */
-.form-evento {
-    display: flex;
-    gap: 50px;
-    justify-content: space-between;
+.btn:hover {
+    background: #ff7733;
+    box-shadow: 0 0 10px rgba(255, 119, 51, 0.5);
 }
 
-/* Restante do CSS de evento/upload omitido por brevidade, mas você pode colá-lo aqui. */
+/* LINK INFERIOR */
+.auth-bottom-link {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--cinza);
+}
+
+.auth-bottom-link a {
+    color: var(--azul);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.auth-bottom-link a:hover {
+    color: #73b1ff;
+}

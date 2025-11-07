@@ -1,40 +1,19 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../assets/css/cadastro.css"; // Assumindo que este CSS agora contém os estilos fornecidos
-import api from "./api"
+import "../assets/css/cadastro.css";
+import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function CadastroPage() { // Mudei o nome para CadastroPage, pois a estrutura é de cadastro
+export default function CadastroPage() {
     const navigate = useNavigate();
-    const { checkAuth } = useAuth()
+    const { checkAuth } = useAuth();
 
-    // Estados adaptados para os campos do formulário de CADASTRO
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
-    const [type, setType] = useState("Player"); // Estado para o rádio button
+    const [type, setType] = useState("Player");
     const [profileFile, setProfileFile] = useState(null);
-
-    function handleEmailChange(e) {
-        setEmail(e.target.value);
-    }
-
-    function handleNameChange(e) {
-        setNome(e.target.value);
-    }
-
-    function handlePasswordChange(e) {
-        setPassword(e.target.value);
-    }
-
-    function handlePasswordConfirmChange(e) {
-        setPasswordConfirm(e.target.value);
-    }
-
-    function handleTypeChange(e) {
-        setType(e.target.value);
-    }
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -44,30 +23,29 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
             return;
         }
 
-        // Build form data to support profile image upload
         const formData = new FormData();
-        formData.append('email', email);
-        formData.append('username', nome);
-        formData.append('password', password);
-        formData.append('passwordConfirm', passwordConfirm);
-        formData.append('userRole', type);
-        if (profileFile) formData.append('ProfileFile', profileFile);
+        formData.append("email", email);
+        formData.append("username", nome);
+        formData.append("password", password);
+        formData.append("passwordConfirm", passwordConfirm);
+        formData.append("userRole", type);
+        if (profileFile) formData.append("ProfileFile", profileFile);
 
-        api.post("/auth/register", formData).then(function (response) {
-            if (response.data.success) {
-                alert("Cadastro realizado com sucesso!");
-                checkAuth();
-                navigate("/");
-            }
-        }).catch(function (error) {
-            console.error("Erro no cadastro:", error);
-            alert("Erro ao cadastrar. Verifique o console.");
-            // TODO
-        });
-    };
+        api.post("/auth/register", formData)
+            .then((response) => {
+                if (response.data.success) {
+                    alert("Cadastro realizado com sucesso!");
+                    checkAuth();
+                    navigate("/");
+                }
+            })
+            .catch((error) => {
+                console.error("Erro no cadastro:", error);
+                alert("Erro ao cadastrar. Verifique o console.");
+            });
+    }
 
     return (
-        // Adicionando a estrutura do .container e .form-auth do CSS
         <main className="container">
             <section className="form-auth form-cadastro">
 
@@ -79,9 +57,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
 
                 <h1>CADASTRE-SE</h1>
 
-                {/* O onSubmit chama a função handleSubmit, substituindo action/method do HTML */}
                 <form onSubmit={handleSubmit}>
-
                     {/* E-mail */}
                     <label htmlFor="email-cadastro">E-mail</label>
                     <input
@@ -90,11 +66,11 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         placeholder="Insira seu endereço de e-mail..."
                         required
                         value={email}
-                        onChange={handleEmailChange}
+                        onChange={(e) => setEmail(e.target.value)}
                         name="email"
                     />
 
-                    {/* Nome de Usuário (NOVO CAMPO) */}
+                    {/* Nome de Usuário */}
                     <label htmlFor="nome-usuario">Nome de Usuário</label>
                     <input
                         type="text"
@@ -102,7 +78,7 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         placeholder="Insira seu nome de usuário..."
                         required
                         value={nome}
-                        onChange={handleNameChange}
+                        onChange={(e) => setNome(e.target.value)}
                         name="username"
                     />
 
@@ -112,8 +88,15 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         type="file"
                         id="profile-file"
                         accept="image/*"
-                        onChange={(e) => setProfileFile(e.target.files && e.target.files[0])}
+                        onChange={(e) => {
+                            const file = e.target.files && e.target.files[0];
+                            setProfileFile(file);
+                        }}
                     />
+                    <label htmlFor="profile-file">Escolher Imagem</label>
+                    {profileFile && (
+                        <div className="file-name">{profileFile.name}</div>
+                    )}
 
                     {/* Senha */}
                     <label htmlFor="senha-cadastro">Senha</label>
@@ -123,12 +106,12 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         placeholder="Insira sua senha..."
                         required
                         value={password}
-                        onChange={handlePasswordChange}
+                        onChange={(e) => setPassword(e.target.value)}
                         name="password"
-                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$"
+                        pattern="^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*?&#\\.]{8,}$"
                         title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres."
                     />
-                    <small style={{ color: '#666', fontSize: '0.8em', marginTop: '4px' }}>
+                    <small style={{ color: "#666", fontSize: "0.8em", marginTop: "4px" }}>
                         A senha deve conter pelo menos:<br />
                         - 8 caracteres<br />
                         - Uma letra<br />
@@ -143,11 +126,11 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                         placeholder="Insira a senha novamente..."
                         required
                         value={passwordConfirm}
-                        onChange={handlePasswordConfirmChange}
+                        onChange={(e) => setPasswordConfirm(e.target.value)}
                         name="confirmarSenha"
                     />
 
-                    {/* Tipo de Conta (Radio Buttons) */}
+                    {/* Tipo de Conta */}
                     <div className="type-selection">
                         <p>Tipo de Conta:</p>
                         <label>
@@ -156,8 +139,9 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                                 name="tipo-conta"
                                 value="Organizer"
                                 checked={type === "Organizer"}
-                                onChange={handleTypeChange}
-                            /> ORGANIZADOR
+                                onChange={(e) => setType(e.target.value)}
+                            />{" "}
+                            ORGANIZADOR
                         </label>
                         <label>
                             <input
@@ -165,26 +149,28 @@ export default function CadastroPage() { // Mudei o nome para CadastroPage, pois
                                 name="tipo-conta"
                                 value="Player"
                                 checked={type === "Player"}
-                                onChange={handleTypeChange}
-                            /> JOGADOR
+                                onChange={(e) => setType(e.target.value)}
+                            />{" "}
+                            JOGADOR
                         </label>
                         <label>
                             <input
                                 type="radio"
                                 name="tipo-conta"
                                 value="Visitor"
-                                checked={type === "Visitor"} // Valor padrão
-                                onChange={handleTypeChange}
-                            /> VISITANTE
+                                checked={type === "Visitor"}
+                                onChange={(e) => setType(e.target.value)}
+                            />{" "}
+                            VISITANTE
                         </label>
                     </div>
 
-                    {/* Botão de Submissão (usando a classe .btn) */}
-                    <button type="submit" className="btn" style={{ marginTop: '20px' }}>
+                    {/* Botão de Submissão */}
+                    <button type="submit" className="btn" style={{ marginTop: "20px" }}>
                         CADASTRAR
                     </button>
 
-                    {/* Link de Login */}
+                    {/* Link para Login */}
                     <div className="auth-bottom-link">
                         Já possui uma conta? <Link to="/login">Log-in</Link>
                     </div>

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "./api";
 import "../assets/css/PesquisaEvento.css";
+
+// Imagem da logo
+import LOGO_IMG from "../assets/img/logo.png";
 
 export default function BuscarEventos() {
   const [events, setEvents] = useState([]);
@@ -14,20 +18,19 @@ export default function BuscarEventos() {
   });
   const [loading, setLoading] = useState(false);
   const [noResults, setNoResults] = useState(false);
+  const navigate = useNavigate();
 
- 
   useEffect(() => {
     api
       .get("/events/filters/")
       .then((response) => {
-        if (response.data.success){
+        if (response.data.success) {
           setFilters(response.data.data);
         }
       })
       .catch((error) => console.error("Erro ao carregar filtros:", error));
   }, []);
 
-  
   const fetchEvents = () => {
     setLoading(true);
     setNoResults(false);
@@ -41,7 +44,6 @@ export default function BuscarEventos() {
       .finally(() => setLoading(false));
   };
 
-  
   useEffect(() => {
     fetchEvents();
   }, [selectedFilters]);
@@ -57,13 +59,18 @@ export default function BuscarEventos() {
 
   return (
     <div className="page-container">
-      
+      {/* === Cabeçalho com logo === */}
       <header className="header">
+        <div className="logo-area" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+          <div className="logo-circle">
+            <img src={LOGO_IMG} alt="Logo do site" className="logo-img" />
+          </div>
+        </div>
         <h1>Buscar Eventos</h1>
       </header>
 
       <div className="content">
-        
+        {/* === Filtros === */}
         <aside className="filters">
           <h2>Filtros</h2>
 
@@ -132,7 +139,7 @@ export default function BuscarEventos() {
           </div>
         </aside>
 
-        
+        {/* === Resultados === */}
         <main className="results">
           <div className="search-bar">
             <input
@@ -149,7 +156,7 @@ export default function BuscarEventos() {
             <p className="no-results">Nenhum evento encontrado.</p>
           ) : (
             <div className="event-list">
-              {console.log(events) || events.map((event) => (
+              {events.map((event) => (
                 <div key={event.eventId} className="event-card">
                   <h4>{event.title}</h4>
                   <p>
@@ -171,7 +178,7 @@ export default function BuscarEventos() {
         </main>
       </div>
 
-      
+      {/* === Rodapé === */}
       <footer className="footer">
         <p>© 2025 Checkpoint - Todos os direitos reservados.</p>
       </footer>
