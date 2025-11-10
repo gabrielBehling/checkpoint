@@ -15,7 +15,7 @@ export default function Evento() {
     GameID: "",
     ModeID: "",
     StartDate: "",
-    EndDate: "",
+    StartHour: "",
     Location: "",
     Ticket: "",
     ParticipationCost: "",
@@ -72,7 +72,7 @@ export default function Evento() {
       const data = new FormData();
       Object.entries(form).forEach(([key, value]) => data.append(key, value));
       if (banner) data.append("BannerFile", banner);
-
+      console.log(form);
       const response = await api.post("/events/", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -88,7 +88,7 @@ export default function Evento() {
         GameID: "",
         ModeID: "",
         StartDate: "",
-        EndDate: "",
+        StartHour: "",
         Location: "",
         Ticket: "",
         ParticipationCost: "",
@@ -284,6 +284,16 @@ export default function Evento() {
               </div>
 
               <div className="form-field-group">
+                <label>Hora de Início</label>
+                <input
+                  type="time"
+                  name="StartHour"
+                  value={form.StartHour}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-field-group">
                 <label>Data de Término</label>
                 <input
                   type="date"
@@ -291,6 +301,16 @@ export default function Evento() {
                   value={form.EndDate}
                   onChange={handleChange}
                   min={form.StartDate}
+                />
+              </div>
+
+              <div className="form-field-group">
+                <label>Hora de Término</label>
+                <input
+                  type="time"
+                  name="EndHour"
+                  value={form.EndHour}
+                  onChange={handleChange}
                 />
               </div>
             </div>

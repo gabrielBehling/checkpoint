@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../assets/css/requestPasswordReset.css";
 import api from "./api";
 
 function RequestResetPasswordPage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({ text: "", type: "" });
 
     function handleEmailChange(e) {
         setEmail(e.target.value);
@@ -14,38 +16,64 @@ function RequestResetPasswordPage() {
     function handleSubmit(e) {
         e.preventDefault();
         setLoading(true);
+        setMessage({ text: "", type: "" });
         
         api.post("/auth/request-password-reset", { email: email })
             .then((response) => {
                 if (response.data.success) {
-                    alert("Instruções para resetar a senha foram enviadas para o seu email.");
-                    navigate("/login");
+                    setMessage({ 
+                        text: "Instruções para resetar a senha foram enviadas para o seu email.", 
+                        type: "success" 
+                    });
+                    setTimeout(() => navigate("/login"), 3000);
                 }
             })
             .catch((error) => {
                 console.error("Erro ao solicitar reset de senha:", error);
-                alert("Erro ao solicitar reset de senha. Verifique o console.");
+                setMessage({ 
+                    text: "Erro ao solicitar reset de senha.", 
+                    type: "error" 
+                });
             })
             .finally(() => {
-            setLoading(false);
-        });
+                setLoading(false);
+            });
     }
 
     return (
-        <>
+        <div className="request-reset-container">
             {loading && <div className="loading-overlay">Carregando...</div>}
-            <h1>Solicitar Reset de Senha</h1>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="email">Email</label>
-                <input type="text" name="email" value={email} onChange={handleEmailChange} placeholder="Digite seu email: " required />
+            
+            <div className="request-reset-form">
+                <h1>Resetar Senha</h1>
+                
+                {message.text && (
+                    <div className={`status-message status-${message.type}`}>
+                        {message.text}
+                    </div>
+                )}
+                
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="email">Email</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        value={email} 
+                        onChange={handleEmailChange} 
+                        placeholder="Digite seu email" 
+                        required 
+                    />
 
-                <button type="submit">Resetar senha</button>
-            </form>
-            {/* Botão de voltar */}
-            <button className="back-button" onClick={() => navigate("/")}>
-                ← Voltar para o App
-            </button>
-        </>
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Enviando..." : "Resetar Senha"}
+                    </button>
+                </form>
+                
+                <button className="back-button" onClick={() => navigate("/login")}>
+                    ← Voltar para o Login
+                </button>
+            </div>
+        </div>
     );
 }
 

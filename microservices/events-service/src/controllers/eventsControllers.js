@@ -3,10 +3,11 @@ const router = express.Router();
 const sql = require("mssql");
 const path = require("path");
 const fs = require("fs");
-const { object, string, date, number, boolean } = require("yup");
+const { object, string, date, number, boolean, time } = require("yup");
 const authMiddleware = require("../authMiddleware");
 const bannerUpload = require("../middleware/bannerUpload");
 const { transformEvent, transformEventList, createPagination } = require("../utils/dataTransformers");
+
 
 const dbConfig = {
     server: process.env.MSSQL_SERVER,
@@ -26,7 +27,9 @@ let createEventSchema = object({
     GameID: number(),
     ModeID: number(),
     StartDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "Start date must be in the future").required(),
-    EndDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "End date must be in the future").required(),
+    StartHour: string().matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:mm)').required(),
+    EndDate: date().min(new Date(Date.now() - 24 * 60 * 60 * 1000), "End date must be in the future"),
+    EndHour: string().matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:mm)'),
     Location: string(),
     Ticket: number(),
     ParticipationCost: number(),
@@ -45,9 +48,19 @@ let createEventSchema = object({
 router.post("/", authMiddleware, bannerUpload, async (req, res) => {
     try {
         const eventData = await createEventSchema.validate(req.body);
+        console.log(eventData);
 
         if (eventData.EndDate < eventData.StartDate) {
-            return res.error("End date must be after start date", "INVALID_DATE_RANGE", 400);
+            return res.error("End date must be after start date", "INVALID_DATE_RANGE", 400);         
+        }
+
+        const startHourAndMinutes = eventData.StartHour.split(':');
+        const endHoursAndMinutes = eventData.EndHour ? eventData.EndHour.split(':') : null;
+        
+        if(eventData.EndDate === eventData.StartDate & eventData.EndHour){
+            if(new Date(hours = endHoursAndMinutes[0], minutes = endHoursAndMinutes[1]) <= new Date(hours = startHourAndMinutes[0], minutes = startHourAndMinutes[1])){
+                return res.error("End hour must be after start hour", "INVALID_HOUR_RANGE", 400);
+            }
         }
 
         // Process banner if one was uploaded
@@ -60,7 +73,7 @@ router.post("/", authMiddleware, bannerUpload, async (req, res) => {
         const userId = req.user.userId;        await sql.connect(dbConfig);
         const result = await sql.query`
             INSERT INTO Events (
-                Title, Description, GameID, ModeID, StartDate, EndDate, Location, 
+                Title, Description, GameID, ModeID, StartDate, StartHour, EndDate, EndHour, Location, 
                 Ticket, ParticipationCost, LanguageID, Platform, IsOnline,
                 MaxParticipants, TeamSize, MaxTeams, Rules, Prizes, BannerURL, 
                 Status, CreatedBy
@@ -68,7 +81,8 @@ router.post("/", authMiddleware, bannerUpload, async (req, res) => {
             OUTPUT INSERTED.EventID, INSERTED.CreatedAt
             VALUES (
                 ${eventData.Title}, ${eventData.Description}, ${eventData.GameID || null}, 
-                ${eventData.ModeID || null}, ${eventData.StartDate}, ${eventData.EndDate}, 
+                ${eventData.ModeID || null}, ${eventData.StartDate},${eventData.StartHour},
+                ${eventData.EndDate || null}, ${eventData.EndHour || null},
                 ${eventData.Location || null}, ${eventData.Ticket || null}, 
                 ${eventData.ParticipationCost || null}, ${eventData.LanguageID || null}, 
                 ${eventData.Platform || null}, ${eventData.IsOnline}, 
@@ -110,7 +124,9 @@ let updateEventSchema = object({
     GameID: number(),
     ModeID: number(),
     StartDate: date(),
+    StartHour: date(),
     EndDate: date(),
+    EndHour: date(),
     Location: string(),
     Ticket: number(),
     ParticipationCost: number(),
@@ -164,7 +180,9 @@ router.put("/:eventId", authMiddleware, bannerUpload, async (req, res) => {
             GameID = coalesce(${eventData.GameID}, GameID),
             ModeID = coalesce(${eventData.ModeID}, ModeID),
             StartDate = coalesce(${eventData.StartDate}, StartDate),
+            StartHour = coalesce(${eventData.StartHour}, StartHour),
             EndDate = coalesce(${eventData.EndDate}, EndDate),
+            EndHour = coalesce(${eventData.EndHour}, EndHour),
             Location = coalesce(${eventData.Location}, Location),
             Ticket = coalesce(${eventData.Ticket}, Ticket),
             ParticipationCost = coalesce(${eventData.ParticipationCost}, ParticipationCost),
@@ -333,7 +351,7 @@ router.get("/", async (req, res) => {
 
         // Setando parâmetros
         request.input('game', sql.NVarChar, game || null);
-        request.input('date', sql.DateTime, date ? new Date(date) : null);
+        request.input('date', sql.Date, date ? new Date(date) : null);
         request.input('mode', sql.NVarChar, mode || null);
         request.input('ticket', sql.Decimal(10,2), ticket ? parseFloat(ticket) : null);
         request.input('participationCost', sql.Decimal(10,2), participationCost ? parseFloat(participationCost) : null);
