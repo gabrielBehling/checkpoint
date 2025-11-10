@@ -3,7 +3,7 @@ const router = express.Router();
 const sql = require("mssql");
 const path = require("path");
 const fs = require("fs");
-const { object, string, date, number, boolean, time } = require("yup");
+const { object, string, date, number, boolean } = require("yup");
 const authMiddleware = require("../authMiddleware");
 const bannerUpload = require("../middleware/bannerUpload");
 const { transformEvent, transformEventList, createPagination } = require("../utils/dataTransformers");
@@ -263,7 +263,6 @@ router.get("/", async (req, res) => {
             groupSize,
             status,
             prize,
-            time,
             language,
             platform,
             maxParticipants,
@@ -288,7 +287,6 @@ router.get("/", async (req, res) => {
                 AND (@groupSize IS NULL OR e.TeamSize = @groupSize)
                 AND (@status IS NULL OR e.Status = @status)
                 AND (@prize IS NULL OR e.Prizes LIKE '%' + @prize + '%')
-                AND (@time IS NULL OR CONVERT(time, e.StartDate) = @time)
                 AND (@language IS NULL OR e.LanguageID = (SELECT LanguageID FROM Languages WHERE LanguageName = @language))
                 AND (@platform IS NULL OR e.Platform LIKE '%' + @platform + '%')
                 AND (@maxParticipants IS NULL OR e.MaxParticipants = @maxParticipants)
@@ -332,7 +330,6 @@ router.get("/", async (req, res) => {
                 AND (@groupSize IS NULL OR e.TeamSize = @groupSize)
                 AND (@status IS NULL OR e.Status = @status)
                 AND (@prize IS NULL OR e.Prizes LIKE '%' + @prize + '%')
-                AND (@time IS NULL OR CONVERT(time, e.StartDate) = @time)
                 AND (@language IS NULL OR e.LanguageID = (SELECT LanguageID FROM Languages WHERE LanguageName = @language))
                 AND (@platform IS NULL OR e.Platform LIKE '%' + @platform + '%')
                 AND (@maxParticipants IS NULL OR e.MaxParticipants = @maxParticipants)
@@ -359,7 +356,6 @@ router.get("/", async (req, res) => {
         request.input('groupSize', sql.Int, groupSize ? parseInt(groupSize) : null);
         request.input('status', sql.NVarChar, status || null);
         request.input('prize', sql.NVarChar, prize || null);
-        request.input('time', sql.Time, time || null);
         request.input('language', sql.NVarChar, language || null);
         request.input('platform', sql.NVarChar, platform || null);
         request.input('maxParticipants', sql.Int, maxParticipants ? parseInt(maxParticipants) : null);
