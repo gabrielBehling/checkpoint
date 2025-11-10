@@ -1,0 +1,104 @@
+/* ===== RESET GLOBAL ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== CONTAINER PRINCIPAL ===== */
+.inscricao-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a0d2a 0%, #1c1238 100%);
+  color: #ffffff;
+  padding: 50px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== TÍTULO PRINCIPAL ===== */
+.inscricao-container h1 {
+  font-size: 2rem;
+  color: #4a90e2;
+  text-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* ===== FORMULÁRIO ===== */
+.criar-time {
+  background: rgba(25, 20, 45, 0.9);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 12px;
+  padding: 30px 40px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== CAMPOS DE INPUT ===== */
+.criar-time input[type="text"],
+.criar-time input[type="file"] {
+  background: #241d3b;
+  color: #f0f0f0;
+  border: 1px solid #4a90e2;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.criar-time input[type="text"]:focus,
+.criar-time input[type="file"]:focus {
+  border-color: #ff8c00;
+  box-shadow: 0 0 8px #ff8c00;
+}
+
+/* ===== BOTÃO DE SUBMIT ===== */
+.criar-time input[type="submit"] {
+  background: linear-gradient(90deg, #ff8c00 0%, #ffb84d 100%);
+  color: #0a0d2a;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.criar-time input[type="submit"]:hover {
+  background: linear-gradient(90deg, #ffb84d 0%, #ff8c00 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+}
+
+/* ===== ESTADO DE ERRO OU CARREGAMENTO ===== */
+p {
+  font-size: 1rem;
+  color: #f0f0f0;
+  text-align: center;
+  margin-top: 20px;
+}
+
+p[style*="color: red"] {
+  color: #ff5555 !important;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 480px) {
+  .criar-time {
+    padding: 20px;
+  }
+
+  .inscricao-container h1 {
+    font-size: 1.6rem;
+  }
+}

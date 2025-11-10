@@ -1,6 +1,6 @@
 /*
  * ===================================
- * ARQUIVO: style-404.css (CORRIGIDO E CENTRALIZADO)
+ * ARQUIVO: style-404.css (CORRIGIDO, CENTRALIZADO E COM LOGO CIRCULAR)
  * ===================================
  */
 
@@ -23,10 +23,45 @@ body {
     max-width: 650px; /* Mantido um pouco maior para a mensagem 404 */
     padding: 40px 60px;
     border-radius: 8px;
-    
+
     /* Estilos de "brilho" idênticos ao .form-auth */
-    border: 1px solid rgba(74, 144, 226, 0.3); 
-    box-shadow: 0 0 50px rgba(74, 144, 226, 0.1); 
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    box-shadow: 0 0 50px rgba(74, 144, 226, 0.1);
+}
+
+/* ===== LOGO E TÍTULO ===== */
+.logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Espaçamento entre logo e texto */
+    margin-bottom: 30px;
+}
+
+/* ===== IMAGEM CIRCULAR ===== */
+.logo-img {
+    width: 100px;              /* Tamanho fixo da logo */
+    height: 100px;
+    border-radius: 50%;        /* Deixa a imagem redonda */
+    object-fit: cover;         /* Garante que a imagem não deforme */
+    border: 3px solid #4A90E2; /* Borda azul combinando com o tema */
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efeito suave ao passar o mouse */
+.logo-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(74, 144, 226, 0.7);
+}
+
+/* ===== TÍTULO AO LADO DA LOGO ===== */
+.logo-title h1 {
+    color: #4A90E2;
+    font-size: 28px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 /* ===== CÓDIGO DE ERRO 404 ===== */
@@ -52,7 +87,7 @@ body {
 /* ===== MENSAGEM DE PARÁGRAFO ===== */
 .error-message {
     font-size: 18px;
-    color: #f0f0f0; 
+    color: #f0f0f0;
     margin-top: 20px;
     margin-bottom: 40px;
     line-height: 1.6;

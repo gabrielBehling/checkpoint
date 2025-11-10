@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import { useParams, Link } from "react-router-dom";
+import "../assets/css/Inscricao.css";
 
 export default function InscricaoEvento() {
   const { eventId } = useParams();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import { useParams, useNavigate } from "react-router-dom";
+import "../assets/css/criarTime.css";
 
 export default function CriarTime() {
   const { eventId } = useParams();
