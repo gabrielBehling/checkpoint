@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Importar useParams e useNavigate
-import api from "../api"; // Seu axios configurado
+import api from "./api"; // Seu axios configurado
 import "../assets/css/CadastroStyle.css"; // Seu CSS de cadastro, reutilizado
 
 // Importe os componentes Header e Footer se quiser incluí-los aqui
