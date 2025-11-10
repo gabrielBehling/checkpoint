@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import "../assets/css/style-perfil.css";
-import LOGO_IMG from "../assets/img/logo.png"; // ✅ Logo adicionada
+import LOGO_IMG from "../assets/img/imagem.png"; // ✅ Logo adicionada
 
 export default function PerfilPage() {
   const [userData, setUserData] = useState({});

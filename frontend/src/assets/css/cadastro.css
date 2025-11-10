@@ -1,4 +1,4 @@
-/* RESET */
+/* ===== RESET ===== */
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +6,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* CORES PRINCIPAIS */
+/* ===== CORES ===== */
 :root {
     --fundo: #100C1F;
     --input-bg: #241D3B;
@@ -16,6 +16,7 @@
     --laranja: #ff5500;
 }
 
+/* ===== LAYOUT BASE ===== */
 body {
     background: var(--fundo);
     color: var(--branco);
@@ -49,40 +50,39 @@ body {
     box-shadow: 0 0 60px rgba(74, 144, 226, 0.2);
 }
 
-/* LOGO */
-.logo-auth {
+/* ===== LOGO + TÍTULO ===== */
+.logo-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 40px;
+    gap: 15px;
+    margin-bottom: 35px;
 }
 
-.logo-auth .circle {
-    width: 30px;
-    height: 30px;
-    background: var(--branco);
+.logo-title .logo-img {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    margin-right: 10px;
+    object-fit: cover;
+    border: 2px solid var(--azul);
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.logo-auth .text {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--branco);
-    letter-spacing: 2px;
+.logo-title .logo-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(74, 144, 226, 0.6);
 }
 
-/* TÍTULOS */
-.form-auth h1 {
+.logo-title h1 {
     font-size: 32px;
-    margin-bottom: 30px;
     color: var(--azul);
     letter-spacing: 5px;
     font-weight: 300;
     text-transform: uppercase;
 }
 
-/* FORM */
+/* ===== FORM ===== */
 .form-auth form {
     display: flex;
     flex-direction: column;
@@ -117,12 +117,11 @@ body {
     color: var(--cinza);
 }
 
-/* INPUT FILE (botão de upload de imagem) */
+/* ===== INPUT FILE ===== */
 .form-auth input[type="file"] {
-    display: none; /* Esconde o input real */
+    display: none;
 }
 
-/* Botão personalizado - versão laranja */
 #profile-file + label[for="profile-file"] {
     display: inline-block;
     background: linear-gradient(90deg, var(--laranja), #ff7b32);
@@ -144,7 +143,6 @@ body {
     transform: scale(1.03);
 }
 
-/* Mostra o nome do arquivo selecionado */
 .file-name {
     color: var(--cinza);
     font-size: 0.9em;
@@ -152,7 +150,7 @@ body {
     font-style: italic;
 }
 
-/* RADIO BUTTONS */
+/* ===== RADIO BUTTONS ===== */
 .type-selection {
     display: flex;
     justify-content: space-evenly;
@@ -179,7 +177,7 @@ body {
     margin-right: 5px;
 }
 
-/* BOTÃO DE CADASTRAR */
+/* ===== BOTÃO ===== */
 .btn {
     background: var(--laranja);
     color: var(--branco);
@@ -197,7 +195,7 @@ body {
     box-shadow: 0 0 10px rgba(255, 119, 51, 0.5);
 }
 
-/* LINK INFERIOR */
+/* ===== LINK INFERIOR ===== */
 .auth-bottom-link {
     text-align: center;
     margin-top: 30px;
@@ -213,4 +211,27 @@ body {
 
 .auth-bottom-link a:hover {
     color: #73b1ff;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 600px) {
+    .logo-title {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .logo-title .logo-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .logo-title h1 {
+        font-size: 26px;
+        letter-spacing: 3px;
+    }
+
+    .form-auth {
+        width: 90%;
+        padding: 30px 20px;
+    }
 }

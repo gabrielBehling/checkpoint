@@ -6,7 +6,7 @@ import { useAuth } from "./contexts/AuthContext";
 
 // Imagens
 import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png";
-import LOGO_IMG from "./assets/img/logo.png"; // ✅ Logo adicionada
+import LOGO_IMG from "./assets/img/imagem.png"; // ✅ Logo adicionada
 
 function App() {
     const navigate = useNavigate();

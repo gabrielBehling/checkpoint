@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "../assets/css/login.css"; // O CSS que você forneceu
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
+import LOGO_IMG from "../assets/img/imagem.png";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -45,13 +46,16 @@ export default function LoginPage() {
     // A estrutura agora espelha o <body> do seu HTML: <main class="container">
     <main className="container">
       <section className="form-auth form-login">
-        
-        <div className="logo-auth">
-            <div className="circle"></div>
-            <div className="text">CHECKPOINT</div>
-        </div>
-        
-        <h1>LOG-IN</h1>
+                {/* Logo + Título lado a lado */}
+                <div className="logo-title">
+                    <img 
+                        src={LOGO_IMG} 
+                        alt="Logo Checkpoint" 
+                        className="logo-img"
+                    />
+                    <h1>LOGIN</h1>
+                </div>
+
         
         {/* O formulário agora utiliza o onSubmit para chamar handleSubmit */}
         <form onSubmit={handleSubmit}>

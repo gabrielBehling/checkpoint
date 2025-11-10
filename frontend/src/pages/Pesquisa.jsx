@@ -4,7 +4,7 @@ import api from "./api";
 import "../assets/css/PesquisaEvento.css";
 
 // Imagem da logo
-import LOGO_IMG from "../assets/img/logo.png";
+import LOGO_IMG from "../assets/img/imagem.png";
 
 export default function BuscarEventos() {
   const [events, setEvents] = useState([]);

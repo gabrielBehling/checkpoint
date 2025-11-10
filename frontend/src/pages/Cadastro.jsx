@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "../assets/css/cadastro.css";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
+import LOGO_IMG from "../assets/img/imagem.png"; // Importa o logo
 
 export default function CadastroPage() {
     const navigate = useNavigate();
@@ -48,17 +49,18 @@ export default function CadastroPage() {
     return (
         <main className="container">
             <section className="form-auth form-cadastro">
-
-                {/* Logo CHECKPOINT */}
-                <div className="logo-auth">
-                    <div className="circle"></div>
-                    <div className="text">CHECKPOINT</div>
+                
+                {/* Logo + Título lado a lado */}
+                <div className="logo-title">
+                    <img 
+                        src={LOGO_IMG} 
+                        alt="Logo Checkpoint" 
+                        className="logo-img"
+                    />
+                    <h1>CADASTRE-SE</h1>
                 </div>
 
-                <h1>CADASTRE-SE</h1>
-
                 <form onSubmit={handleSubmit}>
-                    {/* E-mail */}
                     <label htmlFor="email-cadastro">E-mail</label>
                     <input
                         type="email"
@@ -70,7 +72,6 @@ export default function CadastroPage() {
                         name="email"
                     />
 
-                    {/* Nome de Usuário */}
                     <label htmlFor="nome-usuario">Nome de Usuário</label>
                     <input
                         type="text"
@@ -82,7 +83,6 @@ export default function CadastroPage() {
                         name="username"
                     />
 
-                    {/* Foto de Perfil (opcional) */}
                     <label htmlFor="profile-file">Foto de Perfil (opcional)</label>
                     <input
                         type="file"
@@ -98,7 +98,6 @@ export default function CadastroPage() {
                         <div className="file-name">{profileFile.name}</div>
                     )}
 
-                    {/* Senha */}
                     <label htmlFor="senha-cadastro">Senha</label>
                     <input
                         type="password"
@@ -108,7 +107,7 @@ export default function CadastroPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         name="password"
-                        pattern="^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*?&#\\.]{8,}$"
+                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$"
                         title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres."
                     />
                     <small style={{ color: "#666", fontSize: "0.8em", marginTop: "4px" }}>
@@ -118,7 +117,6 @@ export default function CadastroPage() {
                         - Um número
                     </small>
 
-                    {/* Confirmação de Senha */}
                     <label htmlFor="confirmar-senha">Confirmar Senha</label>
                     <input
                         type="password"
@@ -130,7 +128,6 @@ export default function CadastroPage() {
                         name="confirmarSenha"
                     />
 
-                    {/* Tipo de Conta */}
                     <div className="type-selection">
                         <p>Tipo de Conta:</p>
                         <label>
@@ -165,12 +162,10 @@ export default function CadastroPage() {
                         </label>
                     </div>
 
-                    {/* Botão de Submissão */}
                     <button type="submit" className="btn" style={{ marginTop: "20px" }}>
                         CADASTRAR
                     </button>
 
-                    {/* Link para Login */}
                     <div className="auth-bottom-link">
                         Já possui uma conta? <Link to="/login">Log-in</Link>
                     </div>

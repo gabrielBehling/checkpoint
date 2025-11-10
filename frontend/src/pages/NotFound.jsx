@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // 1. Importe o hook 'useNavigate'
+import LOGO_IMG from "../assets/img/imagem.png";
 
 // 2. Importe seus arquivos CSS
 // (Assumindo que eles estão na raiz do 'src' ou ajustados)
@@ -24,10 +25,16 @@ function NotFoundPage() {
         <div className="error-container">
             
             {/* Reutilizando sua classe de logo existente */}
-            <div className="logo-auth">
-                <div className="circle"></div>
-                <span className="text">CHECKPOINT</span>
-            </div>
+                {/* Logo + Título lado a lado */}
+                <div className="logo-title">
+                    <img 
+                        src={LOGO_IMG} 
+                        alt="Logo Checkpoint" 
+                        className="logo-img"
+                    />
+                    <h1>CHECKPOINT</h1>
+                </div>
+
 
             {/* O código de erro gigante */}
             <div className="error-code">404</div>

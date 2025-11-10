@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext"; // ✅ Importa o contexto de autenticação
 import "../assets/css/CadastroStyle.css";
-import LOGO_IMG from "../assets/img/logo.png"; // ✅ Logo adicionada
+import LOGO_IMG from "../assets/img/imagem.png"; // ✅ Logo adicionada
 
 export default function Evento() {
   const navigate = useNavigate();
