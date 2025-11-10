@@ -90,10 +90,9 @@ export default function LoginPage() {
             </div>
 
             <div className="link-info" style={{marginTop: '50px'}}>
-               Esqueceu a senha? faça uma nova. <Link to="/resetpassword">Resetar senha</Link>
+               Esqueceu a senha? faça uma nova.<br/><Link to="/request-password-reset">Resetar senha</Link>
             </div>
-            {/* Nota: Mudei href="cadastro.html" para Link to="/cadastro" que é o padrão em React Router */}
-
+            
         </form>
       </section>
     </main>

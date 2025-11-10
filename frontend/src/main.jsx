@@ -18,6 +18,7 @@ const NotFound = React.lazy(() => import("./pages/NotFound"));
 const About_Us = React.lazy(() => import("./pages/About_Us"))
 const PesquisaEvento = React.lazy(() => import("./pages/Pesquisa"))
 const ResetPassword = React.lazy(() => import("./pages/ResetPassword"))
+const RequestPasswordResetPage = React.lazy(() => import("./pages/RequestPasswordReset"))
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/search" element={<PesquisaEvento />} />
           
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
 
           {/* Rotas protegidas */}
           <Route element={<ProtectedRoutes />}>
