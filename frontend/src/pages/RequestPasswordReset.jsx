@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../assets/css/requestPasswordReset.css";
 import api from "./api";
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 function RequestResetPasswordPage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
@@ -42,6 +45,7 @@ function RequestResetPasswordPage() {
 
     return (
         <div className="request-reset-container">
+            <Header/>
             {loading && <div className="loading-overlay">Carregando...</div>}
             
             <div className="request-reset-form">
@@ -73,6 +77,7 @@ function RequestResetPasswordPage() {
                     ← Voltar para o Login
                 </button>
             </div>
+            <Footer/>
         </div>
     );
 }

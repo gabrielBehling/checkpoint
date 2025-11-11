@@ -3,6 +3,9 @@ import api from "./api";
 import { useParams, Link } from "react-router-dom";
 import "../assets/css/Inscricao.css";
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 export default function InscricaoEvento() {
   const { eventId } = useParams();
   const [evento, setEvento] = useState(null);
@@ -57,6 +60,7 @@ export default function InscricaoEvento() {
 
   return (
     <main className="inscricao-container">
+      <Header/>
       <h1>Inscrição no Evento: {evento.title}</h1>
       <section className="criar-time">
         <Link to={`/evento/${evento.eventId}/criarTime`}>
@@ -83,6 +87,7 @@ export default function InscricaoEvento() {
           </ul>
         )}
       </section>
+      <Footer/>
     </main>
   );
 }

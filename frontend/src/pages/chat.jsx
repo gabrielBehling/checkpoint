@@ -5,6 +5,9 @@ import "../assets/css/chat.css";
 import { useAuth } from '../contexts/AuthContext.jsx';
 import api from './api';
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";  
+
 //  O componente agora recebe 'teamId' como uma "prop" 
 // NECESSITA passar o ID da equipe para este componente quando o usar.
 export default function App({ teamId }) { 
@@ -240,11 +243,7 @@ export default function App({ teamId }) {
 
   return (
     <div className="chat-root">
-      {/* ... (O resto do seu HTML/JSX não precisa de mudanças) ... */}
-      <header className="chat-header">
-        <h1>Chat da Equipe</h1>
-        <p>{teamId ? `Sala: ${teamId}` : 'Nenhuma sala selecionada'}</p>
-      </header>
+     <Header/>
 
       <form id="chat" onSubmit={handleSend} className="chat-form">
         <div className="messages" id="messages-container" ref={messagesContainerRef}>
@@ -282,6 +281,7 @@ export default function App({ teamId }) {
 
       <div className="status" id="status">{status}</div>
       <div className="notification" id="notification">{notification}</div>
+      <Footer/>
     </div>
   );
 }

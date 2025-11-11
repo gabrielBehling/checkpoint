@@ -4,6 +4,9 @@ import api from "./api";
 import "../assets/css/style-perfil.css";
 import LOGO_IMG from "../assets/img/imagem.png"; // ✅ Logo adicionada
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 export default function PerfilPage() {
   const [userData, setUserData] = useState({});
   const [previewImage, setPreviewImage] = useState(null);
@@ -86,21 +89,7 @@ export default function PerfilPage() {
 
   return (
     <div className="perfil-container">
-      <header>
-        {/* ✅ Logo circular adicionada */}
-        <div className="logo">
-          <Link to="/">
-            <div className="logo-circle">
-              <img src={LOGO_IMG} alt="Logo do site" />
-            </div>
-          </Link>
-        </div>
-
-        <nav>
-          <a href="#">Eventos</a>
-          <a href="#">Jogos</a>
-        </nav>
-      </header>
+      <Header/>
 
       <section className="perfil-banner">
         <div
@@ -210,11 +199,7 @@ export default function PerfilPage() {
         </section>
       </main>
 
-      <footer>
-        <a href="#">Ajuda</a>
-        <a href="#">Contato</a>
-        <a href="#">Sobre Nós</a>
-      </footer>
+      <Footer/>
     </div>
   );
 }

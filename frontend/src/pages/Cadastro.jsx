@@ -4,6 +4,8 @@ import "../assets/css/cadastro.css";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
 import LOGO_IMG from "../assets/img/imagem.png"; // Importa o logo
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function CadastroPage() {
   const navigate = useNavigate();
@@ -64,8 +66,14 @@ export default function CadastroPage() {
   }
 
   return (
+    
+   
+
     <main className="container">
+
+       <Header/>  
       <section className="form-auth form-cadastro">
+
         {/* Logo + Título lado a lado */}
         <div className="logo-title">
           <img src={LOGO_IMG} alt="Logo Checkpoint" className="logo-img" />
@@ -129,6 +137,7 @@ export default function CadastroPage() {
             Já possui uma conta? <Link to="/login">Log-in</Link>
           </div>
         </form>
+        <Footer/>
       </section>
     </main>
   );

@@ -4,6 +4,9 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import "../assets/css/login.css"; // Reutilizando o MESMO CSS
 import api from "./api"; // Reutilizando sua API
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 export default function ConfirmResetPasswordPage() {
   const navigate = useNavigate();
   // Hook para ler os parâmetros da URL
@@ -92,6 +95,7 @@ export default function ConfirmResetPasswordPage() {
 
   return (
     <main className="container">
+      <Header/>
       {/* Reutiliza o layout .form-auth do seu login.css */}
       <section className="form-auth form-new-password">
         <div className="logo-auth">
@@ -131,6 +135,7 @@ export default function ConfirmResetPasswordPage() {
           </div>
         </form>
       </section>
+      <Footer/>
     </main>
   );
 }
