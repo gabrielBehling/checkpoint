@@ -6,7 +6,9 @@ import { useAuth } from "./contexts/AuthContext";
 
 // Imagens
 import FALLBACK_IMAGE_SRC from "./assets/img/fundo.png";
-import LOGO_IMG from "./assets/img/imagem.png"; // ✅ Logo adicionada
+
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 function App() {
   const navigate = useNavigate();
@@ -141,75 +143,7 @@ function App() {
 
   return (
     <>
-      <header>
-        <nav className="navbar">
-          {/* ✅ Logo com imagem circular */}
-          <div className="logo">
-            <Link to="/">
-              <div className="logo-circle">
-                <img src={LOGO_IMG} alt="Logo do site" />
-              </div>
-            </Link>
-          </div>
-
-          <h1>
-            <input id="pesquisa" type="text" placeholder="Pesquisa" />
-          </h1>
-
-          <ul>
-            <li>
-              <Link to="/eventos">Eventos</Link>
-            </li>
-            <li>
-              <a href="#">Jogos</a>
-            </li>
-            {!user ? (
-              <>
-                <li>
-                  <Link to="/login">Login</Link>
-                </li>
-                <li>
-                  <Link to="/cadastro">Cadastre-se</Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link to="/chat">Chat</Link>
-                </li>
-                {user.userRole !== "Player" && (
-                  <li>
-                    <Link to="/cadastroEvento">Cadastro Evento</Link>
-                  </li>
-                )}
-                <li>
-                  <button onClick={logout} className="logout-btn">
-                    Logout
-                  </button>
-                </li>
-                <li className="user-welcome">
-                  <Link to="/perfil" className="user-link">
-                    {user?.profileURL ? (
-                      <img
-                        src={getProfileSrc(user.profileURL)}
-                        alt={user.username}
-                        className="nav-avatar"
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: "50%",
-                          marginRight: 8,
-                        }}
-                      />
-                    ) : null}
-                    Olá, {user.username}
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </nav>
-      </header>
+      <Header/> {/* ✅ Header padronizado */}
 
       <section className="hero">
         {loading && <div className="loading-message">Carregando banners de eventos...</div>}
@@ -357,22 +291,7 @@ function App() {
         </div>
       </section>
 
-      <footer>
-        <ul>
-          <li>
-            <a href="#">Ajuda</a>
-          </li>
-          <li>
-            <a href="#">Contato</a>
-          </li>
-          <li>
-            <Link to="/aboutUs">Sobre nós</Link>
-          </li>
-          <li>
-            <a href="#">Termos</a>
-          </li>
-        </ul>
-      </footer>
+     <Footer/> {/* ✅ Footer padronizado */}
     </>
   );
 }
