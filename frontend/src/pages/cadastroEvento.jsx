@@ -30,6 +30,8 @@ export default function Evento() {
     CreatedBy: "",
   });
 
+  const [formErrors, setFormErrors] = useState({});
+
   const [games, setGames] = useState([]);
   const [modes, setModes] = useState([]);
   const [languages, setLanguages] = useState([]);
@@ -53,6 +55,13 @@ export default function Evento() {
     fetchAvailableFilters();
   }, []);
 
+  useEffect(() => {
+    if (!user || user.userRole === "Player") {
+      alert("❌ Acesso negado. Apenas organizadores podem criar eventos.");
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -68,19 +77,41 @@ export default function Evento() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setFormErrors({});
+
     try {
       const data = new FormData();
       Object.entries(form).forEach(([key, value]) => data.append(key, value));
       if (banner) data.append("BannerFile", banner);
       console.log(form);
-      const response = await api.post("/events/", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      api
+        .post("/events/", data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((response) => {
+          if (response.data.success) {
+            alert("✅ Evento criado com sucesso!");
+            navigate("/evento/" + response.data.data.eventId);
+          }
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            const apiError = error.response.data.error;
 
-      if (response.data.success) {
-        alert("✅ Evento criado com sucesso!");
-        navigate("/evento/" + response.data.data.eventId);
-      }
+            if (apiError === "INVALID_DATE_RANGE") {
+              setFormErrors({ dateRange: "Data de término deve ser após a data de início." });
+              return;
+            }
+            if (apiError === "INVALID_HOUR_RANGE") {
+              setFormErrors({ hourRange: "Hora de término deve ser após a hora de início." });
+              return;
+            }
+          }
+
+          console.error(error);
+          alert("❌ Erro ao criar evento. Verifique o console.");
+        });
 
       setForm({
         Title: "",
@@ -163,23 +194,11 @@ export default function Evento() {
       <main className="container">
         <form className="form-evento" onSubmit={handleSubmit}>
           <div className="col-esquerda">
-            <label>Título do Evento</label>
-            <input
-              type="text"
-              name="Title"
-              value={form.Title}
-              onChange={handleChange}
-              placeholder="Digite o nome do evento"
-              required
-            />
+            <label>Título do Evento *</label>
+            <input type="text" name="Title" value={form.Title} onChange={handleChange} placeholder="Digite o nome do evento" required />
 
-            <label>Descrição</label>
-            <textarea
-              name="Description"
-              value={form.Description}
-              onChange={handleChange}
-              placeholder="Descrição detalhada do evento"
-            ></textarea>
+            <label>Descrição *</label>
+            <textarea name="Description" value={form.Description} onChange={handleChange} placeholder="Descrição detalhada do evento" required></textarea>
 
             <div className="form-field-group">
               <label>Jogo</label>
@@ -204,31 +223,14 @@ export default function Evento() {
             </select>
 
             <label>Localização</label>
-            <input
-              type="text"
-              name="Location"
-              value={form.Location}
-              onChange={handleChange}
-              placeholder="Digite o local"
-            />
+            <input type="text" name="Location" value={form.Location} onChange={handleChange} placeholder="Digite o local" />
 
             <label>Banner do Evento</label>
             <label className="banner-upload">
               +
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleBannerChange}
-              />
+              <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
             </label>
-            {banner && (
-              <img
-                src={URL.createObjectURL(banner)}
-                alt="banner-preview"
-                className="preview-banner"
-              />
-            )}
+            {banner && <img src={URL.createObjectURL(banner)} alt="banner-preview" className="preview-banner" />}
           </div>
 
           <div className="col-direita">
@@ -236,22 +238,12 @@ export default function Evento() {
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Premiações</label>
-                <input
-                  type="text"
-                  name="Prizes"
-                  value={form.Prizes}
-                  onChange={handleChange}
-                  placeholder="[ESCREVA]"
-                />
+                <input type="text" name="Prizes" value={form.Prizes} onChange={handleChange} placeholder="[ESCREVA]" />
               </div>
 
               <div className="form-field-group">
                 <label>Idioma</label>
-                <select
-                  name="LanguageID"
-                  value={form.LanguageID}
-                  onChange={handleChange}
-                >
+                <select name="LanguageID" value={form.LanguageID} onChange={handleChange}>
                   <option value="">Selecione o idioma</option>
                   {languages.map((lang) => (
                     <option key={lang.LanguageID} value={lang.LanguageID}>
@@ -263,67 +255,34 @@ export default function Evento() {
             </div>
 
             <label>Regras</label>
-            <input
-              type="text"
-              name="Rules"
-              value={form.Rules}
-              onChange={handleChange}
-              placeholder="[ESCREVA]"
-            />
+            <input type="text" name="Rules" value={form.Rules} onChange={handleChange} placeholder="[ESCREVA]" />
 
             <div className="form-group-row">
               <div className="form-field-group">
-                <label>Data de Início</label>
-                <input
-                  type="date"
-                  name="StartDate"
-                  value={form.StartDate}
-                  onChange={handleChange}
-                  min={new Date().toISOString().split("T")[0]}
-                />
+                <label>Data de Início *</label>
+                <input type="date" name="StartDate" value={form.StartDate} onChange={handleChange} min={new Date().toISOString().split("T")[0]} required />
               </div>
 
               <div className="form-field-group">
-                <label>Hora de Início</label>
-                <input
-                  type="time"
-                  name="StartHour"
-                  value={form.StartHour}
-                  onChange={handleChange}
-                />
+                <label>Hora de Início *</label>
+                <input type="time" name="StartHour" value={form.StartHour} onChange={handleChange} required />
               </div>
 
               <div className="form-field-group">
                 <label>Data de Término</label>
-                <input
-                  type="date"
-                  name="EndDate"
-                  value={form.EndDate}
-                  onChange={handleChange}
-                  min={form.StartDate}
-                />
+                <input type="date" name="EndDate" value={form.EndDate} onChange={handleChange} min={form.StartDate} />
               </div>
 
               <div className="form-field-group">
                 <label>Hora de Término</label>
-                <input
-                  type="time"
-                  name="EndHour"
-                  value={form.EndHour}
-                  onChange={handleChange}
-                />
+                <input type="time" name="EndHour" value={form.EndHour} onChange={handleChange} />
               </div>
             </div>
+            {formErrors.dateRange && <div className="error-message">{formErrors.dateRange}</div>}
+            {formErrors.hourRange && <div className="error-message">{formErrors.hourRange}</div>}
 
             <label>Plataforma</label>
-            <input
-              type="text"
-              name="Platform"
-              value={form.Platform}
-              onChange={handleChange}
-              placeholder="Ex: Steam, PS5, Xbox..."
-              list="platforms"
-            />
+            <input type="text" name="Platform" value={form.Platform} onChange={handleChange} placeholder="Ex: Steam, PS5, Xbox..." list="platforms" />
             <datalist id="platforms">
               {platforms.map((plat, i) => (
                 <option key={i} value={plat} />
@@ -333,71 +292,35 @@ export default function Evento() {
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Ingresso (Ticket)</label>
-                <input
-                  type="text"
-                  name="Ticket"
-                  value={form.Ticket}
-                  onChange={handleChange}
-                  placeholder="Preço ou descrição do ingresso"
-                />
+                <input type="text" name="Ticket" value={form.Ticket} onChange={handleChange} placeholder="Preço ou descrição do ingresso" />
               </div>
               <div className="form-field-group">
                 <label>Custo de Participação</label>
-                <input
-                  type="number"
-                  name="ParticipationCost"
-                  value={form.ParticipationCost}
-                  onChange={handleChange}
-                  placeholder="Valor de inscrição (se houver)"
-                />
+                <input type="number" name="ParticipationCost" value={form.ParticipationCost} onChange={handleChange} placeholder="Valor de inscrição (se houver)" />
               </div>
             </div>
 
-            <label>Evento Online?</label>
+            <label>Evento Online? *</label>
             <div className="tipo-evento">
               <label>
-                <input
-                  type="checkbox"
-                  name="IsOnline"
-                  checked={form.IsOnline}
-                  onChange={handleChange}
-                />{" "}
-                Online
+                <input type="checkbox" name="IsOnline" checked={form.IsOnline} onChange={handleChange} /> Online
               </label>
             </div>
 
             <div className="form-group-row three-cols">
               <div className="form-field-group">
                 <label>Máx. Participantes</label>
-                <input
-                  type="number"
-                  name="MaxParticipants"
-                  value={form.MaxParticipants}
-                  onChange={handleChange}
-                  placeholder="Número máximo"
-                />
+                <input type="number" name="MaxParticipants" value={form.MaxParticipants} onChange={handleChange} placeholder="Número máximo" />
               </div>
 
               <div className="form-field-group">
                 <label>Tamanho da Equipe</label>
-                <input
-                  type="number"
-                  name="TeamSize"
-                  value={form.TeamSize}
-                  onChange={handleChange}
-                  placeholder="Ex: 5"
-                />
+                <input type="number" name="TeamSize" value={form.TeamSize} onChange={handleChange} placeholder="Ex: 5" />
               </div>
 
               <div className="form-field-group">
                 <label>Máximo de Equipes</label>
-                <input
-                  type="number"
-                  name="MaxTeams"
-                  value={form.MaxTeams}
-                  onChange={handleChange}
-                  placeholder="Ex: 8"
-                />
+                <input type="number" name="MaxTeams" value={form.MaxTeams} onChange={handleChange} placeholder="Ex: 8" />
               </div>
             </div>
 

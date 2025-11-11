@@ -117,6 +117,12 @@ body {
     color: var(--cinza);
 }
 
+.form-auth .error-message {
+    color: #ff6b6b;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
 /* ===== INPUT FILE ===== */
 .form-auth input[type="file"] {
     display: none;
