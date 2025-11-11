@@ -1,0 +1,35 @@
+html, body {
+  overflow-x: hidden; /* evita rolagem lateral */
+}
+
+/* Header e footer corrigidos */
+header,
+footer {
+  width: auto;
+}
+
+/* ===== CONTAINER CENTRALIZADOR GERAL ===== */
+.main-content {
+  max-width: 1200px;        /* limite de largura */
+  margin: 0 auto;           /* centraliza */
+  padding: 40px 20px;       /* espaçamento interno */
+  display: flex;
+  justify-content: center;  /* centraliza horizontalmente */
+  align-items: center;      /* centraliza verticalmente se tiver altura definida */
+  min-height: calc(100vh - 200px); /* opcional: ocupa o espaço entre header e footer */
+}
+
+/* Caso a página de inscrição use um container específico */
+.inscricao-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px;
+  background: #0f1333;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}

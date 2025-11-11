@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import LOGO_IMG from "../assets/img/imagem.png"; // ✅ caminho ajustado
+import "../assets/css/hf.css";
 
 function Header() {
   const { user, logout } = useAuth();
