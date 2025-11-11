@@ -3,6 +3,9 @@ import api from "./api";
 import { useParams, useNavigate } from "react-router-dom";
 import "../assets/css/criarTime.css";
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 export default function CriarTime() {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -70,12 +73,14 @@ export default function CriarTime() {
 
   return (
     <main className="inscricao-container">
+      <Header/>
       <h1>Inscrição no Evento: {evento.Title}</h1>
       <form onSubmit={handleSubmit} className="criar-time">
         <input type="text" value={teamName} onChange={handleNameChange} placeholder="Nome do time:" />
         <input type="file" accept="image/*" onChange={handleImageChange}/>
         <input type="submit" value="Criar Time" />
       </form>
+      <Footer/>
     </main>
   );
 }

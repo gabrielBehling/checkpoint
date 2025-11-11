@@ -259,7 +259,6 @@ Busca eventos com filtros avançados e suporte a paginação.
 | `groupSize` | number | Tamanho do time |
 | `status` | string | Status do evento |
 | `prize` | string | Prêmios (busca parcial) |
-| `time` | time | Horário específico (HH:MM:SS) |
 | `language` | string | Idioma |
 | `platform` | string | Plataforma |
 | `maxParticipants` | number | Máximo de participantes |

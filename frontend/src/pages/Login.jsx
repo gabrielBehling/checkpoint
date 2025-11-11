@@ -5,6 +5,9 @@ import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
 import LOGO_IMG from "../assets/img/imagem.png";
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -32,7 +35,7 @@ export default function LoginPage() {
       }
     })
     .catch((err) => {
-        if(err.response && err.response.status === 401) {
+        if(err.response && err.response.error === "INVALID_CREDENTIALS") {
           alert("Credenciais inválidas");
         } else {
             // Tratar outros erros (ex: rede, servidor)
@@ -45,6 +48,7 @@ export default function LoginPage() {
   return (
     // A estrutura agora espelha o <body> do seu HTML: <main class="container">
     <main className="container">
+      <Header/>
       <section className="form-auth form-login">
                 {/* Logo + Título lado a lado */}
                 <div className="logo-title">
@@ -95,6 +99,7 @@ export default function LoginPage() {
             
         </form>
       </section>
+      <Footer/>
     </main>
   );
 }

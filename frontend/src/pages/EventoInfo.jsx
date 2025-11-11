@@ -4,6 +4,9 @@ import "../assets/css/EventoInfo.css";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 // --- Função Auxiliar de Formatação (Mantida) ---
 // Formata datas para o formato local (ex: dd/mm/aaaa, hh:mm:ss)
 function formatarData(dataISO) {
@@ -21,19 +24,7 @@ function formatarData(dataISO) {
 // Aqui, ele é incluído para contextualizar a estrutura completa.
 function Header() {
     return (
-        <header className="header">
-            <div className="header-nav">
-                <div className="logo">CHECKPOINT</div>
-                <Link to="/eventos">Eventos</Link>
-                <Link to="/jogos">Jogos</Link>
-            </div>
-            <div className="header-user">
-                {/* Ícones ou links de login/cadastro */}
-                <i className="search-icon">🔍</i> 
-                <Link to="/login">Log In</Link>
-                <Link to="/cadastro">Cadastre-se</Link>
-            </div>
-        </header>
+        <Header/>
     );
 }
 
@@ -319,6 +310,7 @@ export default function EventoInfo() {
                 {/* Aqui poderiam ir cards laterais (mini-stats, criador, etc.) */}
             </div>
         </div>
+        <Footer/>
       </main>
     </>
   );
