@@ -82,7 +82,9 @@ export default function Evento() {
 
     try {
       const data = new FormData();
-      Object.entries(form).forEach(([key, value]) => data.append(key, value));
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== "") data.append(key, value)
+      });
       if (banner) data.append("BannerFile", banner);
       console.log(form);
       api

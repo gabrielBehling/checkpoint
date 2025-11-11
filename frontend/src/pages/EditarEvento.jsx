@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 
 export default function EditEventPage() {
   // Use 'id' para pegar o ID do evento da URL
-  const { id } = useParams(); 
+  const { eventId } = useParams(); 
   const navigate = useNavigate(); // Para redirecionar após salvar
 
   const [form, setForm] = useState({
@@ -31,7 +31,6 @@ export default function EditEventPage() {
     Rules: "",
     Prizes: "",
     BannerURL: "", // Será preenchido com a URL existente
-    CreatedBy: "", // Idealmente, você não editaria o criador. Apenas pegaria.
   });
 
   const [banner, setBanner] = useState(null); // Para um novo upload de banner
@@ -44,7 +43,7 @@ export default function EditEventPage() {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/events/${id}`); // Busca evento pelo ID
+        const response = await api.get(`/events/${eventId}`); // Busca evento pelo ID
         const eventData = response.data;
 
         // Pré-preenche o formulário com os dados do evento
@@ -80,7 +79,7 @@ export default function EditEventPage() {
     };
 
     fetchEvent();
-  }, [id]); // Roda o efeito novamente se o ID na URL mudar
+  }, [eventId]); // Roda o efeito novamente se o ID na URL mudar
 
   // Atualiza campos de texto, select e checkbox
   const handleChange = (e) => {
@@ -124,14 +123,14 @@ export default function EditEventPage() {
 
       // Requisição PUT ou PATCH para atualizar o evento
       // (Verifique sua API para saber qual método e estrutura ela espera)
-      const response = await api.put(`/events/${id}`, dataToSubmit); 
-      // Ou: const response = await api.patch(`/events/${id}`, dataToSubmit);
+      const response = await api.put(`/events/${eventId}`, dataToSubmit); 
+      // Ou: const response = await api.patch(`/events/${eventId}`, dataToSubmit);
 
       alert("✅ Evento atualizado com sucesso!");
       console.log(response.data);
 
       // Redirecionar para a página de detalhes do evento ou lista
-      navigate(`/eventos/${id}`); // Exemplo: redireciona para a página de detalhes
+      navigate(`/eventos/${eventId}`); // Exemplo: redireciona para a página de detalhes
     } catch (error) {
       console.error(error);
       alert("❌ Erro ao atualizar evento.");
