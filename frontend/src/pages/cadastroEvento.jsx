@@ -3,7 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext"; // ✅ Importa o contexto de autenticação
 import "../assets/css/CadastroStyle.css";
-import LOGO_IMG from "../assets/img/imagem.png"; // ✅ Logo adicionada
+
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 export default function Evento() {
   const navigate = useNavigate();
@@ -141,56 +143,11 @@ export default function Evento() {
   };
 
   return (
+    
+
     <div>
-      {/* ✅ Cabeçalho com logo e navegação */}
-      <header className="topbar">
-        <div className="logo">
-          <Link to="/">
-            <div className="logo-circle">
-              <img src={LOGO_IMG} alt="Logo do site" />
-            </div>
-          </Link>
-        </div>
-
-        <nav>
-          <Link to="/evento">Eventos</Link>
-          <a href="#">Jogos</a>
-        </nav>
-
-        {/* ✅ Se o usuário NÃO estiver logado, mostra Login e Cadastro */}
-        {!user ? (
-          <div className="auth">
-            <Link to="/login">LOGIN</Link>
-            <Link to="/cadastro" className="cadastro">
-              CADASTRO
-            </Link>
-          </div>
-        ) : (
-          /* ✅ Se o usuário estiver logado, mostra nome, perfil e logout */
-          <div className="auth user-auth">
-            <Link to="/perfil" className="user-link">
-              {user.profileURL ? (
-                <img
-                  src={user.profileURL}
-                  alt={user.username}
-                  className="nav-avatar"
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    marginRight: 8,
-                  }}
-                />
-              ) : null}
-              Olá, {user.username}
-            </Link>
-            <button onClick={logout} className="logout-btn">
-              Logout
-            </button>
-          </div>
-        )}
-      </header>
-
+     <Header/> {/* ✅ Header padronizado */}
+   
       <main className="container">
         <form className="form-evento" onSubmit={handleSubmit}>
           <div className="col-esquerda">
@@ -330,6 +287,7 @@ export default function Evento() {
           </div>
         </form>
       </main>
+       <Footer/> {/* ✅ Footer padronizado */}
     </div>
   );
 }
