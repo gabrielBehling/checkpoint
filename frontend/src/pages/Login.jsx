@@ -28,78 +28,79 @@ export default function LoginPage() {
       email: email,
       password: password
     })
-    .then((res) => {
-      if (res.data.success) {
-        checkAuth();
-        navigate("/");
-      }
-    })
-    .catch((err) => {
-        if(err.response && err.response.error === "INVALID_CREDENTIALS") {
+      .then((res) => {
+        if (res.data.success) {
+          checkAuth();
+          navigate("/");
+        }
+      })
+      .catch((err) => {
+        if (err.response && err.response.error === "INVALID_CREDENTIALS") {
           alert("Credenciais inválidas");
         } else {
-            // Tratar outros erros (ex: rede, servidor)
-            console.error("Erro ao fazer login:", err);
-            alert("Ocorreu um erro ao tentar fazer login.");
+          // Tratar outros erros (ex: rede, servidor)
+          console.error("Erro ao fazer login:", err);
+          alert("Ocorreu um erro ao tentar fazer login.");
         }
-    });
+      });
   };
 
   return (
-    // A estrutura agora espelha o <body> do seu HTML: <main class="container">
-    <main className="container">
-      <Header/>
-      <section className="form-auth form-login">
-                {/* Logo + Título lado a lado */}
-                <div className="logo-title">
-                    <img 
-                        src={LOGO_IMG} 
-                        alt="Logo Checkpoint" 
-                        className="logo-img"
-                    />
-                    <h1>LOGIN</h1>
-                </div>
+    <>
+      <Header />
+      <main className="container">
+        <section className="form-auth form-login">
+          {/* Logo + Título lado a lado */}
+          <div className="logo-title">
+            <img
+              src={LOGO_IMG}
+              alt="Logo Checkpoint"
+              className="logo-img"
+            />
+            <h1>LOGIN</h1>
+          </div>
 
-        
-        {/* O formulário agora utiliza o onSubmit para chamar handleSubmit */}
-        <form onSubmit={handleSubmit}>
-            
+
+          {/* O formulário agora utiliza o onSubmit para chamar handleSubmit */}
+          <form onSubmit={handleSubmit}>
+
             {/* Campo E-mail */}
             <label htmlFor="email-login">E-mail</label>
-            <input 
-                type="email" 
-                id="email-login" 
-                placeholder="Insira seu endereço de e-mail..." 
-                value={email} 
-                onChange={handleEmailChange} 
-                required 
+            <input
+              type="email"
+              id="email-login"
+              placeholder="Insira seu endereço de e-mail..."
+              value={email}
+              onChange={handleEmailChange}
+              required
             />
-            
+
             {/* Campo Senha */}
             <label htmlFor="senha-login">Senha</label>
-            <input 
-                type="password" // Mudei para 'password' para esconder a digitação
-                id="senha-login" 
-                placeholder="Insira sua senha..." 
-                value={password} 
-                onChange={handlePasswordChange} 
-                required 
+            <input
+              type="password" // Mudei para 'password' para esconder a digitação
+              id="senha-login"
+              placeholder="Insira sua senha..."
+              value={password}
+              onChange={handlePasswordChange}
+              required
             />
-            
+
             {/* Botão de Submissão */}
             <button type="submit" className="btn" style={{ marginTop: '30px' }}>ENTRAR</button>
 
             <div className="link-info" style={{ marginTop: '50px' }}>
-                Ainda não possui uma conta? <Link to="/cadastro">Cadastre-se</Link>
+              Ainda não possui uma conta? <Link to="/cadastro">Cadastre-se</Link>
             </div>
 
-            <div className="link-info" style={{marginTop: '50px'}}>
-               Esqueceu a senha? faça uma nova.<br/><Link to="/request-password-reset">Resetar senha</Link>
+            <div className="link-info" style={{ marginTop: '50px' }}>
+              Esqueceu a senha? faça uma nova.<br /><Link to="/request-password-reset">Resetar senha</Link>
             </div>
-            
-        </form>
-      </section>
-      <Footer/>
-    </main>
+
+          </form>
+        </section>
+      </main>
+      <Footer />
+    </>
   );
 }

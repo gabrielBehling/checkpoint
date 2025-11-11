@@ -59,35 +59,37 @@ export default function InscricaoEvento() {
   }
 
   return (
-    <main className="inscricao-container">
-      <Header/>
-      <h1>Inscrição no Evento: {evento.title}</h1>
-      <section className="criar-time">
-        <Link to={`/evento/${evento.eventId}/criarTime`}>
-          <button>Criar Novo Time</button>
-        </Link>
-      </section>
-      <br/>
-      <section className="times-list">
-        <h2>Times Disponíveis</h2>
-        {times.length === 0 ? (
-          <p>Nenhum time disponível para inscrição.</p>
-        ) : (
-          <ul>
-            {times.map((time) => (
-              <li key={time.teamId}>
-                <h3>{time.teamName}</h3>
-                <button
-                  onClick={handleInscreverTime(time.teamId)}
-                >
-                  Entrar no time
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-      <Footer/>
-    </main>
+    <>
+      <Header />
+      <main className="inscricao-container">
+        <h1>Inscrição no Evento: {evento.title}</h1>
+        <section className="criar-time">
+          <Link to={`/evento/${evento.eventId}/criarTime`}>
+            <button>Criar Novo Time</button>
+          </Link>
+        </section>
+        <br />
+        <section className="times-list">
+          <h2>Times Disponíveis</h2>
+          {times.length === 0 ? (
+            <p>Nenhum time disponível para inscrição.</p>
+          ) : (
+            <ul>
+              {times.map((time) => (
+                <li key={time.teamId}>
+                  <h3>{time.teamName}</h3>
+                  <button
+                    onClick={handleInscreverTime(time.teamId)}
+                  >
+                    Entrar no time
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </main>
+      <Footer />
+    </>
   );
 }

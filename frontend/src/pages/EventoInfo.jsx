@@ -19,14 +19,6 @@ function formatarData(dataISO) {
   }).replace(/\//g, '-').replace(',', '');
 }
 
-// --- Componente Header (Simulação baseada na imagem) ---
-// IMPORTANTE: Este componente deve ser adicionado separadamente na sua aplicação.
-// Aqui, ele é incluído para contextualizar a estrutura completa.
-function Header() {
-    return (
-        <Header/>
-    );
-}
 
 // --- Componente Principal ---
 export default function EventoInfo() {
@@ -310,8 +302,8 @@ export default function EventoInfo() {
                 {/* Aqui poderiam ir cards laterais (mini-stats, criador, etc.) */}
             </div>
         </div>
-        <Footer/>
       </main>
+    <Footer/>
     </>
   );
 }
