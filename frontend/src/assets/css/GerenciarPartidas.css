@@ -6,6 +6,10 @@
   background: radial-gradient(circle at top, rgba(77, 142, 255, 0.12), transparent 55%);
 }
 
+.gerenciar-partidas-tab {
+  padding: 20px 0;
+}
+
 .gerenciar-header {
   display: flex;
   justify-content: space-between;
