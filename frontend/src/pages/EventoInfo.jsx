@@ -5,6 +5,7 @@ import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
 import VerPartidasTab from "../components/VerPartidasTab";
+import GerenciarTimesTab from "../components/GerenciarTimesTab";
 import RankingFinal from "../components/RankingFinal";
 
 import Header from "../components/Header";
@@ -43,6 +44,8 @@ export default function EventoInfo() {
       setActiveTab('gerenciar');
     } else if (tab === 'partidas') {
       setActiveTab('partidas');
+    } else if (tab === 'times') {
+      setActiveTab('times');
     }
   }, [searchParams]);
   
@@ -125,15 +128,17 @@ export default function EventoInfo() {
     (evento.createdBy === user?.userId) ||
     (user?.userRole === "Organizer" && evento.createdBy?.userId === user?.userId);
   
+  const isAdmin = user?.userRole === "administrator";
   const isRoundRobin = evento.mode === "Round Robin";
   const showGerenciarTab = isOrganizer && isRoundRobin && evento.status === "Active";
   const showVerPartidasTab = !isOrganizer && isRoundRobin && (evento.status === "Active" || evento.status === "Finished");
+  const showGerenciarTimesTab = (isOrganizer || isAdmin);
 
   return (
     <>
       <Header /> {/* Adicionando o Header */}
       
-      {(showGerenciarTab || showVerPartidasTab) && (
+      {(showGerenciarTab || showVerPartidasTab || showGerenciarTimesTab) && (
         <div className="evento-tabs-wrapper">
           <div className="evento-tabs">
             <button
@@ -158,6 +163,14 @@ export default function EventoInfo() {
                 Partidas
               </button>
             )}
+            {showGerenciarTimesTab && (
+              <button
+                className={`tab-button ${activeTab === 'times' ? 'active' : ''}`}
+                onClick={() => setActiveTab('times')}
+              >
+                Gerenciar Times
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -170,6 +183,10 @@ export default function EventoInfo() {
       ) : activeTab === 'partidas' ? (
         <div className="evento-tab-content">
           <VerPartidasTab eventId={eventId} evento={evento} />
+        </div>
+      ) : activeTab === 'times' ? (
+        <div className="evento-tab-content">
+          <GerenciarTimesTab eventId={eventId} evento={evento} />
         </div>
       ) : (
         <main className="evento-container">
