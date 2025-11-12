@@ -13,6 +13,13 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
   const [actionLoading, setActionLoading] = useState(null);
   const [editingMatch, setEditingMatch] = useState(null);
   const [matchScores, setMatchScores] = useState({ team1Score: "", team2Score: "" });
+  const [pointsSettings, setPointsSettings] = useState({
+    pointsPerWin: "3",
+    pointsPerDraw: "1",
+    pointsPerLoss: "0",
+  });
+  const [pointsConfigured, setPointsConfigured] = useState(false);
+  const [editingPoints, setEditingPoints] = useState(false);
 
   // Carregar agenda de partidas
   const loadSchedule = useCallback(async () => {
@@ -77,8 +84,62 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
     });
   }, [eventId, evento, user, loadSchedule, loadRanking]);
 
+  // Configurar pontos
+  const handleConfigurePoints = async () => {
+    // Garantir que os valores sejam números válidos, usando valores padrão se necessário
+    const pointsPerWin = pointsSettings.pointsPerWin !== "" && !isNaN(parseInt(pointsSettings.pointsPerWin))
+      ? parseInt(pointsSettings.pointsPerWin)
+      : 3;
+    const pointsPerDraw = pointsSettings.pointsPerDraw !== "" && !isNaN(parseInt(pointsSettings.pointsPerDraw))
+      ? parseInt(pointsSettings.pointsPerDraw)
+      : 1;
+    const pointsPerLoss = pointsSettings.pointsPerLoss !== "" && !isNaN(parseInt(pointsSettings.pointsPerLoss))
+      ? parseInt(pointsSettings.pointsPerLoss)
+      : 0;
+
+    if (pointsPerWin < 0 || pointsPerDraw < 0 || pointsPerLoss < 0) {
+      alert("Os valores de pontuação não podem ser negativos.");
+      return;
+    }
+
+    try {
+      setActionLoading("configure-points");
+      setError("");
+
+      await api.post(`/events/${eventId}/round-robin/settings`, {
+        pointsPerWin,
+        pointsPerDraw,
+        pointsPerLoss,
+      });
+
+      // Atualizar o estado com os valores salvos (como strings)
+      setPointsSettings({
+        pointsPerWin: pointsPerWin.toString(),
+        pointsPerDraw: pointsPerDraw.toString(),
+        pointsPerLoss: pointsPerLoss.toString(),
+      });
+
+      alert("Pontuação configurada com sucesso!");
+      setPointsConfigured(true);
+      setEditingPoints(false);
+    } catch (err) {
+      console.error("Erro ao configurar pontos:", err);
+      const errorMsg = err.response?.data?.message || "Erro ao configurar pontuação.";
+      setError(errorMsg);
+      alert(errorMsg);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   // Gerar agenda de partidas
   const handleGenerateSchedule = async () => {
+    if (!pointsConfigured) {
+      alert("⚠️ Por favor, configure os pontos antes de gerar a agenda de partidas.");
+      setEditingPoints(true);
+      return;
+    }
+
     if (!window.confirm("Deseja gerar a agenda de partidas para este evento? Esta ação não pode ser desfeita.")) {
       return;
     }
@@ -203,6 +264,93 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
         </div>
       )}
 
+      {/* Seção: Configurar Pontos */}
+      {!hasSchedule && (
+        <section className="section-card">
+          <h2>Configurar Pontuação</h2>
+          <p>Configure os pontos para vitória, empate e derrota antes de gerar a agenda de partidas. Os valores padrão são: 3 pontos por vitória, 1 ponto por empate e 0 pontos por derrota.</p>
+          
+          {editingPoints || !pointsConfigured ? (
+            <div className="points-settings-form">
+              <div className="points-input-group">
+                <label>
+                  Pontos por Vitória:
+                  <input
+                    type="number"
+                    min="0"
+                    value={pointsSettings.pointsPerWin}
+                    onChange={(e) =>
+                      setPointsSettings({ ...pointsSettings, pointsPerWin: e.target.value })
+                    }
+                    className="points-input"
+                    placeholder="3"
+                  />
+                </label>
+                <label>
+                  Pontos por Empate:
+                  <input
+                    type="number"
+                    min="0"
+                    value={pointsSettings.pointsPerDraw}
+                    onChange={(e) =>
+                      setPointsSettings({ ...pointsSettings, pointsPerDraw: e.target.value })
+                    }
+                    className="points-input"
+                    placeholder="1"
+                  />
+                </label>
+                <label>
+                  Pontos por Derrota:
+                  <input
+                    type="number"
+                    min="0"
+                    value={pointsSettings.pointsPerLoss}
+                    onChange={(e) =>
+                      setPointsSettings({ ...pointsSettings, pointsPerLoss: e.target.value })
+                    }
+                    className="points-input"
+                    placeholder="0"
+                  />
+                </label>
+              </div>
+              <div className="points-actions">
+                <button
+                  onClick={handleConfigurePoints}
+                  disabled={actionLoading === "configure-points"}
+                  className="btn-primary"
+                >
+                  {actionLoading === "configure-points" ? "Salvando..." : "Salvar Configuração"}
+                </button>
+                {pointsConfigured && (
+                  <button
+                    onClick={() => setEditingPoints(false)}
+                    className="btn-cancel"
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="points-display">
+              <div className="points-info">
+                <span><strong>Vitória:</strong> {pointsSettings.pointsPerWin} pontos</span>
+                <span><strong>Empate:</strong> {pointsSettings.pointsPerDraw} pontos</span>
+                <span><strong>Derrota:</strong> {pointsSettings.pointsPerLoss} pontos</span>
+              </div>
+              <button
+                onClick={() => setEditingPoints(true)}
+                className="btn-secondary"
+                style={{ marginTop: "15px" }}
+              >
+                Editar Pontuação
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Seção: Gerar Agenda */}
       {!hasSchedule && (
         <section className="section-card">
@@ -210,11 +358,17 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
           <p>Gere a agenda de partidas (todos contra todos) para as equipes aprovadas.</p>
           <button
             onClick={handleGenerateSchedule}
-            disabled={actionLoading === "generate"}
+            disabled={actionLoading === "generate" || !pointsConfigured}
             className="btn-primary"
+            style={!pointsConfigured ? { opacity: 0.6, cursor: "not-allowed" } : {}}
           >
             {actionLoading === "generate" ? "Gerando..." : "Gerar Agenda"}
           </button>
+          {!pointsConfigured && (
+            <p style={{ color: "#ff8080", marginTop: "10px", fontSize: "0.9rem" }}>
+              ⚠️ Configure os pontos acima antes de gerar a agenda.
+            </p>
+          )}
         </section>
       )}
 

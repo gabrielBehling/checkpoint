@@ -75,7 +75,7 @@ export default function CriarTime() {
     <>
       <Header />
       <main className="inscricao-container">
-        <h1>Inscrição no Evento: {evento.Title}</h1>
+        <h1>Inscrição no Evento: {evento.title}</h1>
         <form onSubmit={handleSubmit} className="criar-time">
           <input type="text" value={teamName} onChange={handleNameChange} placeholder="Nome do time:" />
           <input type="file" accept="image/*" onChange={handleImageChange} />

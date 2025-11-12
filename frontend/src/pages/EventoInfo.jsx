@@ -311,9 +311,22 @@ export default function EventoInfo() {
 
                 {/* --- BOTÕES DE AÇÃO --- */}
                 <div className="actions-row">
-                    <Link to={`/evento/${evento.eventId}/inscricao`}>
-                        <button className="btn-inscricao">Inscrever-se</button>
-                    </Link>
+                    {/* Botão de inscrição só aparece se o usuário não estiver inscrito e o evento estiver ativo */}
+                    {evento.status === "Active" && (
+                        <>
+                            {!user ? (
+                                <Link to="/login">
+                                    <button className="btn-inscricao">Faça login para se inscrever</button>
+                                </Link>
+                            ) : evento.isRegistered === true ? (
+                                <p style={{ color: "green", fontWeight: "bold" }}>Você já está inscrito neste evento!</p>
+                            ) : (
+                                <Link to={`/evento/${evento.eventId}/inscricao`}>
+                                    <button className="btn-inscricao">Inscrever-se</button>
+                                </Link>
+                            )}
+                        </>
+                    )}
                     {/* Botão de Edição visível para Admin/Organizer */}
                     {(user && (user.userRole === "administrator" || user.userRole === "organizer")) && (
                         <Link to={`/evento/${evento.eventId}/editarEvento`}>
