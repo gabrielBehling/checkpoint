@@ -36,12 +36,53 @@ export const AuthProvider = ({ children }) => {
             console.error('Logout error:', error);
         }
     };
+  
+    const updateUserInfo = async (formData) => {
+        try {
+            const response = await api.put('/auth/update-info', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.data.success) {
+                // Atualiza o estado do usuário na aplicação com os novos dados
+                setUser(response.data.data);
+                return response.data; 
+            } else {
+                throw new Error(response.data.message || 'Failed to update user info');
+            }
+        } catch (error) {
+            console.error('Update user info error:', error);
+            throw error; 
+        }
+    };
+
+    // Função para deletar a conta do usuário (/auth/delete-account)
+    const deleteAccount = async () => {
+        try {
+            const response = await api.delete('/auth/delete-account');
+            
+            if (response.data.success) {
+                // Se a conta foi apagada, o usuário é deslogado
+                setUser(null);
+                return response.data;
+            } else {
+                throw new Error(response.data.message || 'Failed to delete account');
+            }
+        } catch (error) {
+            console.error('Delete account error:', error);
+            throw error; 
+        }
+    };
 
     const value = {
         user,
         loading,
         checkAuth,
-        logout
+        logout,
+        updateUserInfo, 
+        deleteAccount  
     };
 
     return (
