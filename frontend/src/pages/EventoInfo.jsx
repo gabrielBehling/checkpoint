@@ -14,6 +14,7 @@ function formatarData(dataISO) {
   const data = new Date(dataISO);
   // Adaptei para um formato mais limpo para o layout
   return data.toLocaleString("pt-BR", { 
+    timeZone: 'UTC',
     year: 'numeric', month: '2-digit', day: '2-digit', 
     hour: '2-digit', minute: '2-digit', second: '2-digit' 
   }).replace(/\//g, '-').replace(',', '');
@@ -91,10 +92,10 @@ export default function EventoInfo() {
 
   // --- Variáveis para Dados (Limpeza e Formatação) ---
   const bannerUrl = "http://checkpoint.localhost/api/events" + evento.bannerURL;
-  const creatorUsername = evento.organizer?.username || "fulano_234"; // Assumindo que organizer está disponível
-  const creatorAvatar = evento.organizer?.avatarURL || "caminho/padrao/avatar.png"; 
+  const creatorUsername = evento.createdBy?.username
+  const creatorAvatar = evento.organizerProfileURL ? "http://checkpoint.localhost/api/auth/" + evento.organizerProfileURL : "caminho/padrao/avatar.png"; 
 
-  const isAtivo = evento.status === "ativo"; // Para o badge de status
+  const isAtivo = evento.status === "Active"; // Para o badge de status
 
   // Assumindo que evento.miniaturaURLs é um array de strings
   const miniaturas = evento.miniaturaURLs || ["miniatura1.jpg", "miniatura2.jpg", "miniatura3.jpg"]; 
@@ -176,8 +177,8 @@ export default function EventoInfo() {
                             <div className="label">HORÁRIOS</div>
                             <div className="value">
                                 {/* Assumindo que os horários são o segundo elemento da formatação da data */}
-                                <span className="time">{formatarData(evento.startDate).split(' ')[1]}</span> 
-                                <span className="time">{formatarData(evento.endDate).split(' ')[1]}</span>
+                                <span className="time">{formatarData(evento.startHour).split(' ')[1]}</span> 
+                                <span className="time">{formatarData(evento.endHour).split(' ')[1]}</span>
                             </div>
                         </div>
 

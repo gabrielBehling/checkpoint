@@ -32,9 +32,6 @@ function Header() {
           <li>
             <Link to="/eventos">Eventos</Link>
           </li>
-          <li>
-            <a href="#">Jogos</a>
-          </li>
 
           {!user ? (
             <>
@@ -52,7 +49,7 @@ function Header() {
               </li>
               {user.userRole !== "Player" && (
                 <li>
-                  <Link to="/cadastroEvento">Cadastro Evento</Link>
+                  <Link to="/dashboardOrganizador">Gerenciar Eventos</Link>
                 </li>
               )}
               <li>

@@ -20,6 +20,8 @@ const PesquisaEvento = React.lazy(() => import("./pages/Pesquisa"))
 const ResetPassword = React.lazy(() => import("./pages/ResetPassword"))
 const RequestPasswordResetPage = React.lazy(() => import("./pages/RequestPasswordReset"))
 const HistoricoEventos = React.lazy(() => import("/src/pages/HistoricoEventos"));
+const DashboardOrganizador = React.lazy(() => import("./pages/DashboardDoOrganizador"));
+const DashboardJogador = React.lazy(() => import("./pages/DashboardDoJogador"));
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -46,6 +48,8 @@ createRoot(document.getElementById("root")).render(
             <Route path="/evento/:eventId/criarTime" element={<CriarTime />} />
             <Route path="/evento/:eventId/editarEvento" element={<EditarEvento />} />
             <Route path="/historico" element={<HistoricoEventos />} />
+            <Route path="/dashboardOrganizador" element={<DashboardOrganizador />} />
+            <Route path="/dashboardJogador" element={<DashboardJogador />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
