@@ -91,8 +91,8 @@ GO
 
 INSERT INTO Languages (LanguageName) VALUES
 ('English'),
-('Portuguese'),
-('Spanish');
+('Português'),
+('Espanhôl');
 GO
 
 -- EVENTS
