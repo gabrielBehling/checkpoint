@@ -22,6 +22,8 @@ const RequestPasswordResetPage = React.lazy(() => import("./pages/RequestPasswor
 const HistoricoEventos = React.lazy(() => import("/src/pages/HistoricoEventos"));
 const DashboardOrganizador = React.lazy(() => import("./pages/DashboardDoOrganizador"));
 const DashboardJogador = React.lazy(() => import("./pages/DashboardDoJogador"));
+const Contato = React.lazy(() => import("./pages/Contato"));
+const Ajuda = React.lazy(() => import("./pages/Ajuda"));
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -29,7 +31,11 @@ createRoot(document.getElementById("root")).render(
       <Suspense fallback={<div>Carregando...</div>}>
         <Routes>
           <Route path="/" element={<App />} />
+
           <Route path="/aboutUs" element={<About_Us/>} />
+          <Route path="/contato" element={<Contato />} />
+          <Route path="/ajuda" element={<Ajuda />} />
+          
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
 

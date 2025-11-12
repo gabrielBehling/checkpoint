@@ -6,10 +6,10 @@ function Footer() {
     <footer>
       <ul>
         <li>
-          <a href="#">Ajuda</a>
+          <Link to="/ajuda">Ajuda</Link>
         </li>
         <li>
-          <a href="#">Contato</a>
+          <Link to="/contato">Contato</Link>
         </li>
         <li>
           <Link to="/aboutUs">Sobre nós</Link>
