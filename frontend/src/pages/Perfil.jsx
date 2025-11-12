@@ -137,7 +137,7 @@ export default function PerfilPage() {
 
             <div className="perfil-buttons">
               <button>{userData.username || "Usuário"}</button>
-              <Link to="/" className="btn">
+              <Link to="/historico" className="btn">
                 Histórico
               </Link>
               <Link to="/chat">
