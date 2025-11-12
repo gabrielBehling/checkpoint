@@ -96,6 +96,57 @@ router.get("/", async (req, res) => {
     }
 });
 
+// ROTA PARA OBTER OS DETALHES DE PONTOS POR RODADA = Path: /:eventId/leaderboard/rounds
+router.get("/rounds", async (req, res) => {
+    const { eventId } = req.params;
+
+    try {
+        const request = new sql.Request(res.locals.db_pool);
+        const result = await request
+            .input('eventId', sql.Int, eventId)
+            .query(`
+                SELECT
+                    ls.RoundNumber,
+                    t.TeamId,
+                    t.TeamName,
+                    t.LogoURL,
+                    ls.Points,
+                    ls.LastModifiedAt
+                FROM LeaderboardScores ls
+                INNER JOIN TeamsNotDeleted t ON ls.TeamID = t.TeamId
+                WHERE ls.EventID = @eventId
+                ORDER BY ls.RoundNumber ASC, ls.Points DESC, t.TeamName ASC;
+            `);
+        
+        const rounds = result.recordset.reduce((acc, score) => {
+            const { RoundNumber, ...teamScore } = score;
+            
+            // Encontra ou cria o objeto para esta rodada
+            let roundEntry = acc.find(r => r.roundNumber === RoundNumber);
+            
+            if (!roundEntry) {
+                roundEntry = {
+                    roundNumber: RoundNumber,
+                    scores: [] 
+                };
+                acc.push(roundEntry);
+            }
+            
+            roundEntry.scores.push(teamScore);
+            
+            return acc;
+        }, []); 
+
+        rounds.sort((a, b) => a.roundNumber - b.roundNumber);
+
+        res.status(200).json(rounds);
+
+    } catch (error) {
+        console.error("Failed to get scores by round:", error);
+        res.status(500).json({ error: "Failed to retrieve round scores.", details: error.message });
+    }
+});
+
 //ROTA PARA O CRIADOR DO EVENTO FINALIZAR O EVENTO 
 router.post("/finish", authMiddleware, async (req, res) =>{
     const { eventId } = req.params
