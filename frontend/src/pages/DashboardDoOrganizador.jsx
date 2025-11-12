@@ -182,9 +182,7 @@ export default function DashboardDoOrganizador() {
   };
 
   const handleManageMatches = (eventId) => {
-    navigate(`/evento/${eventId}`, {
-      state: { fromDashboard: true, tab: "management" },
-    });
+    navigate(`/evento/${eventId}/gerenciar-partidas`);
   };
 
   const renderStatusBadge = (status) => {
