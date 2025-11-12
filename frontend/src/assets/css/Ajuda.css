@@ -1,0 +1,72 @@
+
+
+
+
+/* O .ajuda-container e .ajuda-header usam o visual de fundo escuro do Contato.css */
+
+.ajuda-faq {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.ajuda-faq h2 {
+    text-align: center;
+    font-size: 2.4em;
+    color: #f7a072; /* Laranja para o título da seção FAQ */
+    margin-bottom: 40px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f7a072;
+    display: inline-block;
+}
+
+/* Item de Pergunta e Resposta (o bloco da FAQ) */
+.faq-item {
+    background-color: #172a45; /* Cor de fundo ligeiramente mais clara, como um bloco */
+    padding: 25px;
+    margin-bottom: 20px;
+    border-left: 5px solid #8db4e3; /* Barra lateral azul clara para destaque */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.faq-item:hover {
+    transform: translateX(5px); /* Leve movimento no hover */
+}
+
+.faq-pergunta {
+    color: #e0e6ed;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.faq-resposta {
+    color: #b0b8c4;
+    font-size: 1em;
+    margin-bottom: 0;
+}
+
+/* Seção de Contato Extra na Ajuda */
+.ajuda-contato {
+    text-align: center;
+    padding: 40px 0;
+    background-color: #0d1a2d; /* Fundo escuro */
+    margin-top: 30px;
+}
+
+.ajuda-contato h2 {
+    color: #8db4e3;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+
+.ajuda-contato p {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #c9d1d9;
+}
+
+/* O botão 'botao-contato-ajuda' é estilizado com a classe 'botao-github' do Contato.css */
