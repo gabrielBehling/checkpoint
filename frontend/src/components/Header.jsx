@@ -52,11 +52,6 @@ function Header() {
                   <Link to="/dashboardOrganizador">Gerenciar Eventos</Link>
                 </li>
               )}
-              <li>
-                <button onClick={logout} className="logout-btn">
-                  Logout
-                </button>
-              </li>
               <li className="user-welcome">
                 <Link to="/perfil" className="user-link">
                   {user?.profileURL ? (

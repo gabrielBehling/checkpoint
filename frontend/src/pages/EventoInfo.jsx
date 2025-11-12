@@ -4,6 +4,8 @@ import "../assets/css/EventoInfo.css";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
+import VerPartidasTab from "../components/VerPartidasTab";
+import RankingFinal from "../components/RankingFinal";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -39,6 +41,8 @@ export default function EventoInfo() {
     const tab = searchParams.get('tab');
     if (tab === 'gerenciar') {
       setActiveTab('gerenciar');
+    } else if (tab === 'partidas') {
+      setActiveTab('partidas');
     }
   }, [searchParams]);
   
@@ -123,12 +127,13 @@ export default function EventoInfo() {
   
   const isRoundRobin = evento.mode === "Round Robin";
   const showGerenciarTab = isOrganizer && isRoundRobin && evento.status === "Active";
+  const showVerPartidasTab = !isOrganizer && isRoundRobin && (evento.status === "Active" || evento.status === "Finished");
 
   return (
     <>
       <Header /> {/* Adicionando o Header */}
       
-      {showGerenciarTab && (
+      {(showGerenciarTab || showVerPartidasTab) && (
         <div className="evento-tabs-wrapper">
           <div className="evento-tabs">
             <button
@@ -137,12 +142,22 @@ export default function EventoInfo() {
             >
               Informações
             </button>
-            <button
-              className={`tab-button ${activeTab === 'gerenciar' ? 'active' : ''}`}
-              onClick={() => setActiveTab('gerenciar')}
-            >
-              Gerenciar Partidas
-            </button>
+            {showGerenciarTab && (
+              <button
+                className={`tab-button ${activeTab === 'gerenciar' ? 'active' : ''}`}
+                onClick={() => setActiveTab('gerenciar')}
+              >
+                Gerenciar Partidas
+              </button>
+            )}
+            {showVerPartidasTab && (
+              <button
+                className={`tab-button ${activeTab === 'partidas' ? 'active' : ''}`}
+                onClick={() => setActiveTab('partidas')}
+              >
+                Partidas
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -151,6 +166,10 @@ export default function EventoInfo() {
       {activeTab === 'gerenciar' ? (
         <div className="evento-tab-content">
           <GerenciarPartidasTab eventId={eventId} evento={evento} />
+        </div>
+      ) : activeTab === 'partidas' ? (
+        <div className="evento-tab-content">
+          <VerPartidasTab eventId={eventId} evento={evento} />
         </div>
       ) : (
         <main className="evento-container">
@@ -284,6 +303,11 @@ export default function EventoInfo() {
                         </div>
                     </div>
                 </section>
+
+                {/* --- RANKING FINAL (se evento finalizado e Round Robin) --- */}
+                {evento.status === "Finished" && isRoundRobin && (
+                  <RankingFinal eventId={eventId} />
+                )}
 
                 {/* --- BOTÕES DE AÇÃO --- */}
                 <div className="actions-row">

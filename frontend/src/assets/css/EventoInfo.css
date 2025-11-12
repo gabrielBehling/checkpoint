@@ -471,6 +471,22 @@ body {
   padding: 0 20px;
 }
 
+/* Ranking Final na aba de informações */
+.evento-container .ranking-final {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+.evento-container .ranking-final h2 {
+  color: #ffd700;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.evento-container .ranking-final .section-header {
+  margin-bottom: 20px;
+}
+
 /* ===== RESPONSIVIDADE ===== */
 @media (max-width: 768px) {
   .evento-topo {
