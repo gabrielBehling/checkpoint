@@ -1,0 +1,156 @@
+
+
+/* ==================================== */
+/* 📧 Contato.css (Completo com Grid de Membros) */
+/* ==================================== */
+
+/* Cores e Estilos Globais da Página */
+.contato-container {
+    background-color: #0d1a2d; /* Fundo principal escuro */
+    color: #e0e6ed; /* Texto principal claro */
+    font-family: 'Arial', sans-serif;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 8px;
+    line-height: 1.6;
+    min-height: 60vh; 
+}
+
+/* Header */
+.contato-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.contato-header h1 {
+    font-size: 2.8em;
+    color: #f7a072; /* Laranja de destaque */
+    margin-bottom: 15px;
+    letter-spacing: 1.5px;
+}
+
+.contato-header p {
+    font-size: 1.1em;
+    max-width: 700px;
+    margin: 0 auto;
+    color: #b0b8c4;
+}
+
+/* Linha Divisória */
+hr {
+    border: none;
+    border-top: 1px solid #2a3e59;
+    margin: 40px 0;
+}
+
+/* Seção Contato/GitHub (o corpo principal da página) */
+.contato-github {
+    text-align: center;
+    padding: 40px;
+    background-color: #172a45; /* Azul mais claro para o bloco de foco */
+    border-radius: 8px;
+    border: 1px solid #2a3e59; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.contato-github h2 {
+    font-size: 2.2em;
+    color: #8db4e3; /* Azul claro para o título da seção */
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.contato-github p {
+    font-size: 1.1em;
+    margin-bottom: 30px;
+    color: #c9d1d9;
+}
+
+/* ⚠️ Remover o botão antigo (garante que ele não seja exibido) */
+.botao-github { 
+    display: none; 
+}
+
+/* ================================================= */
+/* NOVO: Estilos para o Grid e Cards dos Membros */
+/* ================================================= */
+
+/* Layout de Grade para os Membros */
+.membros-grid {
+    display: grid;
+    /* 5 colunas em telas grandes */
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 20px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+/* Estilo de cada Card de Membro */
+.membro-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    background-color: #0d1a2d; /* Fundo mais escuro */
+    border: 2px solid #2a3e59; 
+    border-radius: 8px;
+    text-decoration: none;
+    color: #e0e6ed;
+    transition: all 0.3s ease;
+}
+
+.membro-card:hover {
+    background-color: #172a45; /* Azul mais claro no hover */
+    border-color: #8db4e3; /* Borda azul clara */
+    transform: translateY(-5px); /* Efeito de elevação */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+.github-icon {
+    font-size: 2.5em; 
+    color: #f7a072; /* Laranja de destaque */
+    margin-bottom: 10px;
+}
+
+.membro-nome {
+    font-size: 1.1em;
+    color: #e0e6ed;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.membro-user {
+    font-size: 0.9em;
+    color: #8db4e3; /* Azul claro para o @usuário */
+}
+
+/* Responsividade: Layout para telas menores */
+@media (max-width: 1024px) {
+    /* Passa para 3 colunas em tablets */
+    .membros-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Passa para 2 colunas em celulares */
+    .membros-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Footer da Página de Contato */
+.contato-footer {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #2a3e59;
+    font-size: 0.9em;
+    color: #8db4e3;
+}
+
+
+
+
