@@ -1174,7 +1174,82 @@ Cookie: accessToken=<jwt_token>
 
 ### Modo: Round Robin (Todos contra Todos)
 
-#### 1\. Gerar Agenda de Partidas
+#### 1\. Definir/Atualizar Pontuação do Evento
+
+**POST** `/:eventId/round-robin/settings`
+
+Define ou atualiza os pontos customizados para vitória, empate e derrota em um evento de Round Robin. Apenas o criador do evento pode realizar esta ação.
+
+Se nenhuma configuração for enviada, o sistema usará os padrões (ex: 3 para vitória, 1 para empate, 0 para derrota).
+
+**Headers:**
+
+```
+Cookie: accessToken=<jwt_token>
+```
+
+**Parâmetros:**
+
+  * `eventId` (number) - ID do evento (deve ser do tipo `Round Robin`)
+
+**Body:**
+
+```json
+{
+  "pointsPerWin": 3,
+  "pointsPerDraw": 1,
+  "pointsPerLoss": 0
+}
+```
+
+**Resposta de Sucesso (200):**
+
+```json
+{
+  "success": true,
+  "message": "Event point settings updated successfully.",
+  "data": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400 - Validação):**
+
+```json
+{
+  "success": false,
+  "message": "pointsPerWin must be a non-negative number",
+  "error": "VALIDATION_ERROR",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (403 - Não autorizado):**
+
+```json
+{
+  "success": false,
+  "message": "You are not authorized to configure this event.",
+  "error": "UNAUTHORIZED",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (500 - Interno):**
+
+```json
+{
+  "success": false,
+  "message": "Failed to update settings.",
+  "error": "INTERNAL_ERROR",
+  "details": null,
+  "timestamp": "2024-01-01T10:00:00.000Z"
+}
+```
+
+#### 2\. Gerar Agenda de Partidas
 
 **POST** `/:eventId/round-robin/generate-schedule`
 
@@ -1225,7 +1300,7 @@ Cookie: accessToken=<jwt_token>
 }
 ```
 
-#### 2\. Obter Agenda de Partidas
+#### 3\. Obter Agenda de Partidas
 
 **GET** `/:eventId/round-robin/schedule`
 
@@ -1254,7 +1329,7 @@ Retorna a lista de partidas geradas para o evento.
 }
 ```
 
-#### 3\. Atualizar Resultado da Partida
+#### 4\. Atualizar Resultado da Partida
 
 **POST** `/:eventId/round-robin/match/:matchId`
 
@@ -1296,7 +1371,7 @@ Cookie: accessToken=<jwt_token>
 }
 ```
 
-#### 4\. Obter Ranking (Tabela)
+#### 5\. Obter Ranking (Tabela)
 
 **GET** `/:eventId/round-robin/ranking`
 
@@ -1326,7 +1401,7 @@ Retorna a tabela de classificação (ranking) do evento, calculada com base nos 
 }
 ```
 
-#### 5\. Finalizar Evento (Round Robin)
+#### 6\. Finalizar Evento (Round Robin)
 
 **POST** `/:eventId/round-robin/finish`
 
