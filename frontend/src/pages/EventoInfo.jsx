@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "./api"; 
 import "../assets/css/EventoInfo.css"; 
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
+import VerPartidasTab from "../components/VerPartidasTab";
+import RankingFinal from "../components/RankingFinal";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -28,8 +31,20 @@ export default function EventoInfo() {
   const [erro, setErro] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const [activeTab, setActiveTab] = useState('info');
   const { eventId } = useParams();
-  const { user } = useAuth(); // Assume que 'user' tem 'username' e 'avatarURL'
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  
+  // Verificar se há parâmetro de tab na URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'gerenciar') {
+      setActiveTab('gerenciar');
+    } else if (tab === 'partidas') {
+      setActiveTab('partidas');
+    }
+  }, [searchParams]);
   
   // --- Funções de Handler (Comentário) ---
   const handleCommentSubmit = async (e) => {
@@ -104,20 +119,69 @@ export default function EventoInfo() {
   const halfTicketPrice = ticketPrice / 2;
   const participationCost = evento.participationCost || 0;
 
+  // Verificar se o usuário é organizador e se o evento é Round Robin
+  const isOrganizer =
+    (evento.createdBy?.userId === user?.userId) ||
+    (evento.createdBy === user?.userId) ||
+    (user?.userRole === "Organizer" && evento.createdBy?.userId === user?.userId);
+  
+  const isRoundRobin = evento.mode === "Round Robin";
+  const showGerenciarTab = isOrganizer && isRoundRobin && evento.status === "Active";
+  const showVerPartidasTab = !isOrganizer && isRoundRobin && (evento.status === "Active" || evento.status === "Finished");
+
   return (
     <>
       <Header /> {/* Adicionando o Header */}
-      <main className="evento-container">
-
-        {/* --- TÍTULO E CATEGORIA (TOPO) --- */}
-        <div className="evento-title-wrap">
-            <h1>{evento.title || "CAMPEONATO DE ADEDONHA"}</h1>
-            <span className="evento-category">{evento.game?.gameName.toUpperCase() || "CAMPEONATO"}</span>
+      
+      {(showGerenciarTab || showVerPartidasTab) && (
+        <div className="evento-tabs-wrapper">
+          <div className="evento-tabs">
+            <button
+              className={`tab-button ${activeTab === 'info' ? 'active' : ''}`}
+              onClick={() => setActiveTab('info')}
+            >
+              Informações
+            </button>
+            {showGerenciarTab && (
+              <button
+                className={`tab-button ${activeTab === 'gerenciar' ? 'active' : ''}`}
+                onClick={() => setActiveTab('gerenciar')}
+              >
+                Gerenciar Partidas
+              </button>
+            )}
+            {showVerPartidasTab && (
+              <button
+                className={`tab-button ${activeTab === 'partidas' ? 'active' : ''}`}
+                onClick={() => setActiveTab('partidas')}
+              >
+                Partidas
+              </button>
+            )}
+          </div>
         </div>
+      )}
 
-        {/* --- HERO (Imagem Principal + Miniaturas) + SIDEBAR (Vazio) --- */}
-        <div className="evento-topo">
-            <div className="evento-main">
+      {/* --- CONTEÚDO DAS ABAS --- */}
+      {activeTab === 'gerenciar' ? (
+        <div className="evento-tab-content">
+          <GerenciarPartidasTab eventId={eventId} evento={evento} />
+        </div>
+      ) : activeTab === 'partidas' ? (
+        <div className="evento-tab-content">
+          <VerPartidasTab eventId={eventId} evento={evento} />
+        </div>
+      ) : (
+        <main className="evento-container">
+          {/* --- TÍTULO E CATEGORIA (TOPO) --- */}
+          <div className="evento-title-wrap">
+              <h1>{evento.title || "CAMPEONATO DE ADEDONHA"}</h1>
+              <span className="evento-category">{evento.game?.gameName.toUpperCase() || "CAMPEONATO"}</span>
+          </div>
+
+          {/* --- HERO (Imagem Principal + Miniaturas) + SIDEBAR (Vazio) --- */}
+          <div className="evento-topo">
+              <div className="evento-main">
                 <div className="evento-hero">
                     {/* Banner Principal */}
                     <img
@@ -240,6 +304,11 @@ export default function EventoInfo() {
                     </div>
                 </section>
 
+                {/* --- RANKING FINAL (se evento finalizado e Round Robin) --- */}
+                {evento.status === "Finished" && isRoundRobin && (
+                  <RankingFinal eventId={eventId} />
+                )}
+
                 {/* --- BOTÕES DE AÇÃO --- */}
                 <div className="actions-row">
                     <Link to={`/evento/${evento.eventId}/inscricao`}>
@@ -298,12 +367,13 @@ export default function EventoInfo() {
 
             </div>
             
-            {/* Coluna Lateral (Sidebar - Vazia no design da imagem, mas mantida por consistência) */}
-            <div className="evento-side">
-                {/* Aqui poderiam ir cards laterais (mini-stats, criador, etc.) */}
-            </div>
-        </div>
-      </main>
+              {/* Coluna Lateral (Sidebar - Vazia no design da imagem, mas mantida por consistência) */}
+              <div className="evento-side">
+                  {/* Aqui poderiam ir cards laterais (mini-stats, criador, etc.) */}
+              </div>
+          </div>
+        </main>
+      )}
     <Footer/>
     </>
   );
