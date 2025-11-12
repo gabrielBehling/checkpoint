@@ -10,8 +10,8 @@ api.interceptors.response.use(
     return response;
   },
   async function onRejected(error) {
-    const status = error?.response?.status;
-    if (status === 401) {
+    const errorCode = error?.response?.data?.error;
+    if (errorCode === "INVALID_TOKEN" || errorCode === "UNAUTHORIZED") {
       return await axios
         .post("http://checkpoint.localhost/api/auth/refresh-token")
         .then((res) => {

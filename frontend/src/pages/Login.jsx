@@ -35,7 +35,7 @@ export default function LoginPage() {
         }
       })
       .catch((err) => {
-        if (err.response && err.response.error === "INVALID_CREDENTIALS") {
+        if (err.response && err.response.data.error === "INVALID_CREDENTIALS") {
           alert("Credenciais inválidas");
         } else {
           // Tratar outros erros (ex: rede, servidor)
