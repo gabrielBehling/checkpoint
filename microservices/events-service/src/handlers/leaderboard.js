@@ -143,7 +143,7 @@ router.get("/rounds", async (req, res) => {
 
     } catch (error) {
         console.error("Failed to get scores by round:", error);
-        res.status(500).json({ error: "Failed to retrieve round scores.", details: error.message });
+        res.error("Failed to retrieve round scores.","INTERNAL_ERROR", 500)
     }
 });
 

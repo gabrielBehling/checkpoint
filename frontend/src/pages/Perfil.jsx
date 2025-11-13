@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // Adicionado
+import { useAuth } from "../contexts/AuthContext"; 
 import "../assets/css/style-perfil.css";
 import LOGO_IMG from "../assets/img/imagem.png";
 
@@ -23,7 +23,6 @@ export default function PerfilPage() {
         }
 
         if (user) {
-            // Define a role atual no formulário
             setSelectedRole(user.userRole);
 
             
@@ -88,7 +87,6 @@ export default function PerfilPage() {
         }
     };
 
-    // Submissão do formulário de troca de tipo de conta
     const handleRoleChangeSubmit = async (e) => {
         e.preventDefault();
         if (selectedRole === user.userRole) return;
@@ -111,7 +109,6 @@ export default function PerfilPage() {
         }
     };
 
-    // Logout usando o Context
     const handleLogout = async () => {
       if (!window.confirm("Tem certeza que deseja sair?")) {
             return;
@@ -126,7 +123,6 @@ export default function PerfilPage() {
         }
     };
 
-    // (NOVO) Delete usando o Context
     const handleDeleteAccount = async () => {
         if (!window.confirm("ATENÇÃO: Tem certeza que deseja apagar sua conta? Esta ação é irreversível.")) {
             return;
@@ -142,12 +138,12 @@ export default function PerfilPage() {
         }
     };
 
-    // Tela de carregamento enquanto o context busca o usuário
+   
     if (loading) {
         return <div>Carregando...</div>;
     }
 
-    // Se não há usuário (e não está carregando), o useEffect já redirecionou
+  
     if (!user) {
         return null;
     }
@@ -201,7 +197,6 @@ export default function PerfilPage() {
                         </div>
 
                         <div className="perfil-buttons">
-                            {/* Usa 'user' do context */}
                             <button>{user.username || "Usuário"}</button> 
                             <Link to="/historico" className="btn">
                                 Histórico
