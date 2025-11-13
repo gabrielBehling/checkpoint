@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from './api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import '../assets/css/style-perfil.css';
+import '../assets/css/cssHistorico.css';
 
 function HistoricoEventos() {
     const [userData, setUserData] = useState(null);
