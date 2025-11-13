@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../pages/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/GerenciarTimes.css";
 
 export default function GerenciarTimesTab({ eventId, evento }) {
   const { user } = useAuth();
-
+  const { showError, showSuccess } = useCustomModal();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -81,13 +82,13 @@ export default function GerenciarTimesTab({ eventId, evento }) {
         status: newStatus,
       });
 
-      alert(`Status do time atualizado com sucesso para "${newStatus}"!`);
+      showSuccess(`Status do time atualizado com sucesso para "${newStatus}"!`);
       await loadTeams(); // Recarregar lista de times
     } catch (err) {
       console.error("Erro ao atualizar status:", err);
       const errorMsg = err.response?.data?.message || "Erro ao atualizar status do time.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }

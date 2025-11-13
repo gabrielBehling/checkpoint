@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Importar useParams e useNavigate
-import api from "./api"; // Seu axios configurado
-import "../assets/css/CadastroStyle.css"; // Seu CSS de cadastro, reutilizado
+import { useParams, useNavigate } from "react-router-dom";
+import api from "./api";
+import "../assets/css/CadastroStyle.css";
 
-// Importe os componentes Header e Footer se quiser incluí-los aqui
+import { useCustomModal } from "../hooks/useCustomModal";
 import Header from "../components/Header"; 
 import Footer from "../components/Footer";
 
 export default function EditEventPage() {
-  // Use 'id' para pegar o ID do evento da URL
   const { eventId } = useParams(); 
-  const navigate = useNavigate(); // Para redirecionar após salvar
+  const navigate = useNavigate();
+  const { Modal, showSuccess, showError } = useCustomModal();
 
   const [form, setForm] = useState({
     Title: "",
@@ -30,29 +30,26 @@ export default function EditEventPage() {
     MaxTeams: "",
     Rules: "",
     Prizes: "",
-    BannerURL: "", // Será preenchido com a URL existente
+    BannerURL: ""
   });
 
-  const [banner, setBanner] = useState(null); // Para um novo upload de banner
+  const [banner, setBanner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentBannerUrl, setCurrentBannerUrl] = useState(''); // Para exibir o banner atual
+  const [currentBannerUrl, setCurrentBannerUrl] = useState('');
 
-  // === EFEITO PARA CARREGAR DADOS DO EVENTO ===
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/events/${eventId}`); // Busca evento pelo ID
+        const response = await api.get(`/events/${eventId}`);
         const eventData = response.data;
 
-        // Pré-preenche o formulário com os dados do evento
         setForm({
           Title: eventData.title || "",
           Description: eventData.description || "",
           GameID: eventData.gameId || "",
           Mode: eventData.mode || "",
-          // Formata datas para o input type="date"
           StartDate: eventData.startDate ? new Date(eventData.startDate).toISOString().split('T')[0] : "",
           EndDate: eventData.endDate ? new Date(eventData.endDate).toISOString().split('T')[0] : "",
           Location: eventData.location || "",
@@ -79,9 +76,8 @@ export default function EditEventPage() {
     };
 
     fetchEvent();
-  }, [eventId]); // Roda o efeito novamente se o ID na URL mudar
+  }, [eventId]);
 
-  // Atualiza campos de texto, select e checkbox
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -90,56 +86,47 @@ export default function EditEventPage() {
     }));
   };
 
-  // Upload de banner
   const handleBannerChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setBanner(file);
-      setCurrentBannerUrl(URL.createObjectURL(file)); // Pré-visualiza o novo banner
+      setCurrentBannerUrl(URL.createObjectURL(file));
     } else {
       setBanner(null);
-      // Se o usuário cancelou a seleção, tenta voltar para a URL original
       setCurrentBannerUrl(form.BannerURL); 
     }
   };
 
-  // === ENVIO DO FORMULÁRIO PARA ATUALIZAR ===
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Se houver um novo banner, enviamos um FormData
-      // Caso contrário, enviamos o objeto form para a API
       let dataToSubmit = form;
 
       if (banner) {
         const formData = new FormData();
         Object.entries(form).forEach(([key, value]) => formData.append(key, value));
         formData.append("BannerFile", banner);
-        // Remove BannerURL pois o arquivo será enviado
         formData.delete("BannerURL"); 
         dataToSubmit = formData;
       }
 
-      // Requisição PUT ou PATCH para atualizar o evento
-      // (Verifique sua API para saber qual método e estrutura ela espera)
       const response = await api.put(`/events/${eventId}`, dataToSubmit); 
-      // Ou: const response = await api.patch(`/events/${eventId}`, dataToSubmit);
 
-      alert("✅ Evento atualizado com sucesso!");
+      showSuccess("Evento atualizado com sucesso!");
       console.log(response.data);
 
-      // Redirecionar para a página de detalhes do evento ou lista
-      navigate(`/eventos/${eventId}`); // Exemplo: redireciona para a página de detalhes
+      navigate(`/eventos/${eventId}`);
     } catch (error) {
       console.error(error);
-      alert("❌ Erro ao atualizar evento.");
+      showError("Erro ao atualizar evento.");
     }
   };
 
   if (loading) {
     return (
       <>
+        <Modal />
         <Header />
         <main className="container" style={{ textAlign: 'center', padding: '50px' }}>
           <h1>Carregando Evento...</h1>
@@ -153,6 +140,7 @@ export default function EditEventPage() {
   if (error) {
     return (
       <>
+        <Modal />
         <Header />
         <main className="container" style={{ textAlign: 'center', padding: '50px' }}>
           <h1>Erro: {error}</h1>
@@ -166,13 +154,12 @@ export default function EditEventPage() {
 
   return (
     <div>
-      <Header /> {/* Reutilizando o cabeçalho */}
+      <Modal />
+      <Header />
 
       <main className="container">
         <form className="form-evento" onSubmit={handleSubmit}>
-          {/* COLUNA ESQUERDA */}
           <div className="col-esquerda">
-            {/* Título do Evento */}
             <label>Título do Evento</label>
             <input
               type="text"
@@ -183,7 +170,6 @@ export default function EditEventPage() {
               required
             />
 
-            {/* Descrição */}
             <label>Descrição</label>
             <textarea
               name="Description"
@@ -192,7 +178,6 @@ export default function EditEventPage() {
               placeholder="Descrição detalhada do evento"
             ></textarea>
 
-            {/* Jogo (Game ID) */}
             <label>Jogo (Game ID)</label>
             <input
               type="text"
@@ -202,7 +187,6 @@ export default function EditEventPage() {
               placeholder="ID do jogo"
             />
 
-            {/* Modo */}
             <label>Modo</label>
             <input
               type="text"
@@ -212,7 +196,6 @@ export default function EditEventPage() {
               placeholder="Ex: Eliminação, Grupo, Leaderboard..."
             />
 
-            {/* Localização */}
             <label>Localização</label>
             <input
               type="text"
@@ -222,7 +205,6 @@ export default function EditEventPage() {
               placeholder="Digite o local"
             />
 
-            {/* Banner do Evento */}
             <label>Banner do Evento</label>
             <label className="banner-upload">
               + Carregar Novo Banner
@@ -242,11 +224,9 @@ export default function EditEventPage() {
             )}
           </div>
 
-          {/* COLUNA DIREITA - FOCO EM CONFIGURAÇÕES E DETALHES */}
           <div className="col-direita">
             <h3>Configurações do evento</h3>
 
-            {/* Linha 1: Premiações e Idioma */}
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Premiações</label>
@@ -282,7 +262,6 @@ export default function EditEventPage() {
               placeholder="[ESCREVA]"
             />
             
-            {/* Linha 2: Datas */}
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Data de Início</label>
@@ -316,7 +295,6 @@ export default function EditEventPage() {
               placeholder="Ex: Steam, PS5, Xbox..."
             />
 
-            {/* Linha 3: Ticket e Custo */}
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Ingresso (Ticket)</label>
@@ -353,7 +331,6 @@ export default function EditEventPage() {
               </label>
             </div>
 
-            {/* Linha 4: Participantes, Tam. Equipe e Máximo de Equipes */}
             <div className="form-group-row three-cols">
               <div className="form-field-group">
                 <label>Máx. Participantes</label>
@@ -395,7 +372,7 @@ export default function EditEventPage() {
           </div>
         </form>
       </main>
-      <Footer /> {/* Reutilizando o rodapé */}
+      <Footer />
     </div>
   );
 }

@@ -37,14 +37,14 @@ export default function LoginPage() {
           checkAuth();
           navigate("/");
         }
-      })
+      })                                     
       .catch((err) => {
         if (err.response && err.response.data.error === "INVALID_CREDENTIALS") {
           showError("E-mail ou senha inválidos. Por favor, tente novamente.");
         } else {
           // Tratar outros erros (ex: rede, servidor)
           console.error("Erro ao fazer login:", err);
-          alert("Ocorreu um erro ao tentar fazer login.");
+          showError("Ocorreu um erro ao tentar fazer login.");
         }
       });
   };

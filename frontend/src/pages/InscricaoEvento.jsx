@@ -3,6 +3,7 @@ import api from "./api";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "../assets/css/Inscricao.css";
 import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -15,6 +16,7 @@ export default function InscricaoEvento() {
   const [times, setTimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const { Modal, showError, showSuccess } = useCustomModal();
 
   useEffect(() => {
     async function carregarEvento() {
@@ -67,18 +69,19 @@ export default function InscricaoEvento() {
     return async () => {
       try {
         await api.post(`/events/teams/${teamId}/join/`);
-        alert("Inscrição realizada com sucesso!");
+        showSuccess("Inscrição realizada com sucesso!");
         navigate(`/evento/${eventId}`);
       } catch (err) {
         console.error("Erro ao inscrever no time:", err.response);
         const errorMessage = err.response?.data?.message || "Erro ao inscrever no time.";
-        alert(errorMessage);
+        showError(errorMessage);
       }
     };
   }
 
   return (
     <>
+      <Modal />
       <Header />
       <main className="inscricao-container">
         <h1>Inscrição no Evento: {evento.title}</h1>

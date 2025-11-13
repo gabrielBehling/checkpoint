@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "../assets/css/cadastro.css";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 import LOGO_IMG from "../assets/img/imagem.png"; // Importa o logo
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -19,6 +20,8 @@ export default function CadastroPage() {
   const [profileFile, setProfileFile] = useState(null);
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [confirmationError, setConfirmationError] = useState("");
+  const { Modal, showSuccess, showError } = useCustomModal();
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -27,7 +30,7 @@ export default function CadastroPage() {
     setUsernameError("");
 
     if (password !== passwordConfirm) {
-      alert("As senhas não coincidem!");
+      setConfirmationError("As senhas não coincidem.");
       return;
     }
 
@@ -43,7 +46,7 @@ export default function CadastroPage() {
       .post("/auth/register", formData)
       .then((response) => {
         if (response.data.success) {
-          alert("Cadastro realizado com sucesso!");
+          showSuccess("Cadastro realizado com sucesso!");
           checkAuth();
           navigate("/");
         }
@@ -61,12 +64,13 @@ export default function CadastroPage() {
         }
 
         console.error("Erro no cadastro:", error);
-        alert("Erro ao cadastrar. Verifique o console.");
+        showError("Erro ao cadastrar. Verifique o console.");
       });
   }
 
   return (
     <>
+      <Modal />
       <Header />
       <main className="container">
 
@@ -113,6 +117,7 @@ export default function CadastroPage() {
 
             <label htmlFor="confirmar-senha">Confirmar Senha</label>
             <input type="password" id="confirmar-senha" placeholder="Insira a senha novamente..." required value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} name="confirmarSenha" />
+            {confirmationError && <div className="error-message">{confirmationError}</div>}
 
             <div className="type-selection">
               <p>Tipo de Conta:</p>

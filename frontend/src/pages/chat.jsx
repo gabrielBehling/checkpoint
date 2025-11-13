@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import validator from 'validator';
 import "../assets/css/chat.css";
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { useCustomModal } from "../hooks/useCustomModal";
 import api from './api';
 
 import Header from "../components/Header";
@@ -17,7 +18,8 @@ export default function App({ teamId }) {
   const [notification, setNotification] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const { user } = useAuth(); // usuario autenticado
+  const { user } = useAuth();
+  const { Modal, showError, showWarning } = useCustomModal();
 
   const messagesContainerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -159,13 +161,13 @@ export default function App({ teamId }) {
     const msg = messageText.trim();
 
     if (!msg) {
-      alert('Digite uma mensagem para enviar.');
+      showWarning('Digite uma mensagem para enviar.');
       return;
     }
 
     // Verifica se temos o teamId
     if (!teamId) {
-      alert('Nenhuma equipe selecionada.');
+      showWarning('Nenhuma equipe selecionada.');
       return;
     }
 
@@ -177,7 +179,7 @@ export default function App({ teamId }) {
       });
       setMessageText('');
     } else {
-      alert('Socket não conectado. Tente novamente.');
+      showError('Socket não conectado. Tente novamente.');
     }
   }
 
@@ -188,17 +190,17 @@ export default function App({ teamId }) {
 
     // Verifica se temos o teamId e o usuário antes de enviar
     if (!teamId) {
-      alert('Nenhuma equipe selecionada. Não é possível enviar o arquivo.');
+      showWarning('Nenhuma equipe selecionada. Não é possível enviar o arquivo.');
       return;
     }
     if (!user || !user.Username) {
-      alert('Usuário não autenticado. Faça login para enviar arquivos.');
+      showWarning('Usuário não autenticado. Faça login para enviar arquivos.');
       return;
     }
 
     const type = file.type.startsWith('image') ? 'image' : file.type.startsWith('audio') ? 'audio' : null;
     if (!type) {
-      alert('Apenas imagens ou áudios são suportados.');
+      showWarning('Apenas imagens ou áudios são suportados.');
       return;
     }
 
@@ -236,14 +238,15 @@ export default function App({ teamId }) {
       })
       .catch(err => {
         console.error('Erro no upload:', err);
-        alert('Erro ao enviar arquivo: ' + (err.message || err));
+        showError('Erro ao enviar arquivo!');
         setUploadProgress(0);
       });
   }
 
   return (
     <div className="chat-root">
-     <Header/>
+      <Modal/>
+      <Header/>
 
       <form id="chat" onSubmit={handleSend} className="chat-form">
         <div className="messages" id="messages-container" ref={messagesContainerRef}>
