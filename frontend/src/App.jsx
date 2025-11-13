@@ -100,13 +100,6 @@ function App() {
   };
 
   useEffect(() => {
-    document.body.style.overflowX = "auto";
-    document.body.style.overflowY = "auto";
-    document.body.style.minHeight = "100vh";
-    document.body.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
-    document.body.style.backgroundColor = "#0a0d2a";
-    document.body.style.color = "#f1f1f1";
-
     fetchCarouselData();
     fetchEventosProximos();
     fetchEventosEmAlta();
