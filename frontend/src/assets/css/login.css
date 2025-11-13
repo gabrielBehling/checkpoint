@@ -18,7 +18,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+        
+
 }
 
 .container {
@@ -26,7 +27,8 @@ body {
     justify-content: center;
     align-items: flex-start;
     width: 100%;
-    max-width: 1200px;
+        padding: 30px;
+
 }
 
 .form-auth {

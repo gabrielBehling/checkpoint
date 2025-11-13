@@ -2,7 +2,7 @@
    RESET
 ======================================================= */
 * {
-  margin: 0;
+  
   padding: 0;
   box-sizing: border-box;
 }
@@ -15,167 +15,7 @@ body {
   overflow-x: hidden;
 }
 
-/* =======================================================
-   HEADER / NAVBAR
-======================================================= */
-header {
-  background-color: #0f1333;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100vw;
-  padding: 18px 0;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
 
-/* ===== NAVBAR CONTAINER ===== */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 60px;
-  width: 100%;
-}
-
-/* =======================================================
-   LOGO / TÍTULO "CADASTRO"
-======================================================= */
-.navbar .logo {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* espaçamento entre a imagem e o texto */
-  margin-left: 0; /* gruda totalmente no canto esquerdo */
-}
-
-.logo a {
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  color: #ffffff;
-}
-
-/* --- Logo circular --- */
-.logo-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  overflow: hidden;
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
-}
-
-.logo-circle img {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  transition: transform 0.25s ease;
-}
-
-.logo-circle:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 12px rgba(77, 142, 255, 0.6);
-}
-
-.logo-circle:hover img {
-  transform: scale(1.05);
-}
-
-/* --- Texto do logo (ex: "Cadastro") --- */
-.logo-text {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  transition: color 0.3s ease;
-}
-
-.logo a:hover .logo-text {
-  color: #4d8eff;
-}
-
-/* =======================================================
-   ITENS DA NAVBAR
-======================================================= */
-.navbar ul {
-  list-style: none;
-  display: flex;
-  gap: 35px;
-  flex-wrap: nowrap;
-}
-
-.navbar ul li a {
-  text-decoration: none;
-  color: #dcdcdc;
-  font-size: 15px;
-  transition: color 0.3s;
-}
-
-.navbar ul li a:hover {
-  color: #4d8eff;
-}
-
-/* --- Área à direita da navbar --- */
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-
-/* =======================================================
-   CAMPO DE PESQUISA
-======================================================= */
-#pesquisa {
-  padding: 8px 15px;
-  border: 1px solid #333;
-  border-radius: 20px;
-  background-color: #1a1e3e;
-  color: #f1f1f1;
-  outline: none;
-  width: 250px;
-}
-
-#pesquisa::placeholder {
-  color: #aaa;
-}
-
-/* =======================================================
-   BOTÃO DE LOGOUT
-======================================================= */
-.navbar ul li .logout-btn {
-  padding: 8px 15px;
-  border: none;
-  background-color: #ff6b3c;
-  color: #0a0d2a;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.1s ease, color 0.3s ease;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.navbar ul li .logout-btn:hover {
-  background-color: #ff875b;
-  transform: translateY(-1px);
-  color: #fff;
-}
-
-.navbar ul li .logout-btn:active {
-  background-color: #e65c34;
-  transform: translateY(0);
-}
-
-.navbar ul li:has(.logout-btn) a {
-  color: inherit;
-}
 
 /* =======================================================
    HERO / CARROSSEL
@@ -395,42 +235,7 @@ header {
   color: #ddd;
 }
 
-/* =======================================================
-   RODAPÉ
-======================================================= */
-footer {
-  background-color: #ff875b;
-  padding: 30px 0;
-  text-align: center;
-  color: #fff;
-  width: 100vw;
-}
 
-footer .footer-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-footer ul {
-  list-style: none;
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-footer ul li a {
-  text-decoration: none;
-  color: #fff;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-footer ul li a:hover {
-  color: #0a0d2a;
-}
 
 /* =======================================================
    RESPONSIVIDADE

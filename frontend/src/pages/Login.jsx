@@ -2,17 +2,21 @@ import { React, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../assets/css/login.css"; // O CSS que você forneceu
 import api from "./api";
-import { useAuth } from "../contexts/AuthContext";
 import LOGO_IMG from "../assets/img/imagem.png";
+
+import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { checkAuth } = useAuth();
+  const { Modal, showError } = useCustomModal();
 
   function handleEmailChange(e) {
     setEmail(e.target.value);
@@ -36,7 +40,7 @@ export default function LoginPage() {
       })
       .catch((err) => {
         if (err.response && err.response.data.error === "INVALID_CREDENTIALS") {
-          alert("Credenciais inválidas");
+          showError("E-mail ou senha inválidos. Por favor, tente novamente.");
         } else {
           // Tratar outros erros (ex: rede, servidor)
           console.error("Erro ao fazer login:", err);
@@ -47,6 +51,7 @@ export default function LoginPage() {
 
   return (
     <>
+      <Modal />
       <Header />
       <main className="container">
         <section className="form-auth form-login">

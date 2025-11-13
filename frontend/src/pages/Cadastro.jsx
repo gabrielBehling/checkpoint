@@ -136,8 +136,9 @@ export default function CadastroPage() {
             </div>
           </form>
         </section>
+       
       </main>
-      <Footer />
+       <Footer />
     </>
 
 
