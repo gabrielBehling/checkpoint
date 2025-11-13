@@ -32,6 +32,18 @@ export default function Termos() {
             {
                 titulo: "5. Resolução de Disputas",
                 conteudo: "Qualquer disputa ou contestação de resultado deve ser submetida por meio de um Ticket de Suporte oficial dentro do prazo estipulado nas regras do torneio. A decisão da equipe de administração do torneio sobre qualquer disputa é final e obrigatória."
+            },
+            {
+                titulo: "6. Anunciantes",
+                conteudo: "Permitimos que anuciantes exibam seus anúcios em áreas especificas do site. Apenas fornecemos os espaços para esses anúncios e não temos qualquer outro tipo de relação com os anunciantes. "
+            },
+            {
+                titulo: "7. Correções",
+                conteudo: "Pode haver informações nos serviços que contennham erros, omissões ou imprecisões. Temos o direito de corrigir quaisquer erros, ommissões ou imprecisôes e de alterar ou atualizar qualquer uma das informações a qualquer sem aviso prévio."
+            },
+            {
+                titulo: "8. ",
+                conteudo: ""
             }
         ]
     };
