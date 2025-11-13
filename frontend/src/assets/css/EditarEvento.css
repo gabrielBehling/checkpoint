@@ -10,12 +10,6 @@
  */
 
 /* ====== RESET GLOBAL ====== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", "Segoe UI", sans-serif;
-}
 
 body {
   background: linear-gradient(180deg, #0b0c1d 0%, #12133a 100%);

@@ -1114,7 +1114,72 @@ Cookie: accessToken=<jwt_token>
 }
 ```
 
-#### 2\. Obter Leaderboard (Ranking)
+#### 2. Obter Detalhes de Pontos por Rodada
+
+**GET** `/:eventId/leaderboard/rounds`
+
+Retorna a pontuação detalhada de todos os times, agrupada por cada rodada do evento. Esta rota é pública e não requer autenticação.
+
+**Parâmetros:**
+
+  * `eventId` (number) - ID do evento (deve ser do tipo `Leaderboard`)
+
+**Resposta de Sucesso (200):**
+*Nota: Este endpoint retorna um array JSON diretamente, em vez do objeto de resposta padrão.*
+
+```json
+[
+  {
+    "roundNumber": 1,
+    "scores": [
+      {
+        "TeamId": 10,
+        "TeamName": "Team Alpha",
+        "LogoURL": "https://logo.url/alpha.png",
+        "Points": 25,
+        "LastModifiedAt": "2024-01-01T10:00:00.000Z"
+      },
+      {
+        "TeamId": 20,
+        "TeamName": "Team Beta",
+        "LogoURL": "https://logo.url/beta.png",
+        "Points": 15,
+        "LastModifiedAt": "2024-01-01T10:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "roundNumber": 2,
+    "scores": [
+      {
+        "TeamId": 10,
+        "TeamName": "Team Alpha",
+        "LogoURL": "https://logo.url/alpha.png",
+        "Points": 10,
+        "LastModifiedAt": "2024-01-02T10:00:00.000Z"
+      },
+      {
+        "TeamId": 20,
+        "TeamName": "Team Beta",
+        "LogoURL": "https://logo.url/beta.png",
+        "Points": 10,
+        "LastModifiedAt": "2024-01-02T10:00:00.000Z"
+      }
+    ]
+  }
+]
+```
+
+**Resposta de Erro (500 - Interno):**
+
+```json
+{
+  "error": "Failed to retrieve round scores.",
+  "details": "..."
+}
+```
+
+#### 3\. Obter Leaderboard (Ranking)
 
 **GET** `/:eventId/leaderboard`
 
@@ -1146,7 +1211,7 @@ Retorna o ranking completo dos times baseado na soma total de pontos.
 }
 ```
 
-#### 3\. Finalizar Evento (Leaderboard)
+#### 4\. Finalizar Evento (Leaderboard)
 
 **POST** `/:eventId/leaderboard/finish`
 

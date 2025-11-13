@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "./api";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import "../assets/css/Inscricao.css";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -10,6 +10,7 @@ import Footer from "../components/Footer";
 export default function InscricaoEvento() {
   const { eventId } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [evento, setEvento] = useState(null);
   const [times, setTimes] = useState([]);
   const [loading, setLoading] = useState(true);
