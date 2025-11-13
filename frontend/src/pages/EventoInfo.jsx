@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "./api"; 
 import "../assets/css/EventoInfo.css"; 
 import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useCustomModal } from "../hooks/useCustomModal";
 import { useAuth } from "../contexts/AuthContext";
 import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
 import VerPartidasTab from "../components/VerPartidasTab";
@@ -37,6 +38,7 @@ export default function EventoInfo() {
   const { eventId } = useParams();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const { Modal, showError } = useCustomModal();
   
   // Verificar se há parâmetro de tab na URL
   useEffect(() => {
@@ -73,7 +75,7 @@ export default function EventoInfo() {
       setNewComment('');
     } catch (err) {
       console.error('Erro ao enviar comentário:', err);
-      alert('Não foi possível enviar o comentário. Tente novamente.');
+      showError('Não foi possível enviar o comentário. Tente novamente.');
     }
   };
 
@@ -141,7 +143,8 @@ export default function EventoInfo() {
 
   return (
     <>
-      <Header /> {/* Adicionando o Header */}
+      <Modal />
+      <Header />
       
       {(showGerenciarTab || showVerPartidasTab || showGerenciarTimesTab || showMeuTimeTab) && (
         <div className="evento-tabs-wrapper">

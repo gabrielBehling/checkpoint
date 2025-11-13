@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../pages/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/MeuTime.css";
 
 export default function MeuTimeTab({ eventId, evento }) {
   const { user } = useAuth();
-
+  const { showError, showSuccess, showWarning, showInfo } = useCustomModal();
   const [myTeam, setMyTeam] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -121,7 +122,7 @@ export default function MeuTimeTab({ eventId, evento }) {
       }, 3000);
     }).catch((err) => {
       console.error("Erro ao copiar link:", err);
-      alert("Erro ao copiar link. Por favor, copie manualmente.");
+      showWarning("Erro ao copiar link. Por favor, copie manualmente.");
     });
   };
 
@@ -144,7 +145,7 @@ export default function MeuTimeTab({ eventId, evento }) {
       // Remover o usuário do time (sair do time)
       await api.delete(`/events/teams/${myTeam.teamId}/members/${user.userId}`);
 
-      alert("Você saiu do time com sucesso!");
+      showSuccess("Você saiu do time com sucesso!");
       setMyTeam(null);
       // Recarregar a página ou atualizar o estado
       window.location.reload();
@@ -152,7 +153,7 @@ export default function MeuTimeTab({ eventId, evento }) {
       console.error("Erro ao sair do time:", err);
       const errorMsg = err.response?.data?.message || "Erro ao sair do time.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -164,13 +165,13 @@ export default function MeuTimeTab({ eventId, evento }) {
 
     // Verificar se o usuário é o capitão
     if (myTeam.captain?.userId !== user.userId) {
-      alert("Apenas o capitão pode remover membros do time.");
+      showWarning("Apenas o capitão pode remover membros do time.");
       return;
     }
 
     // Não permitir remover a si mesmo (usar handleLeaveTeam para isso)
     if (memberId === user.userId) {
-      alert("Para sair do time, use o botão 'Cancelar Inscrição'.");
+      showInfo("Para sair do time, use o botão 'Cancelar Inscrição'.");
       return;
     }
 
@@ -190,14 +191,14 @@ export default function MeuTimeTab({ eventId, evento }) {
         
         // Verificar se o time foi cancelado (sem membros restantes)
         if (responseData?.teamStatus === "Cancelled" || responseData?.newMemberCount === 0) {
-          alert(`${memberUsername} foi removido do time. Como não há mais membros, o time foi cancelado.`);
+          showWarning(`${memberUsername} foi removido do time. Como não há mais membros, o time foi cancelado.`);
           setMyTeam(null);
           // Recarregar a página após um pequeno delay
           setTimeout(() => {
             window.location.reload();
           }, 1500);
         } else {
-          alert(`${memberUsername} foi removido do time com sucesso!`);
+          showSuccess(`${memberUsername} foi removido do time com sucesso!`);
           // Recarregar informações do time
           await loadMyTeam();
         }
@@ -206,7 +207,7 @@ export default function MeuTimeTab({ eventId, evento }) {
       console.error("Erro ao remover membro:", err);
       const errorMsg = err.response?.data?.message || "Erro ao remover membro do time.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }

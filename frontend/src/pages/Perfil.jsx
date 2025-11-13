@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext"; 
+import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/style-perfil.css";
 import LOGO_IMG from "../assets/img/imagem.png";
 
@@ -9,11 +10,10 @@ import Footer from "../components/Footer";
 
 export default function PerfilPage() {
     const { user, loading, updateUserInfo, logout, deleteAccount, checkAuth } = useAuth();
-    
-
     const [previewImage, setPreviewImage] = useState(null);
     const [previewBanner, setPreviewBanner] = useState(null);
     const [selectedRole, setSelectedRole] = useState('');
+    const { Modal, showError, showSuccess } = useCustomModal();
     
     const navigate = useNavigate();
 
@@ -52,10 +52,10 @@ export default function PerfilPage() {
 
             try {
                 await updateUserInfo(formData); 
-                alert("Foto de perfil atualizada!");
+                showSuccess("Foto de perfil atualizada!");
             } catch (err) {
                 console.error("Erro ao enviar imagem de perfil:", err);
-                alert("Erro ao atualizar foto: " + err.message);
+                showError("Erro ao atualizar foto: " + err.message);
                 // Reverte o preview se falhar
                 const oldSrc = user.profileURL.startsWith("http")
                     ? user.profileURL
@@ -78,10 +78,10 @@ export default function PerfilPage() {
 
             try {
                 await updateUserInfo(formData); 
-                alert("Banner atualizado!");
+                showSuccess("Banner atualizado!");
             } catch (err) {
                 console.error("Erro ao enviar banner:", err);
-                alert("Erro ao enviar banner: " + err.message);
+                showError("Erro ao enviar banner: " + err.message);
                 setPreviewBanner(user?.bannerImage || null);
             }
         }
@@ -101,10 +101,10 @@ export default function PerfilPage() {
 
         try {
             await updateUserInfo(formData); 
-            alert("Tipo de conta atualizado!");
+            showSuccess("Tipo de conta atualizado!");
         } catch (err) {
             console.error("Erro ao trocar tipo de conta:", err);
-            alert("Erro ao trocar tipo de conta: " + err.message);
+            showError("Erro ao trocar tipo de conta: " + err.message);
             setSelectedRole(user.userRole);
         }
     };
@@ -119,7 +119,7 @@ export default function PerfilPage() {
             checkAuth();}
          catch (err) {
             console.error("Erro ao apagar conta:", err);
-            alert("Erro ao apagar conta: " + err.message);
+            showError("Erro ao apagar conta: " + err.message);
         }
     };
 
@@ -129,12 +129,12 @@ export default function PerfilPage() {
         }
         try {
             await deleteAccount();
-            alert("Conta apagada com sucesso.");
+            showSuccess("Conta apagada com sucesso.");
             navigate("/");
             checkAuth();
         } catch (err) {
             console.error("Erro ao apagar conta:", err);
-            alert("Erro ao apagar conta: " + err.message);
+            showError("Erro ao apagar conta: " + err.message);
         }
     };
 

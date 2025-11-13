@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "./api";
 import { useParams, useNavigate } from "react-router-dom";
 import "../assets/css/criarTime.css";
+import { useCustomModal } from "../hooks/useCustomModal";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -12,6 +13,7 @@ export default function CriarTime() {
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const { Modal, showError, showSuccess } = useCustomModal();
 
 
   const [teamName, setTeamName] = useState("");
@@ -62,17 +64,18 @@ export default function CriarTime() {
         // logoFile: teamLogo
       });
       if (response.data.success) {
-        alert("Time criado com sucesso!");
+        showSuccess("Time criado com sucesso!");
         navigate(`/evento/${eventId}`);
       }
     } catch (err) {
       console.error("Erro ao criar time:", err);
-      alert("Erro ao criar time. Tente novamente.");
+      showError("Erro ao criar time. Tente novamente.");
     }
   }
 
   return (
     <>
+      <Modal />
       <Header />
       <main className="inscricao-container">
         <h1>Inscrição no Evento: {evento.title}</h1>

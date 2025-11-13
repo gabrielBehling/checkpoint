@@ -4,12 +4,14 @@ import api from "./api";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/GerenciarPartidas.css";
 
 export default function GerenciarPartidas() {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { Modal, showError, showSuccess, showWarning } = useCustomModal();
 
   const [evento, setEvento] = useState(null);
   const [schedule, setSchedule] = useState([]);
@@ -112,14 +114,14 @@ export default function GerenciarPartidas() {
       const response = await api.post(`/events/${eventId}/round-robin/generate-schedule`);
 
       if (response.data?.success) {
-        alert(`Agenda gerada com sucesso! ${response.data.data?.matchesCreated || 0} partidas criadas.`);
+        showSuccess(`Agenda gerada com sucesso! ${response.data.data?.matchesCreated || 0} partidas criadas.`);
         await loadSchedule();
       }
     } catch (err) {
       console.error("Erro ao gerar agenda:", err);
       const errorMsg = err.response?.data?.message || "Erro ao gerar agenda de partidas.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError("Erro ao gerar agenda");
     } finally {
       setActionLoading(null);
     }
@@ -146,12 +148,12 @@ export default function GerenciarPartidas() {
     const team2Score = parseInt(matchScores.team2Score);
 
     if (isNaN(team1Score) || isNaN(team2Score)) {
-      alert("Por favor, insira placares válidos.");
+      showWarning("Por favor, insira placares válidos.");
       return;
     }
 
     if (team1Score < 0 || team2Score < 0) {
-      alert("Os placares não podem ser negativos.");
+      showWarning("Os placares não podem ser negativos.");
       return;
     }
 
@@ -164,7 +166,7 @@ export default function GerenciarPartidas() {
         team2Score,
       });
 
-      alert("Placar atualizado com sucesso!");
+      showSuccess("Placar atualizado com sucesso!");
       setEditingMatch(null);
       setMatchScores({ team1Score: "", team2Score: "" });
       await Promise.all([loadSchedule(), loadRanking()]);
@@ -172,7 +174,7 @@ export default function GerenciarPartidas() {
       console.error("Erro ao atualizar placar:", err);
       const errorMsg = err.response?.data?.message || "Erro ao atualizar placar.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -190,13 +192,13 @@ export default function GerenciarPartidas() {
 
       await api.post(`/events/${eventId}/round-robin/finish`);
 
-      alert("Evento finalizado com sucesso!");
+      showSuccess("Evento finalizado com sucesso!");
       navigate(`/evento/${eventId}`);
     } catch (err) {
       console.error("Erro ao finalizar evento:", err);
       const errorMsg = err.response?.data?.message || "Erro ao finalizar evento.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -205,6 +207,7 @@ export default function GerenciarPartidas() {
   if (loading) {
     return (
       <div>
+        <Modal />
         <Header />
         <main className="gerenciar-partidas-container">
           <div className="loading-state">Carregando informações...</div>
@@ -217,6 +220,7 @@ export default function GerenciarPartidas() {
   if (error && !evento) {
     return (
       <div>
+        <Modal />
         <Header />
         <main className="gerenciar-partidas-container">
           <div className="error-state">
@@ -240,6 +244,7 @@ export default function GerenciarPartidas() {
 
   return (
     <div>
+      <Modal />
       <Header />
       <main className="gerenciar-partidas-container">
         <div className="gerenciar-header">

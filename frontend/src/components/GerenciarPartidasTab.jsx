@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import api from "../pages/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/GerenciarPartidas.css";
 
 export default function GerenciarPartidasTab({ eventId, evento }) {
   const { user } = useAuth();
-
+  const { showError, showSuccess, showWarning } = useCustomModal();
   const [schedule, setSchedule] = useState([]);
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,11 +98,6 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       ? parseInt(pointsSettings.pointsPerLoss)
       : 0;
 
-    if (pointsPerWin < 0 || pointsPerDraw < 0 || pointsPerLoss < 0) {
-      alert("Os valores de pontuação não podem ser negativos.");
-      return;
-    }
-
     try {
       setActionLoading("configure-points");
       setError("");
@@ -119,14 +115,14 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
         pointsPerLoss: pointsPerLoss.toString(),
       });
 
-      alert("Pontuação configurada com sucesso!");
+      show("Pontuação configurada com sucesso!");
       setPointsConfigured(true);
       setEditingPoints(false);
     } catch (err) {
       console.error("Erro ao configurar pontos:", err);
       const errorMsg = err.response?.data?.message || "Erro ao configurar pontuação.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -135,7 +131,7 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
   // Gerar agenda de partidas
   const handleGenerateSchedule = async () => {
     if (!pointsConfigured) {
-      alert("⚠️ Por favor, configure os pontos antes de gerar a agenda de partidas.");
+      showWarning("⚠️ Por favor, configure os pontos antes de gerar a agenda de partidas.");
       setEditingPoints(true);
       return;
     }
@@ -151,14 +147,14 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       const response = await api.post(`/events/${eventId}/round-robin/generate-schedule`);
 
       if (response.data?.success) {
-        alert(`Agenda gerada com sucesso! ${response.data.data?.matchesCreated || 0} partidas criadas.`);
+        showSuccess(`Agenda gerada com sucesso! ${response.data.data?.matchesCreated || 0} partidas criadas.`);
         await loadSchedule();
       }
     } catch (err) {
       console.error("Erro ao gerar agenda:", err);
       const errorMsg = err.response?.data?.message || "Erro ao gerar agenda de partidas.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -185,12 +181,12 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
     const team2Score = parseInt(matchScores.team2Score);
 
     if (isNaN(team1Score) || isNaN(team2Score)) {
-      alert("Por favor, insira placares válidos.");
+      showWarning("Por favor, insira placares válidos.");
       return;
     }
 
     if (team1Score < 0 || team2Score < 0) {
-      alert("Os placares não podem ser negativos.");
+      showWarning("Os placares não podem ser negativos.");
       return;
     }
 
@@ -203,7 +199,7 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
         team2Score,
       });
 
-      alert("Placar atualizado com sucesso!");
+      showSuccess("Placar atualizado com sucesso!");
       setEditingMatch(null);
       setMatchScores({ team1Score: "", team2Score: "" });
       await Promise.all([loadSchedule(), loadRanking()]);
@@ -211,7 +207,7 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       console.error("Erro ao atualizar placar:", err);
       const errorMsg = err.response?.data?.message || "Erro ao atualizar placar.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -229,13 +225,13 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
 
       await api.post(`/events/${eventId}/round-robin/finish`);
 
-      alert("Evento finalizado com sucesso!");
+      showSuccess("Evento finalizado com sucesso!");
       window.location.reload(); // Recarregar para atualizar o status do evento
     } catch (err) {
       console.error("Erro ao finalizar evento:", err);
       const errorMsg = err.response?.data?.message || "Erro ao finalizar evento.";
       setError(errorMsg);
-      alert(errorMsg);
+      showError(errorMsg);
     } finally {
       setActionLoading(null);
     }

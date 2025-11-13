@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "./api";
-import { useAuth } from "../contexts/AuthContext"; // ✅ Importa o contexto de autenticação
+import { useAuth } from "../contexts/AuthContext";
+import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/CadastroStyle.css";
 
 import Header from "../components/Header";
@@ -9,7 +10,8 @@ import Footer from "../components/Footer";
 
 export default function Evento() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth(); // ✅ Pega o usuário logado e a função de logout
+  const { Modal, showError, showSuccess } = useCustomModal();
+  const { user } = useAuth();
 
   const [form, setForm] = useState({
     Title: "",
@@ -59,7 +61,6 @@ export default function Evento() {
 
   useEffect(() => {
     if (!user || user.userRole === "Player") {
-      alert("❌ Acesso negado. Apenas organizadores podem criar eventos.");
       navigate("/");
     }
   }, [user, navigate]);
@@ -88,14 +89,13 @@ export default function Evento() {
         if (value !== "") data.append(key, value)
       });
       if (banner) data.append("BannerFile", banner);
-      console.log(form);
       api
         .post("/events/", data, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then((response) => {
           if (response.data.success) {
-            alert("✅ Evento criado com sucesso!");
+            showSuccess("Evento criado com sucesso!");
             navigate("/evento/" + response.data.data.eventId);
           }
         })
@@ -113,8 +113,8 @@ export default function Evento() {
             }
           }
 
-          console.error(error);
-          alert("❌ Erro ao criar evento. Verifique o console.");
+          console.error("Erro ao criar evento: " + error);
+          showError("Erro ao criar evento.");
         });
 
       setForm({
@@ -139,16 +139,15 @@ export default function Evento() {
       });
       setBanner(null);
     } catch (error) {
-      console.error(error);
-      alert("❌ Erro ao criar evento.");
+      console.error("Erro ao criar evento: " + error);
+      showError("Erro ao criar evento.");
     }
   };
 
   return (
-    
-
-    <div>
-     <Header/> {/* ✅ Header padronizado */}
+    <>
+      <Modal />
+      <Header/>
    
       <main className="container">
         <form className="form-evento" onSubmit={handleSubmit}>
@@ -289,7 +288,7 @@ export default function Evento() {
           </div>
         </form>
       </main>
-       <Footer/> {/* ✅ Footer padronizado */}
-    </div>
+       <Footer/>
+    </>
   );
 }

@@ -124,7 +124,6 @@ export default function DashboardDoOrganizador() {
     }
 
     if (user.userRole !== "Organizer") {
-      alert("❌ Acesso negado. Apenas organizadores podem acessar o dashboard.");
       navigate("/");
       return;
     }
