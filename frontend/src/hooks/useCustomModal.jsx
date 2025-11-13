@@ -23,7 +23,7 @@ export const useCustomModal = () => {
 
   const showError = (message, title = 'Erro!') => {
     openModal({
-      type: 'success',
+      type: 'error',
       title,
       message,
       buttons: [{ label: 'OK', variant: 'primary', onClick: closeModal }]
