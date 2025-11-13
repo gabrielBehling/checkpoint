@@ -1,10 +1,8 @@
-
-
 /* ==================================== */
-/* 📧 Contato.css (Completo com Grid de Membros) */
+/* 📧 Contato.css (Final e Revisado) */
 /* ==================================== */
 
-/* Cores e Estilos Globais da Página */
+/* O container <main> (contato-container) agora só gerencia o conteúdo */
 .contato-container {
     background-color: #0d1a2d; /* Fundo principal escuro */
     color: #e0e6ed; /* Texto principal claro */
@@ -14,7 +12,8 @@
     margin: 0 auto;
     border-radius: 8px;
     line-height: 1.6;
-    min-height: 60vh; 
+    /* Ajustado para não ter altura mínima, pois Header/Footer cuidam disso */
+    min-height: auto; 
 }
 
 /* Header */
@@ -44,7 +43,7 @@ hr {
     margin: 40px 0;
 }
 
-/* Seção Contato/GitHub (o corpo principal da página) */
+/* Seção Contato/GitHub (o bloco azul claro) */
 .contato-github {
     text-align: center;
     padding: 40px;
@@ -67,13 +66,8 @@ hr {
     color: #c9d1d9;
 }
 
-/* ⚠️ Remover o botão antigo (garante que ele não seja exibido) */
-.botao-github { 
-    display: none; 
-}
-
 /* ================================================= */
-/* NOVO: Estilos para o Grid e Cards dos Membros */
+/* Estilos para o Grid e Cards dos Membros */
 /* ================================================= */
 
 /* Layout de Grade para os Membros */
@@ -91,38 +85,35 @@ hr {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px;
-    background-color: #0d1a2d; /* Fundo mais escuro */
+    /* Padding ajustado para compensar a falta do ícone */
+    padding: 30px 10px; 
+    background-color: #0d1a2d; 
     border: 2px solid #2a3e59; 
     border-radius: 8px;
     text-decoration: none;
     color: #e0e6ed;
     transition: all 0.3s ease;
+    justify-content: center; 
 }
 
 .membro-card:hover {
-    background-color: #172a45; /* Azul mais claro no hover */
-    border-color: #8db4e3; /* Borda azul clara */
-    transform: translateY(-5px); /* Efeito de elevação */
+    background-color: #172a45; 
+    border-color: #8db4e3; 
+    transform: translateY(-5px); 
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
 }
 
-.github-icon {
-    font-size: 2.5em; 
-    color: #f7a072; /* Laranja de destaque */
-    margin-bottom: 10px;
-}
-
 .membro-nome {
-    font-size: 1.1em;
-    color: #e0e6ed;
+    font-size: 1.2em; 
+    color: #f7a072; /* Cor de destaque no nome */
     margin-bottom: 5px;
     text-align: center;
 }
 
 .membro-user {
     font-size: 0.9em;
-    color: #8db4e3; /* Azul claro para o @usuário */
+    color: #8db4e3;
+    font-weight: bold;
 }
 
 /* Responsividade: Layout para telas menores */
@@ -140,17 +131,3 @@ hr {
         grid-template-columns: repeat(2, 1fr);
     }
 }
-
-/* Footer da Página de Contato */
-.contato-footer {
-    text-align: center;
-    margin-top: 50px;
-    padding-top: 20px;
-    border-top: 1px solid #2a3e59;
-    font-size: 0.9em;
-    color: #8db4e3;
-}
-
-
-
-

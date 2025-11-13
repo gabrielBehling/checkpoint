@@ -1,12 +1,24 @@
 import React from 'react';
-import "../assets/css/Ajuda.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import "../assets/css/Ajuda.css"; 
 
-const Ajuda = () => {
 
+export default function Ajuda() { 
+
+    
     const faqData = [
         {
             pergunta: "Como faço para me inscrever em um torneio?",
             resposta: "Para se inscrever, navegue até a seção 'Torneios Ativos' no menu principal, clique no torneio desejado e utilize o botão 'Inscrever-se'. Você deve estar logado e ter seu game ID registrado no seu perfil."
+        },
+        {
+            pergunta: "Como faço para acessar o chat do torneio?",
+            resposta: "O chat é específico para cada evento! Para acessá-lo, vá para a página do torneio em que você está inscrito. O chat estará visível e ativo na barra lateral ou na seção de 'Comunidade' daquela página."
+        },
+        {
+            pergunta: "As recompensas são pagas imediatamente após o torneio?",
+            resposta: "As premiações (cash prizes e itens) são processadas em até 72 horas após a conclusão oficial do torneio, verificação de resultados e confirmação de elegibilidade de todos os vencedores."
         },
         {
             pergunta: "Quais são as regras de conduta para participar?",
@@ -18,7 +30,7 @@ const Ajuda = () => {
         },
         {
             pergunta: "Como reportar um problema ou resultado incorreto?",
-            resposta: "Você deve abrir um 'Ticket de Suporte' na página do torneio, dentro da janela de 15 minutos após o ocorrido/fim do jogo. Inclua screenshots ou vídeos como prova, se possível."
+            resposta: "Você deve clicar no botão 'Contato' na parte e baixo de qualquer pagina do site, dentro da janela de 15 minutos após o ocorrido/fim do jogo. Inclua screenshots ou vídeos como prova, se possível."
         },
         {
             pergunta: "Existe algum custo para participar dos torneios?",
@@ -27,50 +39,50 @@ const Ajuda = () => {
     ];
 
     return (
-        <div className="ajuda-container contato-container">
-            <header className="ajuda-header contato-header">
-                <h1> Central de Ajuda e FAQ</h1>
-                <p>
-                    Encontre rapidamente respostas para as dúvidas mais comuns sobre inscrição, regras, resultados e suporte técnico em nossos torneios.
-                </p>
-            </header>
-            
-            <hr />
+        <>
+            <Header />
 
-            <section className="ajuda-faq">
-                <h2>📚 Perguntas Frequentes (FAQ)</h2>
+            <main className="ajuda-container contato-container">
+                <header className="ajuda-header contato-header">
+                    <h1>❓ Central de Ajuda e FAQ</h1>
+                    <p>
+                        Encontre rapidamente respostas para as dúvidas mais comuns sobre inscrição, regras, resultados e suporte técnico em nossos torneios.
+                    </p>
+                </header>
                 
-                {faqData.map((item, index) => (
-                    <div key={index} className="faq-item">
-                        <h3 className="faq-pergunta">{item.pergunta}</h3>
-                        <p className="faq-resposta">{item.resposta}</p>
-                    </div>
-                ))}
-            </section>
+                <hr />
 
-            <hr />
+                <section className="ajuda-faq">
+                    <h2>📚 Perguntas Frequentes (FAQ)</h2>
+                    
+                    {faqData.map((item, index) => (
+                        <div key={index} className="faq-item">
+                            <h3 className="faq-pergunta">{item.pergunta}</h3>
+                            <p className="faq-resposta">{item.resposta}</p>
+                        </div>
+                    ))}
+                </section>
 
-            <section className="ajuda-contato">
-                <h2>Precisa de Ajuda Extra?</h2>
-                <p>
-                    Se você não encontrou a resposta que procurava, por favor, entre em contato com nossa equipe de desenvolvimento no GitHub:
-                </p>
-                 <a 
-                    href="" // Link 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="botao-contato-ajuda botao-github" 
-                >
-                    Abrir um Chamado no GitHub
-                </a>
-            </section>
-            
-            <footer className="ajuda-footer contato-footer">
-                <p>Estamos aqui para garantir que você tenha a melhor experiência em torneios!</p>
-            </footer>
-        </div>
+                <hr />
+
+                <section className="ajuda-contato">
+                    <h2>Precisa de Ajuda Extra?</h2>
+                    <p>
+                        Para suporte direto ou questões técnicas avançadas, entre em contato com o desenvolvedor responsável:
+                    </p>
+                   
+                    <a 
+                        href="https://github.com/gabrielBehling" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="botao-contato-ajuda botao-github" 
+                    >
+                        Falar com o Desenvolvedor Gabriel Behling  (@gabrielBehling )
+                    </a>
+                </section>
+            </main>
+
+            <Footer />
+        </>
     );
 };
-
-export default Ajuda;
-
