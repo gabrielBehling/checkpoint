@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import LOGO_IMG from "../assets/img/imagem.png"; // ✅ caminho ajustado
+import LOGO_IMG from "../assets/img/imagem.png";
 import "../assets/css/hf.css";
 
 function Header() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const getProfileSrc = (profilePath) => {
     if (!profilePath) return null;
@@ -12,10 +13,18 @@ function Header() {
     return `${window.location.origin}/api/auth${profilePath}`;
   };
 
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    const query = event.target.elements.pesquisa.value;
+    console.log(query)
+    if (query) {
+      navigate(`/search?q=${query}`);
+    }
+  };
+
   return (
     <header>
       <nav className="navbar">
-        {/* ✅ Logo circular */}
         <div className="logo">
           <Link to="/">
             <div className="logo-circle">
@@ -24,9 +33,16 @@ function Header() {
           </Link>
         </div>
 
-        <h1>
-          <input id="pesquisa" type="text" placeholder="Pesquisa" />
-        </h1>
+        <form className="search-form" onSubmit={handleSearchSubmit}>
+          <div className="search-container">
+            <input
+              id="pesquisa"
+              name="q"
+              type="text"
+              placeholder="Pesquisa"
+            />
+          </div>
+        </form>
 
         <ul>
           <li>
