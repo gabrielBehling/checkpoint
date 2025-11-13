@@ -1,187 +1,97 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import api from "./api";
-import "../assets/css/PesquisaEvento.css";
+import { useState } from "react";
 
-// Imagem da logo
-import LOGO_IMG from "../assets/img/imagem.png";
-
-export default function BuscarEventos() {
-  const [events, setEvents] = useState([]);
-  const [filters, setFilters] = useState({ games: [], modes: [], languages: [], platforms: [] });
-  const [selectedFilters, setSelectedFilters] = useState({
+function SearchPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
     game: "",
+    date: "",
     mode: "",
+    ticket: "",
+    participationCost: "",
+    place: "",
+    groupSize: "",
+    status: "",
+    prize: "",
     language: "",
     platform: "",
-    search: "",
+    maxParticipants: "",
+    isOnline: false,
   });
-  const [loading, setLoading] = useState(false);
-  const [noResults, setNoResults] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    api
-      .get("/events/filters/")
-      .then((response) => {
-        if (response.data.success) {
-          setFilters(response.data.data);
-        }
-      })
-      .catch((error) => console.error("Erro ao carregar filtros:", error));
-  }, []);
-
-  const fetchEvents = () => {
-    setLoading(true);
-    setNoResults(false);
-    api
-      .get("/events/", { params: selectedFilters })
-      .then((response) => {
-        setEvents(response.data.data.data);
-        setNoResults(response.data.data.length === 0);
-      })
-      .catch((error) => console.error("Erro ao buscar eventos:", error))
-      .finally(() => setLoading(false));
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFilters({
+      ...filters,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
-  useEffect(() => {
-    fetchEvents();
-  }, [selectedFilters]);
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSearch = (e) => {
-    setSelectedFilters((prev) => ({ ...prev, search: e.target.value }));
+  const handleSearch = () => {
+    console.log("🔍 Pesquisando por:", searchTerm);
+    console.log("🎯 Filtros aplicados:", filters);
+    // Aqui você pode chamar sua API ou função de busca, ex:
+    // api.get('/search', { params: { ...filters, q: searchTerm } })
   };
 
   return (
-    <div className="page-container">
-      {/* === Cabeçalho com logo === */}
-      <header className="header">
-        <div className="logo-area" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          <div className="logo-circle">
-            <img src={LOGO_IMG} alt="Logo do site" className="logo-img" />
-          </div>
-        </div>
-        <h1>Buscar Eventos</h1>
-      </header>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Pesquisa de Eventos</h1>
 
-      <div className="content">
-        {/* === Filtros === */}
-        <aside className="filters">
-          <h2>Filtros</h2>
-
-          <div className="filter-group">
-            <h3>Jogo</h3>
-            {/* {filters.games.map((g) => (
-              <label key={g.GameID}>
-                <input
-                  type="radio"
-                  name="game"
-                  value={g.GameName}
-                  checked={selectedFilters.game === g.GameName}
-                  onChange={handleFilterChange}
-                />
-                {g}
-              </label>
-            ))} */}
-          </div>
-
-          <div className="filter-group">
-            <h3>Modo</h3>
-            {filters.modes.map((m) => (
-              <label key={m.ModeID}>
-                <input
-                  type="radio"
-                  name="mode"
-                  value={m.ModeName}
-                  checked={selectedFilters.mode === m.ModeName}
-                  onChange={handleFilterChange}
-                />
-                {m.ModeName}
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-group">
-            <h3>Idioma</h3>
-            {filters.languages.map((l) => (
-              <label key={l.LanguageID}>
-                <input
-                  type="radio"
-                  name="language"
-                  value={l.LanguageName}
-                  checked={selectedFilters.language === l.LanguageName}
-                  onChange={handleFilterChange}
-                />
-                {l.LanguageName}
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-group">
-            <h3>Plataforma</h3>
-            {filters.platforms.map((p) => (
-              <label key={p}>
-                <input
-                  type="radio"
-                  name="platform"
-                  value={p}
-                  checked={selectedFilters.platform === p}
-                  onChange={handleFilterChange}
-                />
-                {p}
-              </label>
-            ))}
-          </div>
-        </aside>
-
-        {/* === Resultados === */}
-        <main className="results">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Pesquisar evento..."
-              value={selectedFilters.search}
-              onChange={handleSearch}
-            />
-          </div>
-
-          {loading ? (
-            <p className="loading">Carregando eventos...</p>
-          ) : noResults ? (
-            <p className="no-results">Nenhum evento encontrado.</p>
-          ) : (
-            <div className="event-list">
-              {events.map((event) => (
-                <div key={event.eventId} className="event-card">
-                  <h4>{event.title}</h4>
-                  <p>
-                    <strong>Jogo:</strong> {event.gameName}
-                  </p>
-                  <p>
-                    <strong>Modo:</strong> {event.modeName}
-                  </p>
-                  <p>
-                    <strong>Idioma:</strong> {event.languageName}
-                  </p>
-                  <p>
-                    <strong>Plataforma:</strong> {event.platform}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </main>
+      {/* Campo de busca */}
+      <div className="flex justify-center mb-6">
+        <input
+          type="text"
+          placeholder="Buscar..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded-l w-1/2 focus:outline-none"
+        />
+        <button
+          onClick={handleSearch}
+          className="bg-blue-600 text-white px-4 rounded-r hover:bg-blue-700 transition"
+        >
+          Buscar
+        </button>
       </div>
 
-      {/* === Rodapé === */}
-      <footer className="footer">
-        <p>© 2025 Checkpoint - Todos os direitos reservados.</p>
-      </footer>
+      {/* Filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-6 rounded shadow">
+        <input name="game" type="text" placeholder="Game" value={filters.game} onChange={handleChange} className="border p-2 rounded" />
+        <input name="date" type="date" value={filters.date} onChange={handleChange} className="border p-2 rounded" />
+        <input name="mode" type="text" placeholder="Mode" value={filters.mode} onChange={handleChange} className="border p-2 rounded" />
+        <input name="ticket" type="text" placeholder="Ticket" value={filters.ticket} onChange={handleChange} className="border p-2 rounded" />
+        <input name="participationCost" type="number" placeholder="Participation Cost" value={filters.participationCost} onChange={handleChange} className="border p-2 rounded" />
+        <input name="place" type="text" placeholder="Place" value={filters.place} onChange={handleChange} className="border p-2 rounded" />
+        <input name="groupSize" type="number" placeholder="Group Size" value={filters.groupSize} onChange={handleChange} className="border p-2 rounded" />
+        <select name="status" value={filters.status} onChange={handleChange} className="border p-2 rounded">
+          <option value="">Status</option>
+          <option value="open">Aberto</option>
+          <option value="closed">Fechado</option>
+          <option value="ongoing">Em andamento</option>
+        </select>
+        <input name="prize" type="text" placeholder="Prize" value={filters.prize} onChange={handleChange} className="border p-2 rounded" />
+        <input name="language" type="text" placeholder="Language" value={filters.language} onChange={handleChange} className="border p-2 rounded" />
+        <input name="platform" type="text" placeholder="Platform" value={filters.platform} onChange={handleChange} className="border p-2 rounded" />
+        <input name="maxParticipants" type="number" placeholder="Max Participants" value={filters.maxParticipants} onChange={handleChange} className="border p-2 rounded" />
+
+        {/* Checkbox para isOnline */}
+        <label className="flex items-center gap-2">
+          <input name="isOnline" type="checkbox" checked={filters.isOnline} onChange={handleChange} />
+          Evento Online
+        </label>
+      </div>
+
+      {/* Botão para aplicar */}
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={handleSearch}
+          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
+        >
+          Aplicar Filtros
+        </button>
+      </div>
     </div>
   );
 }
+
+export default SearchPage;
