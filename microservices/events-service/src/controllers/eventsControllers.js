@@ -3,6 +3,7 @@ const router = express.Router();
 const sql = require("mssql");
 const path = require("path");
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const { object, string, date, number, boolean } = require("yup");
 const authMiddleware = require("../authMiddleware");
 const bannerUpload = require("../middleware/bannerUpload");
@@ -443,6 +444,9 @@ router.get("/:eventId", async (req, res) => {
     return res.error("Invalid eventId", "INVALID_EVENT_ID", 400);
   }
 
+  const accessToken = req.cookies?.accessToken;
+  const userId = accessToken ? jwt.verify(accessToken, process.env.JWT_SECRET)?.userId || null : null;
+
   let connection;
   try {
     await sql.connect(dbConfig);
@@ -490,7 +494,7 @@ router.get("/:eventId", async (req, res) => {
 
     // Verificar se usuário está registrado (se autenticado)
     let isRegistered = false;
-    if (req.user && req.user.userId) {
+    if (userId) {
       const registrationQuery = `
                 SELECT COUNT(*) AS IsRegistered
                 FROM EventRegistrations ER
@@ -503,7 +507,7 @@ router.get("/:eventId", async (req, res) => {
             `;
       const regRequest = new sql.Request();
       regRequest.input("eventId", sql.Int, eventId);
-      regRequest.input("userId", sql.Int, req.user.userId);
+      regRequest.input("userId", sql.Int, userId);
       const regResult = await regRequest.query(registrationQuery);
       isRegistered = regResult.recordset[0].IsRegistered > 0;
     }

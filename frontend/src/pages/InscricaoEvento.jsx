@@ -67,8 +67,7 @@ export default function InscricaoEvento() {
       try {
         await api.post(`/events/teams/${teamId}/join/`);
         alert("Inscrição realizada com sucesso!");
-        // Recarregar a lista de times para atualizar os status
-        await recarregarDados();
+        navigate(`/evento/${eventId}`);
       } catch (err) {
         console.error("Erro ao inscrever no time:", err.response);
         const errorMessage = err.response?.data?.message || "Erro ao inscrever no time.";
