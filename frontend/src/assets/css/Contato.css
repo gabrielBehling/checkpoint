@@ -1,91 +1,86 @@
 /* ==================================== */
-/* 📧 Contato.css (Final e Revisado) */
+/* 📧 Contato.css (Escopo Corrigido) */
 /* ==================================== */
 
-/* O container <main> (contato-container) agora só gerencia o conteúdo */
+/* Container Principal (Mantém o Fundo e Layout) */
 .contato-container {
-    background-color: #0d1a2d; /* Fundo principal escuro */
-    color: #e0e6ed; /* Texto principal claro */
+    background-color: #0d1a2d; 
+    color: #e0e6ed; 
     font-family: 'Arial', sans-serif;
     padding: 40px 20px;
     max-width: 1200px;
     margin: 0 auto;
     border-radius: 8px;
     line-height: 1.6;
-    /* Ajustado para não ter altura mínima, pois Header/Footer cuidam disso */
     min-height: auto; 
 }
 
-/* Header */
-.contato-header {
+/* Escopo: Títulos e Texto de Introdução */
+.contato-container .contato-intro { /* Usando .contato-container para escopo */
     text-align: center;
     margin-bottom: 40px;
 }
 
-.contato-header h1 {
+.contato-container .contato-intro h1 { /* Escopo total */
     font-size: 2.8em;
-    color: #f7a072; /* Laranja de destaque */
+    color: #f7a072; 
     margin-bottom: 15px;
     letter-spacing: 1.5px;
 }
 
-.contato-header p {
+.contato-container .contato-intro p { /* Escopo total */
     font-size: 1.1em;
     max-width: 700px;
     margin: 0 auto;
     color: #b0b8c4;
 }
 
-/* Linha Divisória */
-hr {
+/* Escopo: Linha Divisória */
+.contato-container hr { /* Escopo total */
     border: none;
     border-top: 1px solid #2a3e59;
     margin: 40px 0;
 }
 
-/* Seção Contato/GitHub (o bloco azul claro) */
-.contato-github {
+/* Escopo: Seção Contato/GitHub (o bloco azul claro) */
+.contato-container .contato-github { /* Escopo total */
     text-align: center;
     padding: 40px;
-    background-color: #172a45; /* Azul mais claro para o bloco de foco */
+    background-color: #172a45;
     border-radius: 8px;
     border: 1px solid #2a3e59; 
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.contato-github h2 {
+.contato-container .contato-github h2 { /* Escopo total */
     font-size: 2.2em;
-    color: #8db4e3; /* Azul claro para o título da seção */
+    color: #8db4e3; 
     margin-bottom: 20px;
     letter-spacing: 1px;
 }
 
-.contato-github p {
+.contato-container .contato-github p { /* Escopo total */
     font-size: 1.1em;
     margin-bottom: 30px;
     color: #c9d1d9;
 }
 
 /* ================================================= */
-/* Estilos para o Grid e Cards dos Membros */
+/* Escopo: Grid e Cards dos Membros */
 /* ================================================= */
 
-/* Layout de Grade para os Membros */
-.membros-grid {
+.contato-container .membros-grid { /* Escopo total */
     display: grid;
-    /* 5 colunas em telas grandes */
     grid-template-columns: repeat(5, 1fr); 
     gap: 20px;
     margin-top: 40px;
     margin-bottom: 20px;
 }
 
-/* Estilo de cada Card de Membro */
-.membro-card {
+.contato-container .membro-card { /* Escopo total */
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Padding ajustado para compensar a falta do ícone */
     padding: 30px 10px; 
     background-color: #0d1a2d; 
     border: 2px solid #2a3e59; 
@@ -96,38 +91,35 @@ hr {
     justify-content: center; 
 }
 
-.membro-card:hover {
+.contato-container .membro-card:hover {
     background-color: #172a45; 
     border-color: #8db4e3; 
     transform: translateY(-5px); 
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
 }
 
-.membro-nome {
+.contato-container .membro-nome { 
     font-size: 1.2em; 
-    color: #f7a072; /* Cor de destaque no nome */
+    color: #f7a072; 
     margin-bottom: 5px;
     text-align: center;
 }
 
-.membro-user {
+.contato-container .membro-user {
     font-size: 0.9em;
     color: #8db4e3;
     font-weight: bold;
 }
 
-/* Responsividade: Layout para telas menores */
+/* Responsividade (Classes filhas) */
 @media (max-width: 1024px) {
-    /* Passa para 3 colunas em tablets */
-    .membros-grid {
+    .contato-container .membros-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
     }
 }
-
 @media (max-width: 600px) {
-    /* Passa para 2 colunas em celulares */
-    .membros-grid {
+    .contato-container .membros-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
