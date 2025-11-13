@@ -1,12 +1,11 @@
 /* ==================================== */
-/* ❓ Ajuda.css (FAQ) */
+/* ❓ Ajuda.css (Escopo Corrigido) */
 /* ==================================== */
 
-/* O container principal usa a estética de fundo escuro */
+/* Container Principal (Mantém o Fundo e Layout) */
 .ajuda-container {
-    /* Estas classes geralmente herdam o fundo escuro do Contato.css se você as usou em <main> */
-    background-color: #0d1a2d; /* Fundo principal escuro */
-    color: #e0e6ed; /* Texto principal claro */
+    background-color: #0d1a2d; 
+    color: #e0e6ed; 
     font-family: 'Arial', sans-serif;
     padding: 40px 20px;
     max-width: 1200px;
@@ -15,22 +14,27 @@
     min-height: 80vh; 
 }
 
-/* Estilos de Header e Títulos (Compartilhados com Contato.css) */
-.contato-header h1, .ajuda-header h1 {
+/* Escopo: Títulos e Texto de Introdução */
+.ajuda-container .ajuda-intro { /* Usando .ajuda-container para escopo */
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.ajuda-container .ajuda-intro h1 { /* Escopo total */
     font-size: 2.8em;
-    color: #f7a072; /* Laranja de destaque */
+    color: #f7a072; 
     margin-bottom: 15px;
     letter-spacing: 1.5px;
 }
-.contato-header p, .ajuda-header p {
+.ajuda-container .ajuda-intro p { /* Escopo total */
     font-size: 1.1em;
     max-width: 700px;
     margin: 0 auto;
     color: #b0b8c4;
 }
 
-/* Linha Divisória */
-hr {
+/* Escopo: Linha Divisória */
+.ajuda-container hr { /* Escopo total */
     border: none;
     border-top: 1px solid #2a3e59;
     margin: 40px 0;
@@ -38,42 +42,41 @@ hr {
 
 
 /* ==================================== */
-/* Seção de Perguntas Frequentes (FAQ) */
+/* Escopo: Seção de Perguntas Frequentes (FAQ) */
 /* ==================================== */
 
-.ajuda-faq {
+.ajuda-container .ajuda-faq { /* Escopo total */
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
 }
 
-.ajuda-faq h2 {
+.ajuda-container .ajuda-faq h2 { /* Escopo total */
     text-align: center;
     font-size: 2.4em;
-    color: #8db4e3; /* Azul para o título da seção FAQ */
+    color: #8db4e3;
     margin-bottom: 40px;
     padding-bottom: 10px;
     border-bottom: 2px solid #2a3e59;
-    display: block; /* Ocupa a largura total */
+    display: block; 
 }
 
-/* Item de Pergunta e Resposta (o bloco da FAQ) */
-.faq-item {
-    background-color: #172a45; /* Cor de fundo ligeiramente mais clara, como um bloco */
+.ajuda-container .faq-item { /* Escopo total */
+    background-color: #172a45; 
     padding: 25px;
     margin-bottom: 20px;
-    border-left: 5px solid #f7a072; /* Barra lateral Laranja de destaque */
+    border-left: 5px solid #f7a072; 
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
-.faq-item:hover {
-    transform: translateX(5px); /* Leve movimento no hover */
-    background-color: #1a3150; /* Um pouco mais escuro no hover */
+.ajuda-container .faq-item:hover {
+    transform: translateX(5px); 
+    background-color: #1a3150; 
 }
 
-.faq-pergunta {
+.ajuda-container .faq-pergunta { 
     color: #e0e6ed;
     font-size: 1.3em;
     font-weight: bold;
@@ -81,55 +84,50 @@ hr {
     margin-bottom: 10px;
 }
 
-.faq-resposta {
+.ajuda-container .faq-resposta { 
     color: #b0b8c4;
     font-size: 1em;
     margin-bottom: 0;
 }
 
 /* ==================================== */
-/* Seção de Contato Extra na Ajuda */
+/* Escopo: Seção de Contato Extra na Ajuda */
 /* ==================================== */
 
-.ajuda-contato {
+.ajuda-container .ajuda-contato { /* Escopo total */
     text-align: center;
     padding: 40px 0;
     margin-top: 30px;
     border-top: 1px dashed #2a3e59;
 }
 
-.ajuda-contato h2 {
-    color: #f7a072; /* Laranja de destaque */
+.ajuda-container .ajuda-contato h2 { 
+    color: #f7a072; 
     font-size: 1.8em;
     margin-bottom: 15px;
 }
 
-.ajuda-contato p {
+.ajuda-container .ajuda-contato p { 
     font-size: 1.1em;
     margin-bottom: 25px;
     color: #c9d1d9;
 }
 
-/* Botão de Contato (Reutilizando e adaptando o estilo do Contato.css) */
+/* Estilo do botão de contato (Recomendável manter a classe global "botao-github" limpa) */
 .botao-github {
     display: inline-block;
-    background-color: #8db4e3; /* Azul de destaque (diferente do laranja principal) */
-    color: #0d1a2d; /* Texto escuro */
+    background-color: #8db4e3; 
+    color: #0d1a2d; 
     padding: 15px 35px;
     border-radius: 6px;
     text-decoration: none;
     font-size: 1.1em;
     font-weight: bold;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 6px 15px rgba(141, 180, 227, 0.3); /* Sombra azul */
+    box-shadow: 0 6px 15px rgba(141, 180, 227, 0.3); 
 }
 
 .botao-github:hover {
     background-color: #799fc4;
     transform: translateY(-2px);
-}
-
-/* Rodapé (Se não for gerenciado pelo componente <Footer />) */
-.contato-footer {
-    /* Geralmente fica vazio se você usa o componente <Footer /> */
 }

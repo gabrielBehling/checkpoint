@@ -1,38 +1,54 @@
+/* =======================================================
+   MODAL - TEMA ESCURO DO APP
+======================================================= */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(10, 13, 42, 0.85); /* fundo escuro translúcido */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease-in-out;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.25s ease-in-out;
 }
 
 .modal-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  max-width: 500px;
+  background: #141a3a;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.6),
+              0 0 8px rgba(77, 142, 255, 0.25);
+  max-width: 520px;
   width: 90%;
   max-height: 90vh;
   overflow: auto;
-  animation: slideIn 0.2s ease-in-out;
+  color: #f1f1f1;
+  animation: slideIn 0.25s ease-in-out;
+  border: 1px solid #2a3170;
 }
+
+/* =======================================================
+   CABEÇALHO DO MODAL
+======================================================= */
 
 .modal-header {
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #2a3170;
   gap: 12px;
+  background-color: #0f1333;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
+/* Tipos de modal - cores de destaque */
 .modal-info {
-  border-top: 4px solid #2196F3;
+  border-top: 4px solid #4d8eff;
 }
 
 .modal-success {
@@ -52,7 +68,8 @@
 }
 
 .modal-icon {
-  font-size: 20px;
+  font-size: 22px;
+  color: #4d8eff;
 }
 
 .modal-title {
@@ -60,86 +77,116 @@
   flex: 1;
   font-size: 18px;
   font-weight: 600;
+  color: #ffffff;
 }
 
 .modal-close {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 22px;
+  color: #ccc;
   cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
+  padding: 4px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .modal-close:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ff6b3c;
 }
 
+/* =======================================================
+   CORPO DO MODAL
+======================================================= */
+
 .modal-body {
-  padding: 20px;
+  padding: 24px 20px;
+  background-color: #1a1e3e;
 }
 
 .modal-message {
   margin: 0;
-  line-height: 1.5;
-  color: #333;
+  line-height: 1.6;
+  color: #ddd;
+  font-size: 15px;
 }
+
+/* =======================================================
+   RODAPÉ / BOTÕES
+======================================================= */
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 20px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #2a3170;
+  background-color: #141a3a;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .modal-button {
-  padding: 8px 16px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
-  min-width: 80px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  min-width: 90px;
 }
 
+/* --- Botão primário (azul principal do tema) --- */
 .modal-button.primary {
-  background-color: #2196F3;
-  color: white;
+  background-color: #4d8eff;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(77, 142, 255, 0.4);
 }
 
 .modal-button.primary:hover {
-  background-color: #1976D2;
+  background-color: #3c73d9;
+  box-shadow: 0 0 10px rgba(77, 142, 255, 0.6);
 }
 
+/* --- Botão secundário (cinza escuro) --- */
 .modal-button.secondary {
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: #2a2f5a;
+  color: #ccc;
 }
 
 .modal-button.secondary:hover {
-  background-color: #e0e0e0;
+  background-color: #353b6a;
+  color: #fff;
 }
 
+/* --- Botão de perigo (laranja do tema) --- */
 .modal-button.danger {
-  background-color: #f44336;
-  color: white;
+  background-color: #ff6b3c;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255, 107, 60, 0.4);
 }
 
 .modal-button.danger:hover {
-  background-color: #d32f2f;
+  background-color: #ff875b;
+  box-shadow: 0 0 10px rgba(255, 107, 60, 0.6);
 }
 
+/* --- Desabilitado --- */
 .modal-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* =======================================================
+   ANIMAÇÕES
+======================================================= */
 
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -147,11 +194,11 @@
 }
 
 @keyframes slideIn {
-  from { 
+  from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-25px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }

@@ -38,17 +38,18 @@ export default function Ajuda() {
         }
     ];
 
-    return (
+   return (
         <>
             <Header />
 
-            <main className="ajuda-container contato-container">
-                <header className="ajuda-header contato-header">
+            <main className="ajuda-container ">
+                
+                <div className="ajuda-intro">
                     <h1>❓ Central de Ajuda e FAQ</h1>
                     <p>
                         Encontre rapidamente respostas para as dúvidas mais comuns sobre inscrição, regras, resultados e suporte técnico em nossos torneios.
                     </p>
-                </header>
+                </div>
                 
                 <hr />
 

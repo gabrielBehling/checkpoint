@@ -13,18 +13,18 @@ export default function Contato() {
         { nome: "Vinicius Gabriel", githubUser: "Vinicius-Gabriel14", url: "https://github.com/Vinicius-Gabriel14" },
     ];
 
-    return (
-        
+   return (
         <>
             <Header />
             <main className="contato-container">
-                <header className="contato-header">
+               
+                <div className="contato-intro"> 
                     <h1> Conecte-se com a Equipe no GitHub</h1>
                     <p>
                         Nosso projeto é feito pela comunidade! Conheça os desenvolvedores e entre em contato individualmente
                         para falar sobre o projeto ou contribuir diretamente.
                     </p>
-                </header>
+                </div>
                 
                 <hr />
 
