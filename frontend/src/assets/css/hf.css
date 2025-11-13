@@ -169,3 +169,41 @@ header {
 .navbar ul li:has(.logout-btn) a {
   color: inherit;
 }
+
+
+/* =======================================================
+   RODAPÉ
+======================================================= */
+footer {
+  background-color: #ff875b;
+  padding: 30px 0;
+  text-align: center;
+  color: #fff;
+  width: 100vw;
+}
+
+footer .footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+footer ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+footer ul li a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+footer ul li a:hover {
+  color: #0a0d2a;
+}
