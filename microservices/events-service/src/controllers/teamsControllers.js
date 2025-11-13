@@ -13,10 +13,85 @@ const dbConfig = {
     user: process.env.MSSQL_USER,
     password: process.env.MSSQL_PASSWORD,
     options: {
-        trustServerCertificate: process.env.MSSQL_TRUST_SERVER_CERTIFICATE === "True",
-        encrypt: true,
+      trustServerCertificate: process.env.MSSQL_TRUST_SERVER_CERTIFICATE === "True",
+      encrypt: true,
     },
-};
+  };
+
+
+  // Remove a member from a team
+  router.delete("/teams/:teamId/members/:memberId", authMiddleware, async (req, res) => {
+      const teamId = parseInt(req.params.teamId);
+      const memberId = parseInt(req.params.memberId);
+      if (isNaN(teamId) || isNaN(memberId)) {
+        return res.error("Invalid teamId or memberId", "INVALID_ID", 400);
+      }
+      let connection;
+      try {
+          const userId = req.user.userId;
+          await sql.connect(dbConfig);
+          connection = sql;
+  
+          const teamResult = await sql.query`SELECT CreatedBy FROM TeamsNotDeleted WHERE TeamId = ${teamId}`;
+          if (teamResult.recordset.length === 0) {
+              return res.error("Team not found", "TEAM_NOT_FOUND", 404);
+          }
+  
+          const teamCaptain = teamResult.recordset[0].CreatedBy;
+          
+          // Verificar permissão: capitão pode remover qualquer membro, membro pode remover a si mesmo
+          if (teamCaptain !== userId && memberId !== userId) {
+              return res.error(
+                  "You are not authorized to remove this member",
+                  "UNAUTHORIZED",
+                  403,
+                  { teamId, memberId, userId }
+              );
+          }
+  
+          const memberResult = await sql.query`SELECT TeamMemberID FROM TeamMembers WHERE TeamId = ${teamId} AND UserId = ${memberId} AND DeletedAt IS NULL`;
+          if (memberResult.recordset.length === 0) {
+              return res.error("Member not found in this team", "MEMBER_NOT_FOUND", 404);
+          }
+  
+          // Remover membro e contar membros restantes
+          const remainingMembersResult = await sql.query`
+              UPDATE TeamMembers 
+              SET DeletedAt = GETDATE() 
+              WHERE TeamId = ${teamId} AND UserId = ${memberId} AND DeletedAt IS NULL;
+              
+              SELECT COUNT(*) AS RemainingMembers 
+              FROM TeamMembers 
+              WHERE TeamId = ${teamId} AND DeletedAt IS NULL;
+          `;
+  
+          const remainingMembers = remainingMembersResult.recordset[0].RemainingMembers;
+          let teamStatus = "Active";
+  
+          // Se não há mais membros, deletar time e cancelar registro
+          if (remainingMembers === 0) {
+              await sql.query`UPDATE Teams SET DeletedAt = GETDATE() WHERE TeamId = ${teamId}`;
+              await sql.query`UPDATE EventRegistrations SET Status = 'Cancelled', DeletedAt = GETDATE() WHERE TeamID = ${teamId} AND DeletedAt IS NULL`;
+              teamStatus = "Cancelled";
+          }
+  
+          return res.success(
+              {
+                  teamId,
+                  removedMemberId: memberId,
+                  newMemberCount: remainingMembers,
+                  teamStatus
+              },
+              "Member removed successfully"
+          );
+      } catch (error) {
+          return res.error(error.message, "INTERNAL_ERROR", 500);
+      } finally {
+          if (connection) {
+              await sql.close();
+          }
+      }
+  });
 
 let createTeamSchema = object({
     TeamName: string().required().max(100),
@@ -423,79 +498,6 @@ router.delete("/teams/:teamId", authMiddleware, async (req, res) => {
     }
 });
 
-// Remove a member from a team
-router.delete("/teams/:teamId/members/:memberId", authMiddleware, async (req, res) => {
-    const teamId = parseInt(req.params.teamId);
-    const memberId = parseInt(req.params.memberId);
-    if (isNaN(teamId) || isNaN(memberId)) {
-        return res.error("Invalid teamId or memberId", "INVALID_ID", 400);
-    }
-    let connection;
-    try {
-        const userId = req.user.userId;
-        await sql.connect(dbConfig);
-        connection = sql;
-
-        const teamResult = await sql.query`SELECT CreatedBy FROM TeamsNotDeleted WHERE TeamId = ${teamId}`;
-        if (teamResult.recordset.length === 0) {
-            return res.error("Team not found", "TEAM_NOT_FOUND", 404);
-        }
-
-        const teamCaptain = teamResult.recordset[0].CreatedBy;
-        
-        // Verificar permissão: capitão pode remover qualquer membro, membro pode remover a si mesmo
-        if (teamCaptain !== userId && memberId !== userId) {
-            return res.error(
-                "You are not authorized to remove this member",
-                "UNAUTHORIZED",
-                403,
-                { teamId, memberId, userId }
-            );
-        }
-
-        const memberResult = await sql.query`SELECT TeamMemberID FROM TeamMembers WHERE TeamId = ${teamId} AND UserId = ${memberId} AND DeletedAt IS NULL`;
-        if (memberResult.recordset.length === 0) {
-            return res.error("Member not found in this team", "MEMBER_NOT_FOUND", 404);
-        }
-
-        // Remover membro e contar membros restantes
-        const remainingMembersResult = await sql.query`
-            UPDATE TeamMembers 
-            SET DeletedAt = GETDATE() 
-            WHERE TeamId = ${teamId} AND UserId = ${memberId} AND DeletedAt IS NULL;
-            
-            SELECT COUNT(*) AS RemainingMembers 
-            FROM TeamMembers 
-            WHERE TeamId = ${teamId} AND DeletedAt IS NULL;
-        `;
-
-        const remainingMembers = remainingMembersResult.recordset[0].RemainingMembers;
-        let teamStatus = "Active";
-
-        // Se não há mais membros, deletar time e cancelar registro
-        if (remainingMembers === 0) {
-            await sql.query`UPDATE Teams SET DeletedAt = GETDATE() WHERE TeamId = ${teamId}`;
-            await sql.query`UPDATE EventRegistrations SET Status = 'Cancelled', DeletedAt = GETDATE() WHERE TeamID = ${teamId} AND DeletedAt IS NULL`;
-            teamStatus = "Cancelled";
-        }
-
-        return res.success(
-            {
-                teamId,
-                removedMemberId: memberId,
-                newMemberCount: remainingMembers,
-                teamStatus
-            },
-            "Member removed successfully"
-        );
-    } catch (error) {
-        return res.error(error.message, "INTERNAL_ERROR", 500);
-    } finally {
-        if (connection) {
-            await sql.close();
-        }
-    }
-});
 // ROTA PARA O DONO DO EVENTO ATUALIZAR O STATUS DE UM TIME
 router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) => {
     const eventId = parseInt(req.params.eventId);

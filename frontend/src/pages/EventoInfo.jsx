@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
 import VerPartidasTab from "../components/VerPartidasTab";
 import GerenciarTimesTab from "../components/GerenciarTimesTab";
+import MeuTimeTab from "../components/MeuTimeTab";
 import RankingFinal from "../components/RankingFinal";
 
 import Header from "../components/Header";
@@ -46,6 +47,8 @@ export default function EventoInfo() {
       setActiveTab('partidas');
     } else if (tab === 'times') {
       setActiveTab('times');
+    } else if (tab === 'meu-time') {
+      setActiveTab('meu-time');
     }
   }, [searchParams]);
   
@@ -134,11 +137,13 @@ export default function EventoInfo() {
   const showVerPartidasTab = !isOrganizer && isRoundRobin && (evento.status === "Active" || evento.status === "Finished");
   const showGerenciarTimesTab = (isOrganizer || isAdmin);
 
+  const showMeuTimeTab = evento.isRegistered === true;
+
   return (
     <>
       <Header /> {/* Adicionando o Header */}
       
-      {(showGerenciarTab || showVerPartidasTab || showGerenciarTimesTab) && (
+      {(showGerenciarTab || showVerPartidasTab || showGerenciarTimesTab || showMeuTimeTab) && (
         <div className="evento-tabs-wrapper">
           <div className="evento-tabs">
             <button
@@ -163,6 +168,14 @@ export default function EventoInfo() {
                 Partidas
               </button>
             )}
+            {showMeuTimeTab && (
+              <button
+                className={`tab-button ${activeTab === 'meu-time' ? 'active' : ''}`}
+                onClick={() => setActiveTab('meu-time')}
+              >
+                Meu Time
+              </button>
+            )}
             {showGerenciarTimesTab && (
               <button
                 className={`tab-button ${activeTab === 'times' ? 'active' : ''}`}
@@ -183,6 +196,10 @@ export default function EventoInfo() {
       ) : activeTab === 'partidas' ? (
         <div className="evento-tab-content">
           <VerPartidasTab eventId={eventId} evento={evento} />
+        </div>
+      ) : activeTab === 'meu-time' ? (
+        <div className="evento-tab-content">
+          <MeuTimeTab eventId={eventId} evento={evento} />
         </div>
       ) : activeTab === 'times' ? (
         <div className="evento-tab-content">

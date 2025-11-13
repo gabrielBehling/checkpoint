@@ -16,11 +16,11 @@ app.use(responseMiddleware);
 
 app.use("/uploads/banners", express.static(path.join(__dirname, "..", "uploads", "banners")));
 
+app.use("/", teamsControllers);
+
 app.use("/", eventsControllers);
 
 app.use("/", matchControlles)
-
-app.use("/", teamsControllers);
 
 // Serve static banner files
 

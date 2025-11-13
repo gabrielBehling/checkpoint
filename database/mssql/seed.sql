@@ -1,4 +1,4 @@
--- Inserir 50 usu�rios (10 organizadores e 40 outros)
+-- Inserir 50 usuários (10 organizadores e 40 outros)
 INSERT INTO Users (Username, Email, PasswordHash, UserRole) VALUES
 -- Organizadores (10)
 ('org1', 'org1@email.com', '$2b$10$.s1ddEMS0uAZx9SOaprMu.iZ139cD5okC0IehYtb6u0JuzuO0kbqG', 'Organizer'),
@@ -63,48 +63,48 @@ INSERT INTO Teams (TeamName, CreatedBy) VALUES
 ('Wolves', 26), ('Lions', 27), ('Eagles', 28), ('Sharks', 29), ('Panthers', 30);
 GO
 
--- Adicionar membros aos times (cada time com 3-5 membros)
+-- Adicionar membros aos times (cada time com 3-5 membros, máximo de 5) - Criador sempre como Captain
 INSERT INTO TeamMembers (UserID, TeamID, Role) VALUES
--- Time 1: Dragons
+-- Time 1: Dragons (Criado por 11) - 4 membros
 (11, 1, 'Captain'), (12, 1, 'Player'), (13, 1, 'Player'), (14, 1, 'Player'),
--- Time 2: Phoenix
-(15, 2, 'Captain'), (16, 2, 'Player'), (17, 2, 'Player'),
--- Time 3: Titans
-(18, 3, 'Captain'), (19, 3, 'Player'), (20, 3, 'Player'), (21, 3, 'Player'),
--- Time 4: Vikings
-(22, 4, 'Captain'), (23, 4, 'Player'), (24, 4, 'Player'),
--- Time 5: Spartans
-(25, 5, 'Captain'), (26, 5, 'Player'), (27, 5, 'Player'), (28, 5, 'Player'),
--- Time 6: Warriors
-(29, 6, 'Captain'), (30, 6, 'Player'), (31, 6, 'Player'),
--- Time 7: Legends
-(32, 7, 'Captain'), (33, 7, 'Player'), (34, 7, 'Player'),
--- Time 8: Champions
-(35, 8, 'Captain'), (36, 8, 'Player'), (37, 8, 'Player'), (38, 8, 'Player'),
--- Time 9: Elite
-(39, 9, 'Captain'), (40, 9, 'Player'), (41, 9, 'Player'),
--- Time 10: Masters
-(42, 10, 'Captain'), (43, 10, 'Player'), (44, 10, 'Player'),
--- Time 11: Storm
-(11, 11, 'Captain'), (15, 11, 'Player'), (19, 11, 'Player'),
--- Time 12: Thunder
-(12, 12, 'Captain'), (16, 12, 'Player'), (20, 12, 'Player'),
--- Time 13: Lightning
-(13, 13, 'Captain'), (17, 13, 'Player'), (21, 13, 'Player'),
--- Time 14: Rangers
-(14, 14, 'Captain'), (18, 14, 'Player'), (22, 14, 'Player'),
--- Time 15: Hunters
-(23, 15, 'Captain'), (27, 15, 'Player'), (31, 15, 'Player'),
--- Time 16: Wolves
-(24, 16, 'Captain'), (28, 16, 'Player'), (32, 16, 'Player'),
--- Time 17: Lions
-(25, 17, 'Captain'), (29, 17, 'Player'), (33, 17, 'Player'),
--- Time 18: Eagles
-(26, 18, 'Captain'), (30, 18, 'Player'), (34, 18, 'Player'),
--- Time 19: Sharks
-(35, 19, 'Captain'), (39, 19, 'Player'), (41, 19, 'Player'),
--- Time 20: Panthers
-(36, 20, 'Captain'), (40, 20, 'Player'), (42, 20, 'Player');
+-- Time 2: Phoenix (Criado por 12) - 4 membros
+(12, 2, 'Captain'), (15, 2, 'Player'), (16, 2, 'Player'), (17, 2, 'Player'),
+-- Time 3: Titans (Criado por 13) - 5 membros (máximo)
+(13, 3, 'Captain'), (18, 3, 'Player'), (19, 3, 'Player'), (20, 3, 'Player'), (21, 3, 'Player'),
+-- Time 4: Vikings (Criado por 14) - 4 membros
+(14, 4, 'Captain'), (22, 4, 'Player'), (23, 4, 'Player'), (24, 4, 'Player'),
+-- Time 5: Spartans (Criado por 15) - 5 membros (máximo)
+(15, 5, 'Captain'), (25, 5, 'Player'), (26, 5, 'Player'), (27, 5, 'Player'), (28, 5, 'Player'),
+-- Time 6: Warriors (Criado por 16) - 4 membros
+(16, 6, 'Captain'), (29, 6, 'Player'), (30, 6, 'Player'), (31, 6, 'Player'),
+-- Time 7: Legends (Criado por 17) - 4 membros
+(17, 7, 'Captain'), (32, 7, 'Player'), (33, 7, 'Player'), (34, 7, 'Player'),
+-- Time 8: Champions (Criado por 18) - 5 membros (máximo)
+(18, 8, 'Captain'), (35, 8, 'Player'), (36, 8, 'Player'), (37, 8, 'Player'), (38, 8, 'Player'),
+-- Time 9: Elite (Criado por 19) - 4 membros
+(19, 9, 'Captain'), (39, 9, 'Player'), (40, 9, 'Player'), (41, 9, 'Player'),
+-- Time 10: Masters (Criado por 20) - 4 membros
+(20, 10, 'Captain'), (42, 10, 'Player'), (43, 10, 'Player'), (44, 10, 'Player'),
+-- Time 11: Storm (Criado por 21) - 4 membros
+(21, 11, 'Captain'), (11, 11, 'Player'), (15, 11, 'Player'), (19, 11, 'Player'),
+-- Time 12: Thunder (Criado por 22) - 4 membros
+(22, 12, 'Captain'), (12, 12, 'Player'), (16, 12, 'Player'), (20, 12, 'Player'),
+-- Time 13: Lightning (Criado por 23) - 4 membros
+(23, 13, 'Captain'), (13, 13, 'Player'), (17, 13, 'Player'), (21, 13, 'Player'),
+-- Time 14: Rangers (Criado por 24) - 4 membros
+(24, 14, 'Captain'), (14, 14, 'Player'), (18, 14, 'Player'), (22, 14, 'Player'),
+-- Time 15: Hunters (Criado por 25) - 4 membros
+(25, 15, 'Captain'), (23, 15, 'Player'), (27, 15, 'Player'), (31, 15, 'Player'),
+-- Time 16: Wolves (Criado por 26) - 4 membros
+(26, 16, 'Captain'), (24, 16, 'Player'), (28, 16, 'Player'), (32, 16, 'Player'),
+-- Time 17: Lions (Criado por 27) - 4 membros
+(27, 17, 'Captain'), (25, 17, 'Player'), (29, 17, 'Player'), (33, 17, 'Player'),
+-- Time 18: Eagles (Criado por 28) - 4 membros
+(28, 18, 'Captain'), (26, 18, 'Player'), (30, 18, 'Player'), (34, 18, 'Player'),
+-- Time 19: Sharks (Criado por 29) - 4 membros
+(29, 19, 'Captain'), (35, 19, 'Player'), (39, 19, 'Player'), (41, 19, 'Player'),
+-- Time 20: Panthers (Criado por 30) - 4 membros
+(30, 20, 'Captain'), (36, 20, 'Player'), (40, 20, 'Player'), (42, 20, 'Player');
 GO
 
 -- Criar 30 eventos
@@ -321,7 +321,7 @@ INSERT INTO EventRegistrations (EventID, UserID, TeamID, Status) VALUES
 (20, NULL, 19, 'Approved'),
 (20, NULL, 20, 'Pending'),
 
--- Eventos 21-30: Continuar com o mesmo padr�o
+-- Eventos 21-30: Continuar com o mesmo padrão
 (21, NULL, 1, 'Approved'),
 (21, NULL, 3, 'Approved'),
 (21, NULL, 5, 'Pending'),
@@ -369,28 +369,7 @@ INSERT INTO EventRegistrations (EventID, UserID, TeamID, Status) VALUES
 (27, NULL, 1, 'Pending'),
 (27, NULL, 3, 'Rejected'),
 (27, NULL, 5, 'Approved'),
-(27, NULL, 7, 'Pending'),
-
-(28, NULL, 18, 'Approved'),
-(28, NULL, 20, 'Approved'),
-(28, NULL, 2, 'Pending'),
-(28, NULL, 4, 'Rejected'),
-(28, NULL, 6, 'Approved'),
-(28, NULL, 8, 'Pending'),
-
-(29, NULL, 9, 'Approved'),
-(29, NULL, 11, 'Approved'),
-(29, NULL, 13, 'Pending'),
-(29, NULL, 15, 'Rejected'),
-(29, NULL, 17, 'Approved'),
-(29, NULL, 19, 'Pending'),
-
-(30, NULL, 10, 'Approved'),
-(30, NULL, 12, 'Approved'),
-(30, NULL, 14, 'Pending'),
-(30, NULL, 16, 'Rejected'),
-(30, NULL, 18, 'Approved'),
-(30, NULL, 20, 'Pending');
+(27, NULL, 7, 'Pending')
 GO
 
 -- Adicionar alguns eventos cancelados e finalizados
@@ -398,8 +377,18 @@ UPDATE Events SET Status = 'Canceled' WHERE EventID IN (5, 12, 18);
 UPDATE Events SET Status = 'Finished' WHERE EventID IN (2, 7, 14);
 GO
 
--- Adicionar alguns usu�rios com last login recente
+-- Adicionar alguns usuários com last login recente
 UPDATE Users SET LastLogin = DATEADD(day, -1, GETDATE()) WHERE UserID IN (1, 2, 11, 12, 15, 20, 25, 30);
 UPDATE Users SET LastLogin = DATEADD(day, -7, GETDATE()) WHERE UserID IN (3, 4, 13, 14, 16, 21, 26, 31);
 UPDATE Users SET LastLogin = DATEADD(day, -30, GETDATE()) WHERE UserID IN (5, 6, 17, 18, 22, 27, 32, 35);
 GO
+
+-- Verificar se algum time tem mais de 5 membros (para validação)
+SELECT 
+    t.TeamID,
+    t.TeamName,
+    COUNT(tm.UserID) as MemberCount
+FROM Teams t
+JOIN TeamMembers tm ON t.TeamID = tm.TeamID
+GROUP BY t.TeamID, t.TeamName
+HAVING COUNT(tm.UserID) > 5;
