@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./assets/css/App.css";
 import api from "./pages/api";
@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [carouselData, setCarouselData] = useState([]);
   const totalSlides = carouselData.length;
   const [activeIndex, setActiveIndex] = useState(0);
@@ -182,7 +183,7 @@ function App() {
               Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.
               <br />É rápido, gratuito e feito pra você!
             </p>
-            <Link to="/cadastro" className="btn">
+            <Link to="/cadastro" state={{ from: location }} className="btn">
               Cadastre-se
             </Link>
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "./api";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import "../assets/css/Inscricao.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useCustomModal } from "../hooks/useCustomModal";
@@ -12,6 +12,7 @@ export default function InscricaoEvento() {
   const { eventId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [evento, setEvento] = useState(null);
   const [times, setTimes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +88,7 @@ export default function InscricaoEvento() {
         <h1>Inscrição no Evento: {evento.title}</h1>
         <section className="criar-time">
           {!user ? (
-            <p>Faça <Link to="/login">login</Link> para criar um time.</p>
+            <p>Faça <Link to="/login" state={{ from: location }}>login</Link> para criar um time.</p>
           ) : userHasTeam ? (
             <p style={{ color: "green", fontWeight: "bold" }}>
               Você já possui um time neste evento!

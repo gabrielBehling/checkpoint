@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api"; 
 import "../assets/css/EventoInfo.css"; 
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { useCustomModal } from "../hooks/useCustomModal";
 import { useAuth } from "../contexts/AuthContext";
 import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
@@ -38,6 +38,7 @@ export default function EventoInfo() {
   const { eventId } = useParams();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { Modal, showError } = useCustomModal();
   
   // Verificar se há parâmetro de tab na URL
@@ -356,7 +357,7 @@ export default function EventoInfo() {
                     {evento.status === "Active" && (
                         <>
                             {!user ? (
-                                <Link to="/login">
+                                <Link to="/login" state={{ from: location }}>
                                     <button className="btn-inscricao">Faça login para se inscrever</button>
                                 </Link>
                             ) : evento.isRegistered === true ? (
@@ -415,7 +416,7 @@ export default function EventoInfo() {
                         </form>
                     )}
                     {!user && (
-                        <p className="small center">Faça <Link to="/login">login</Link> para comentar.</p>
+                        <p className="small center">Faça <Link to="/login" state={{ from: location }}>login</Link> para comentar.</p>
                     )}
                 </section>
 
