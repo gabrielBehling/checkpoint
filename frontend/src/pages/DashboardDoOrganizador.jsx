@@ -267,6 +267,7 @@ export default function DashboardDoOrganizador() {
                   const showStartButton = status !== "Active" && status !== "Finished";
                   const showCancelButton = status !== "Canceled" && status !== "Finished";
                   const showFinishButton = status !== "Finished";
+                  const showEditButton = status !== "Finished";
 
                   return (
                     <article key={eventId} className="event-card">
@@ -296,13 +297,15 @@ export default function DashboardDoOrganizador() {
                           >
                             Ver evento
                           </button>
-                          <button
-                            type="button"
-                            className="dashboard-button btn-edit"
-                            onClick={() => handleEditEvent(eventId)}
-                          >
-                            Editar
-                          </button>
+                          {showEditButton && (
+                            <button
+                              type="button"
+                              className="dashboard-button btn-edit"
+                              onClick={() => handleEditEvent(eventId)}
+                            >
+                              Editar
+                            </button>
+                          )}
                           {showStartButton && (
                             <button
                               type="button"
