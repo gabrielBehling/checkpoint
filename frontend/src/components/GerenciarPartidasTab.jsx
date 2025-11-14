@@ -7,11 +7,15 @@ import "../assets/css/GerenciarPartidas.css";
 export default function GerenciarPartidasTab({ eventId, evento }) {
   const { user } = useAuth();
   const { showError, showSuccess, showWarning } = useCustomModal();
-  const [schedule, setSchedule] = useState([]);
-  const [ranking, setRanking] = useState([]);
+  
+  // Estados compartilhados
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
+  
+  // Estados para Round Robin
+  const [schedule, setSchedule] = useState([]);
+  const [ranking, setRanking] = useState([]);
   const [editingMatch, setEditingMatch] = useState(null);
   const [matchScores, setMatchScores] = useState({ team1Score: "", team2Score: "" });
   const [pointsSettings, setPointsSettings] = useState({
@@ -21,6 +25,14 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
   });
   const [pointsConfigured, setPointsConfigured] = useState(false);
   const [editingPoints, setEditingPoints] = useState(false);
+  
+  // Estados para Leaderboard
+  const [teams, setTeams] = useState([]);
+  const [rounds, setRounds] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [editingRound, setEditingRound] = useState(null);
+  const [roundScores, setRoundScores] = useState({});
+  const [currentRoundNumber, setCurrentRoundNumber] = useState(1);
 
   // Carregar agenda de partidas
   const loadSchedule = useCallback(async () => {
@@ -53,6 +65,64 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
     }
   }, [eventId]);
 
+  // Carregar times para Leaderboard
+  const loadTeams = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/teams`);
+      if (response.data?.success) {
+        // Filtrar apenas times aprovados
+        const approvedTeams = (response.data.data || []).filter(team => team.status === "Approved");
+        setTeams(approvedTeams);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar times:", err);
+    }
+  }, [eventId]);
+
+  // Carregar rodadas do Leaderboard
+  const loadRounds = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/leaderboard/rounds`);
+      // Nota: Este endpoint retorna um array diretamente, não um objeto com success
+      if (Array.isArray(response.data)) {
+        const roundsData = response.data || [];
+        setRounds(roundsData);
+        // Determinar o próximo número de rodada
+        if (roundsData.length > 0) {
+          const maxRound = Math.max(...roundsData.map(r => r.roundNumber));
+          setCurrentRoundNumber(maxRound + 1);
+        } else {
+          // Se não há rodadas, começar na rodada 1
+          setCurrentRoundNumber(1);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao carregar rodadas:", err);
+      // Não é erro fatal se as rodadas ainda não existem
+      if (err.response?.status !== 404) {
+        console.warn("Rodadas ainda não foram criadas ou erro ao carregar.");
+      }
+      // Se houver erro mas não for 404, manter currentRoundNumber como 1
+      setCurrentRoundNumber(1);
+    }
+  }, [eventId]);
+
+  // Carregar ranking do Leaderboard
+  const loadLeaderboard = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/leaderboard`);
+      if (response.data?.success) {
+        setLeaderboard(response.data.data || []);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar leaderboard:", err);
+      // Não é erro fatal se o ranking ainda não existe
+    }
+  }, [eventId]);
+
   // Carregar dados iniciais
   useEffect(() => {
     if (!evento || !eventId) {
@@ -60,9 +130,12 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       return;
     }
 
-    // Verificar se é Round Robin
-    if (evento.mode !== "Round Robin") {
-      setError("Esta página é apenas para eventos do tipo Round Robin.");
+    // Verificar se é Round Robin ou Leaderboard
+    const isRoundRobin = evento.mode === "Round Robin";
+    const isLeaderboard = evento.mode === "Leaderboard";
+    
+    if (!isRoundRobin && !isLeaderboard) {
+      setError("Esta página é apenas para eventos do tipo Round Robin ou Leaderboard.");
       setLoading(false);
       return;
     }
@@ -79,11 +152,17 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       return;
     }
 
-    // Carregar agenda e ranking
-    Promise.all([loadSchedule(), loadRanking()]).finally(() => {
-      setLoading(false);
-    });
-  }, [eventId, evento, user, loadSchedule, loadRanking]);
+    // Carregar dados baseado no modo
+    if (isRoundRobin) {
+      Promise.all([loadSchedule(), loadRanking()]).finally(() => {
+        setLoading(false);
+      });
+    } else if (isLeaderboard) {
+      Promise.all([loadTeams(), loadRounds(), loadLeaderboard()]).finally(() => {
+        setLoading(false);
+      });
+    }
+  }, [eventId, evento, user, loadSchedule, loadRanking, loadTeams, loadRounds, loadLeaderboard]);
 
   // Configurar pontos
   const handleConfigurePoints = async () => {
@@ -115,7 +194,7 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
         pointsPerLoss: pointsPerLoss.toString(),
       });
 
-      show("Pontuação configurada com sucesso!");
+      showSuccess("Pontuação configurada com sucesso!");
       setPointsConfigured(true);
       setEditingPoints(false);
     } catch (err) {
@@ -223,13 +302,92 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       setActionLoading("finish");
       setError("");
 
-      await api.post(`/events/${eventId}/round-robin/finish`);
+      const endpoint = evento.mode === "Round Robin" 
+        ? `/events/${eventId}/round-robin/finish`
+        : `/events/${eventId}/leaderboard/finish`;
+
+      await api.post(endpoint);
 
       showSuccess("Evento finalizado com sucesso!");
       window.location.reload(); // Recarregar para atualizar o status do evento
     } catch (err) {
       console.error("Erro ao finalizar evento:", err);
       const errorMsg = err.response?.data?.message || "Erro ao finalizar evento.";
+      setError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Funções para Leaderboard
+  // Iniciar edição de rodada
+  const handleEditRound = (roundNumber) => {
+    setEditingRound(roundNumber);
+    const round = rounds.find(r => r.roundNumber === roundNumber);
+    const scores = {};
+    
+    if (round && round.scores) {
+      round.scores.forEach(score => {
+        scores[score.TeamId] = score.Points !== null ? score.Points.toString() : "";
+      });
+    } else {
+      // Inicializar com times aprovados
+      teams.forEach(team => {
+        scores[team.teamId] = "";
+      });
+    }
+    
+    setRoundScores(scores);
+  };
+
+  // Cancelar edição de rodada
+  const handleCancelRoundEdit = () => {
+    setEditingRound(null);
+    setRoundScores({});
+  };
+
+  // Salvar pontos da rodada
+  const handleSaveRoundScores = async (roundNumber) => {
+    // Validar que todos os times têm pontos válidos
+    const scores = [];
+    let hasInvalid = false;
+
+    teams.forEach(team => {
+      const pointsStr = roundScores[team.teamId] || "";
+      const points = pointsStr === "" ? 0 : parseInt(pointsStr);
+      
+      if (pointsStr !== "" && (isNaN(points) || points < 0)) {
+        hasInvalid = true;
+        return;
+      }
+      
+      scores.push({
+        teamId: team.teamId,
+        points: points
+      });
+    });
+
+    if (hasInvalid) {
+      showWarning("Por favor, insira pontos válidos (números não negativos) para todos os times.");
+      return;
+    }
+
+    try {
+      setActionLoading(`save-round-${roundNumber}`);
+      setError("");
+
+      await api.post(`/events/${eventId}/leaderboard/round/${roundNumber}`, {
+        scores: scores
+      });
+
+      showSuccess(`Pontos da rodada ${roundNumber} salvos com sucesso!`);
+      setEditingRound(null);
+      setRoundScores({});
+      await Promise.all([loadRounds(), loadLeaderboard()]);
+    } catch (err) {
+      console.error("Erro ao salvar pontos da rodada:", err);
+      const errorMsg = err.response?.data?.message || "Erro ao salvar pontos da rodada.";
       setError(errorMsg);
       showError(errorMsg);
     } finally {
@@ -251,7 +409,217 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
 
   const hasSchedule = schedule.length > 0;
   const hasRanking = ranking.length > 0;
+  const isRoundRobin = evento?.mode === "Round Robin";
+  const isLeaderboard = evento?.mode === "Leaderboard";
+  const hasRounds = rounds.length > 0;
+  const hasLeaderboard = leaderboard.length > 0;
 
+  // Renderizar UI do Leaderboard
+  if (isLeaderboard) {
+    return (
+      <div className="gerenciar-partidas-tab">
+        {error && (
+          <div className="error-banner">
+            <strong>⚠️</strong> {error}
+          </div>
+        )}
+
+        {/* Seção: Gerenciar Rodadas */}
+        <section className="section-card">
+          <div className="section-header">
+            <h2>Gerenciar Rodadas</h2>
+            {evento?.status !== "Finished" && (
+              <button 
+                onClick={() => {
+                  // Cancelar qualquer edição em andamento e iniciar nova rodada
+                  setEditingRound(null);
+                  setRoundScores({});
+                  handleEditRound(currentRoundNumber);
+                }} 
+                className="btn-primary"
+                disabled={editingRound !== null && editingRound !== currentRoundNumber}
+              >
+                ➕ Nova Rodada
+              </button>
+            )}
+          </div>
+          <p>Adicione ou edite os pontos de cada time por rodada. O ranking é calculado automaticamente com base na soma total de pontos.</p>
+
+          {teams.length === 0 ? (
+            <p className="warning-message">
+              ⚠️ Nenhum time aprovado encontrado. Aprove times no evento antes de gerenciar rodadas.
+            </p>
+          ) : (
+            <div className="rounds-table-container">
+              <table className="rounds-table">
+                <thead>
+                  <tr>
+                    <th >Time</th>
+                    {hasRounds && rounds.map((round) => (
+                      <th key={round.roundNumber}>
+                        <div className="rounds-table-header">
+                          <span>Rodada {round.roundNumber}</span>
+                          {editingRound === round.roundNumber ? (
+                            <div className="rounds-table-header-actions">
+                              <button
+                                onClick={() => handleSaveRoundScores(round.roundNumber)}
+                                disabled={actionLoading === `save-round-${round.roundNumber}`}
+                                className="btn-save rounds-table-btn-small"
+                                title="Salvar"
+                              >
+                                {actionLoading === `save-round-${round.roundNumber}` ? "..." : "✓"}
+                              </button>
+                              <button 
+                                onClick={handleCancelRoundEdit} 
+                                className="btn-cancel rounds-table-btn-small"
+                                title="Cancelar"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            evento?.status === "Active" && (<button
+                              onClick={() => handleEditRound(round.roundNumber)}
+                              className="btn-edit rounds-table-btn-small"
+                              title="Editar rodada"
+                            >
+                              Editar
+                            </button>)
+                          )}
+                        </div>
+                      </th>
+                    ))}
+                    {editingRound === currentRoundNumber && !rounds.find(r => r.roundNumber === currentRoundNumber) && evento?.status !== "Finished" && (
+                      <th className="rounds-table-new-round">
+                        <div className="rounds-table-header">
+                          <span>Nova Rodada {currentRoundNumber}</span>
+                          <div className="rounds-table-header-actions">
+                            <button
+                              onClick={() => handleSaveRoundScores(currentRoundNumber)}
+                              disabled={actionLoading === `save-round-${currentRoundNumber}`}
+                              className="btn-save rounds-table-btn-small"
+                              title="Salvar rodada"
+                            >
+                              {actionLoading === `save-round-${currentRoundNumber}` ? "..." : "✓"}
+                            </button>
+                            <button 
+                              onClick={handleCancelRoundEdit} 
+                              className="btn-cancel rounds-table-btn-small"
+                              title="Cancelar"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {teams.map((team) => (
+                    <tr key={team.teamId}>
+                      <td className="rounds-table-team-cell">
+                        {team.teamName}
+                      </td>
+                      {hasRounds && rounds.map((round) => {
+                        const score = round.scores?.find(s => s.TeamId === team.teamId);
+                        const isEditing = editingRound === round.roundNumber;
+                        
+                        return (
+                          <td key={round.roundNumber} className="rounds-table-score-cell">
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                min="0"
+                                value={roundScores[team.teamId] || (score?.Points !== null && score?.Points !== undefined ? score.Points.toString() : "")}
+                                onChange={(e) =>
+                                  setRoundScores({ ...roundScores, [team.teamId]: e.target.value })
+                                }
+                                className="score-input rounds-table-score-input"
+                                placeholder="0"
+                              />
+                            ) : (
+                              <span className="rounds-table-score-display">
+                                {score?.Points !== null && score?.Points !== undefined ? score.Points : "-"}
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                      {editingRound === currentRoundNumber && !rounds.find(r => r.roundNumber === currentRoundNumber) && evento?.status !== "Finished" && (
+                        <td className="rounds-table-score-cell rounds-table-score-cell-new">
+                          <input
+                            type="number"
+                            min="0"
+                            value={roundScores[team.teamId] || ""}
+                            onChange={(e) =>
+                              setRoundScores({ ...roundScores, [team.teamId]: e.target.value })
+                            }
+                            className="score-input rounds-table-score-input"
+                            placeholder="0"
+                          />
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* Seção: Leaderboard (Ranking) */}
+        {hasLeaderboard && (
+          <section className="section-card">
+            <div className="section-header">
+              <h2>Classificação (Leaderboard)</h2>
+              <button onClick={loadLeaderboard} className="btn-refresh" disabled={actionLoading}>
+                🔄 Atualizar
+              </button>
+            </div>
+
+            <div className="ranking-table-container">
+              <table className="ranking-table">
+                <thead>
+                  <tr>
+                    <th>Pos.</th>
+                    <th>Time</th>
+                    <th>Pontos Totais</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboard.map((team, index) => (
+                    <tr key={team.TeamId} className={index < 3 ? "top-three" : ""}>
+                      <td className="rank-cell">{team.Rank}</td>
+                      <td className="team-name">{team.TeamName}</td>
+                      <td className="points-cell">{team.TotalPoints}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Botão Finalizar Evento */}
+        {evento?.status === "Active" && (
+          <section className="section-card finish-section">
+            <h2>Finalizar Evento</h2>
+            <p>Finalize o evento após todas as rodadas serem concluídas.</p>
+            <button
+              onClick={handleFinishEvent}
+              disabled={actionLoading === "finish"}
+              className="btn-finish"
+            >
+              {actionLoading === "finish" ? "Finalizando..." : "Finalizar Evento"}
+            </button>
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  // Renderizar UI do Round Robin (código existente)
   return (
     <div className="gerenciar-partidas-tab">
       {error && (
@@ -320,8 +688,7 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
                 {pointsConfigured && (
                   <button
                     onClick={() => setEditingPoints(false)}
-                    className="btn-cancel"
-                    style={{ marginLeft: "10px" }}
+                    className="btn-cancel btn-cancel-spaced"
                   >
                     Cancelar
                   </button>
@@ -337,8 +704,7 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
               </div>
               <button
                 onClick={() => setEditingPoints(true)}
-                className="btn-secondary"
-                style={{ marginTop: "15px" }}
+                className="btn-secondary btn-secondary-spaced"
               >
                 Editar Pontuação
               </button>
@@ -355,13 +721,12 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
           <button
             onClick={handleGenerateSchedule}
             disabled={actionLoading === "generate" || !pointsConfigured}
-            className="btn-primary"
-            style={!pointsConfigured ? { opacity: 0.6, cursor: "not-allowed" } : {}}
+            className={`btn-primary ${!pointsConfigured ? "btn-primary-disabled" : ""}`}
           >
             {actionLoading === "generate" ? "Gerando..." : "Gerar Agenda"}
           </button>
           {!pointsConfigured && (
-            <p style={{ color: "#ff8080", marginTop: "10px", fontSize: "0.9rem" }}>
+            <p className="warning-message-small">
               ⚠️ Configure os pontos acima antes de gerar a agenda.
             </p>
           )}

@@ -404,11 +404,11 @@
 }
 
 .ranking-table tbody tr.top-three {
-  background: rgba(77, 210, 111, 0.08);
+  background: rgba(77, 210, 111, 0.12);
 }
 
 .ranking-table tbody tr.top-three:hover {
-  background: rgba(77, 210, 111, 0.12);
+  background: rgba(77, 210, 111, 0.18);
 }
 
 .positive {
@@ -438,11 +438,11 @@
 }
 
 .ranking-final .top-three {
-  background: rgba(255, 215, 0, 0.12) !important;
+  background: rgba(77, 210, 111, 0.12) !important;
 }
 
 .ranking-final .top-three:hover {
-  background: rgba(255, 215, 0, 0.18) !important;
+  background: rgba(77, 210, 111, 0.18) !important;
 }
 
 .btn-finish {
@@ -502,6 +502,134 @@
   }
 }
 
+/* Tabela de Rodadas (Leaderboard) */
+.rounds-table-container {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.rounds-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  background: rgba(26, 32, 74, 0.5);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rounds-table thead {
+  background: rgba(77, 142, 255, 0.15);
+}
+
+.rounds-table th {
+  text-align: center;
+  padding: 12px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  min-width: 120px;
+  color: #e8eaff;
+  font-weight: 600;
+}
+
+.rounds-table th:first-child {
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rounds-table-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.rounds-table-header-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.rounds-table-btn-small {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+.rounds-table-new-round {
+  background-color: rgba(77, 142, 255, 0.1) !important;
+}
+
+.rounds-table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  color: #d1d6ff;
+}
+
+.rounds-table-team-cell {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  left: 0;
+  font-weight: 500;
+  color: #ffffff;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1;
+}
+
+.rounds-table-score-cell {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.rounds-table-score-cell-new {
+  background-color: rgba(77, 142, 255, 0.1);
+}
+
+.rounds-table-score-display {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.rounds-table-score-input {
+  width: 70px;
+  padding: 5px;
+  text-align: center;
+}
+
+.rounds-table tbody tr:hover {
+  background: rgba(77, 142, 255, 0.08);
+}
+
+/* Mensagens de aviso/erro */
+.warning-message {
+  color: #ff8080;
+  margin-top: 10px;
+}
+
+.warning-message-small {
+  color: #ff8080;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* Botões com espaçamento */
+.btn-cancel-spaced {
+  margin-left: 10px;
+}
+
+.btn-secondary-spaced {
+  margin-top: 15px;
+}
+
+/* Botão desabilitado */
+.btn-primary-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 720px) {
   .gerenciar-partidas-container {
     padding: 28px 18px;
@@ -555,6 +683,20 @@
 
   .points-info {
     padding: 15px;
+  }
+
+  .rounds-table {
+    min-width: 500px;
+    font-size: 0.85rem;
+  }
+
+  .rounds-table th,
+  .rounds-table td {
+    padding: 8px;
+  }
+
+  .rounds-table-score-input {
+    width: 60px;
   }
 }
 

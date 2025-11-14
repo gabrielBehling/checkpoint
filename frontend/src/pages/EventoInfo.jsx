@@ -127,7 +127,7 @@ export default function EventoInfo() {
   const halfTicketPrice = ticketPrice / 2;
   const participationCost = evento.participationCost || 0;
 
-  // Verificar se o usuário é organizador e se o evento é Round Robin
+  // Verificar se o usuário é organizador e se o evento é Round Robin ou Leaderboard
   const isOrganizer =
     (evento.createdBy?.userId === user?.userId) ||
     (evento.createdBy === user?.userId) ||
@@ -135,8 +135,11 @@ export default function EventoInfo() {
   
   const isAdmin = user?.userRole === "administrator";
   const isRoundRobin = evento.mode === "Round Robin";
-  const showGerenciarTab = isOrganizer && isRoundRobin && evento.status === "Active";
-  const showVerPartidasTab = !isOrganizer && isRoundRobin && (evento.status === "Active" || evento.status === "Finished");
+  const isLeaderboard = evento.mode === "Leaderboard";
+  const canManageMatches = isRoundRobin || isLeaderboard;
+  const canViewMatches = isRoundRobin || isLeaderboard;
+  const showGerenciarTab = isOrganizer && canManageMatches && evento.status === "Active";
+  const showVerPartidasTab = canViewMatches && (evento.status === "Finished" || (evento.status === "Active" && !isOrganizer));
   const showGerenciarTimesTab = (isOrganizer || isAdmin);
 
   const showMeuTimeTab = evento.isRegistered === true;

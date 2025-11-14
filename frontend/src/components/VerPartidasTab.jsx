@@ -3,8 +3,16 @@ import api from "../pages/api";
 import "../assets/css/GerenciarPartidas.css";
 
 export default function VerPartidasTab({ eventId, evento }) {
+  // Estados para Round Robin
   const [schedule, setSchedule] = useState([]);
   const [ranking, setRanking] = useState([]);
+  
+  // Estados para Leaderboard
+  const [teams, setTeams] = useState([]);
+  const [rounds, setRounds] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  
+  // Estados compartilhados
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -37,6 +45,53 @@ export default function VerPartidasTab({ eventId, evento }) {
     }
   }, [eventId]);
 
+  // Carregar times para Leaderboard
+  const loadTeams = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/teams`);
+      if (response.data?.success) {
+        // Filtrar apenas times aprovados
+        const approvedTeams = (response.data.data || []).filter(team => team.status === "Approved");
+        setTeams(approvedTeams);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar times:", err);
+    }
+  }, [eventId]);
+
+  // Carregar rodadas do Leaderboard
+  const loadRounds = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/leaderboard/rounds`);
+      // Nota: Este endpoint retorna um array diretamente, não um objeto com success
+      if (Array.isArray(response.data)) {
+        setRounds(response.data || []);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar rodadas:", err);
+      // Não é erro fatal se as rodadas ainda não existem
+      if (err.response?.status !== 404) {
+        console.warn("Rodadas ainda não foram criadas ou erro ao carregar.");
+      }
+    }
+  }, [eventId]);
+
+  // Carregar ranking do Leaderboard
+  const loadLeaderboard = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/leaderboard`);
+      if (response.data?.success) {
+        setLeaderboard(response.data.data || []);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar leaderboard:", err);
+      // Não é erro fatal se o ranking ainda não existe
+    }
+  }, [eventId]);
+
   // Carregar dados iniciais
   useEffect(() => {
     if (!evento || !eventId) {
@@ -44,18 +99,27 @@ export default function VerPartidasTab({ eventId, evento }) {
       return;
     }
 
-    // Verificar se é Round Robin
-    if (evento.mode !== "Round Robin") {
-      setError("Esta página é apenas para eventos do tipo Round Robin.");
+    // Verificar se é Round Robin ou Leaderboard
+    const isRoundRobin = evento.mode === "Round Robin";
+    const isLeaderboard = evento.mode === "Leaderboard";
+    
+    if (!isRoundRobin && !isLeaderboard) {
+      setError("Esta página é apenas para eventos do tipo Round Robin ou Leaderboard.");
       setLoading(false);
       return;
     }
 
-    // Carregar agenda e ranking
-    Promise.all([loadSchedule(), loadRanking()]).finally(() => {
-      setLoading(false);
-    });
-  }, [eventId, evento, loadSchedule, loadRanking]);
+    // Carregar dados baseado no modo
+    if (isRoundRobin) {
+      Promise.all([loadSchedule(), loadRanking()]).finally(() => {
+        setLoading(false);
+      });
+    } else if (isLeaderboard) {
+      Promise.all([loadTeams(), loadRounds(), loadLeaderboard()]).finally(() => {
+        setLoading(false);
+      });
+    }
+  }, [eventId, evento, loadSchedule, loadRanking, loadTeams, loadRounds, loadLeaderboard]);
 
   if (loading) {
     return <div className="loading-state">Carregando informações...</div>;
@@ -71,7 +135,121 @@ export default function VerPartidasTab({ eventId, evento }) {
 
   const hasSchedule = schedule.length > 0;
   const hasRanking = ranking.length > 0;
+  const isRoundRobin = evento?.mode === "Round Robin";
+  const isLeaderboard = evento?.mode === "Leaderboard";
+  const hasRounds = rounds.length > 0;
+  const hasLeaderboardData = leaderboard.length > 0;
 
+  // Renderizar UI do Leaderboard
+  if (isLeaderboard) {
+    return (
+      <div className="gerenciar-partidas-tab">
+        {error && (
+          <div className="error-banner">
+            <strong>⚠️</strong> {error}
+          </div>
+        )}
+
+        {/* Seção: Rodadas */}
+        {hasRounds ? (
+          <section className="section-card">
+            <div className="section-header">
+              <h2>Rodadas</h2>
+              <button onClick={loadRounds} className="btn-refresh" disabled={loading}>
+                🔄 Atualizar
+              </button>
+            </div>
+            <p>Visualize os pontos de cada time por rodada.</p>
+
+            <div className="rounds-table-container">
+              <table className="rounds-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    {rounds.map((round) => (
+                      <th key={round.roundNumber}>
+                        <div className="rounds-table-header">
+                          <span>Rodada {round.roundNumber}</span>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {teams.map((team) => (
+                    <tr key={team.teamId}>
+                      <td className="rounds-table-team-cell">
+                        {team.teamName}
+                      </td>
+                      {rounds.map((round) => {
+                        const score = round.scores?.find(s => s.TeamId === team.teamId);
+                        return (
+                          <td key={round.roundNumber} className="rounds-table-score-cell">
+                            <span className="rounds-table-score-display">
+                              {score?.Points !== null && score?.Points !== undefined ? score.Points : "-"}
+                            </span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : (
+          <section className="section-card">
+            <h2>Rodadas</h2>
+            <p>As rodadas ainda não foram criadas pelo organizador do evento.</p>
+          </section>
+        )}
+
+        {/* Seção: Leaderboard (Ranking) */}
+        {hasLeaderboardData && (
+          <section className={`section-card ${evento?.status === "Finished" ? "ranking-final" : ""}`}>
+            <div className="section-header">
+              <h2>
+                {evento?.status === "Finished" ? "🏆 Ranking Final" : "Classificação (Leaderboard)"}
+              </h2>
+              <button onClick={loadLeaderboard} className="btn-refresh" disabled={loading}>
+                🔄 Atualizar
+              </button>
+            </div>
+
+            <div className="ranking-table-container">
+              <table className="ranking-table">
+                <thead>
+                  <tr>
+                    <th>Pos.</th>
+                    <th>Time</th>
+                    <th>Pontos Totais</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboard.map((team, index) => (
+                    <tr key={team.TeamId} className={index < 3 ? "top-three" : ""}>
+                      <td className="rank-cell">{team.Rank}</td>
+                      <td className="team-name">{team.TeamName}</td>
+                      <td className="points-cell">{team.TotalPoints}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {!hasRounds && !hasLeaderboardData && !error && (
+          <section className="section-card">
+            <h2>Partidas</h2>
+            <p>As informações sobre as rodadas serão exibidas aqui assim que o organizador criar as rodadas.</p>
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  // Renderizar UI do Round Robin (código existente)
   return (
     <div className="gerenciar-partidas-tab">
       {error && (
