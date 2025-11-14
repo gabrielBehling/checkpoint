@@ -15,7 +15,7 @@ function Footer() {
           <Link to="/aboutUs">Sobre nós</Link>
         </li>
         <li>
-          <a href="#">Termos</a>
+          <Link to="/termos">Termos</Link>
         </li>
       </ul>
     </footer>

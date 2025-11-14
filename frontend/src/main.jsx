@@ -25,6 +25,7 @@ const DashboardJogador = React.lazy(() => import("./pages/DashboardDoJogador"));
 const GerenciarPartidas = React.lazy(() => import("./pages/GerenciarPartidas"));
 const Contato = React.lazy(() => import("./pages/Contato"));
 const Ajuda = React.lazy(() => import("./pages/Ajuda"));
+const Termos = React.lazy(() => import("./pages/Termos"));
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -36,6 +37,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/aboutUs" element={<About_Us/>} />
           <Route path="/contato" element={<Contato />} />
           <Route path="/ajuda" element={<Ajuda />} />
+          <Route path="/termos" element={<Termos />} />
           
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
