@@ -136,8 +136,9 @@ export default function EventoInfo() {
   const isAdmin = user?.userRole === "administrator";
   const isRoundRobin = evento.mode === "Round Robin";
   const isLeaderboard = evento.mode === "Leaderboard";
-  const canManageMatches = isRoundRobin || isLeaderboard;
-  const canViewMatches = isRoundRobin || isLeaderboard;
+  const isSingleElimination = evento.mode === "Single Elimination";
+  const canManageMatches = isRoundRobin || isLeaderboard || isSingleElimination;
+  const canViewMatches = isRoundRobin || isLeaderboard || isSingleElimination;
   const showGerenciarTab = isOrganizer && canManageMatches && evento.status === "Active";
   const showVerPartidasTab = canViewMatches && (evento.status === "Finished" || (evento.status === "Active" && !isOrganizer));
   const showGerenciarTimesTab = (isOrganizer || isAdmin);

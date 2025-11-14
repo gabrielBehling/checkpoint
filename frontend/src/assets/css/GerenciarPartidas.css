@@ -630,6 +630,131 @@
   cursor: not-allowed;
 }
 
+/* Bracket (Single Elimination) */
+.bracket-container {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  overflow-x: auto;
+  padding: 20px 0;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 280px;
+}
+
+.bracket-round-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e8eaff;
+  text-align: center;
+  padding: 12px;
+  background: rgba(77, 142, 255, 0.15);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.bracket-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.bracket-match {
+  background: rgba(26, 32, 74, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 250px;
+}
+
+.bracket-match-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bracket-match-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bracket-match-team {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  gap: 10px;
+}
+
+.bracket-match-team span {
+  flex: 1;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.bracket-match-team input {
+  width: 60px;
+  text-align: center;
+}
+
+.bracket-match-vs {
+  text-align: center;
+  color: #c7cbff;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 5px 0;
+}
+
+.bracket-score {
+  color: #4dd26f;
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-width: 30px;
+  text-align: center;
+}
+
+.bracket-winner {
+  color: #4dd26f !important;
+  text-shadow: 0 0 8px rgba(77, 210, 111, 0.5);
+}
+
+.bracket-match-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.bracket-edit-btn {
+  margin-top: 10px;
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .bracket-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bracket-round {
+    min-width: 100%;
+  }
+
+  .bracket-match {
+    min-width: 100%;
+  }
+}
+
 @media (max-width: 720px) {
   .gerenciar-partidas-container {
     padding: 28px 18px;

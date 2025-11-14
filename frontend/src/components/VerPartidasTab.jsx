@@ -12,6 +12,9 @@ export default function VerPartidasTab({ eventId, evento }) {
   const [rounds, setRounds] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   
+  // Estados para Single Elimination
+  const [bracket, setBracket] = useState([]);
+  
   // Estados compartilhados
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -92,6 +95,23 @@ export default function VerPartidasTab({ eventId, evento }) {
     }
   }, [eventId]);
 
+  // Carregar bracket do Single Elimination
+  const loadBracket = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/single-elimination/bracket`);
+      if (response.data?.success) {
+        setBracket(response.data.data || []);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar bracket:", err);
+      // Não é erro fatal se o bracket ainda não foi gerado
+      if (err.response?.status !== 404) {
+        console.warn("Bracket ainda não foi gerado ou erro ao carregar.");
+      }
+    }
+  }, [eventId]);
+
   // Carregar dados iniciais
   useEffect(() => {
     if (!evento || !eventId) {
@@ -99,12 +119,13 @@ export default function VerPartidasTab({ eventId, evento }) {
       return;
     }
 
-    // Verificar se é Round Robin ou Leaderboard
+    // Verificar se é Round Robin, Leaderboard ou Single Elimination
     const isRoundRobin = evento.mode === "Round Robin";
     const isLeaderboard = evento.mode === "Leaderboard";
+    const isSingleElimination = evento.mode === "Single Elimination";
     
-    if (!isRoundRobin && !isLeaderboard) {
-      setError("Esta página é apenas para eventos do tipo Round Robin ou Leaderboard.");
+    if (!isRoundRobin && !isLeaderboard && !isSingleElimination) {
+      setError("Esta página é apenas para eventos do tipo Round Robin, Leaderboard ou Single Elimination.");
       setLoading(false);
       return;
     }
@@ -118,8 +139,12 @@ export default function VerPartidasTab({ eventId, evento }) {
       Promise.all([loadTeams(), loadRounds(), loadLeaderboard()]).finally(() => {
         setLoading(false);
       });
+    } else if (isSingleElimination) {
+      Promise.all([loadBracket()]).finally(() => {
+        setLoading(false);
+      });
     }
-  }, [eventId, evento, loadSchedule, loadRanking, loadTeams, loadRounds, loadLeaderboard]);
+  }, [eventId, evento, loadSchedule, loadRanking, loadTeams, loadRounds, loadLeaderboard, loadBracket]);
 
   if (loading) {
     return <div className="loading-state">Carregando informações...</div>;
@@ -137,8 +162,102 @@ export default function VerPartidasTab({ eventId, evento }) {
   const hasRanking = ranking.length > 0;
   const isRoundRobin = evento?.mode === "Round Robin";
   const isLeaderboard = evento?.mode === "Leaderboard";
+  const isSingleElimination = evento?.mode === "Single Elimination";
   const hasRounds = rounds.length > 0;
   const hasLeaderboardData = leaderboard.length > 0;
+  const hasBracket = bracket.length > 0;
+
+  // Organizar bracket por rodadas
+  const organizeBracketByRounds = (matches) => {
+    const roundsMap = {};
+    matches.forEach(match => {
+      const roundNum = match.RoundNumber;
+      if (!roundsMap[roundNum]) {
+        roundsMap[roundNum] = [];
+      }
+      roundsMap[roundNum].push(match);
+    });
+    // Ordenar rodadas (maior número = primeira rodada, menor = final)
+    return Object.keys(roundsMap)
+      .sort((a, b) => parseInt(b) - parseInt(a))
+      .map(roundNum => ({
+        roundNumber: parseInt(roundNum),
+        matches: roundsMap[roundNum].sort((a, b) => a.MatchNumber - b.MatchNumber)
+      }));
+  };
+
+  const bracketRounds = hasBracket ? organizeBracketByRounds(bracket) : [];
+
+  // Renderizar UI do Single Elimination
+  if (isSingleElimination) {
+    return (
+      <div className="gerenciar-partidas-tab">
+        {error && (
+          <div className="error-banner">
+            <strong>⚠️</strong> {error}
+          </div>
+        )}
+
+        {/* Seção: Bracket */}
+        {hasBracket ? (
+          <section className="section-card">
+            <div className="section-header">
+              <h2>Chaveamento (Bracket)</h2>
+              <button onClick={loadBracket} className="btn-refresh" disabled={loading}>
+                🔄 Atualizar
+              </button>
+            </div>
+
+            <div className="bracket-container">
+              {bracketRounds.map((round) => (
+                <div key={round.roundNumber} className="bracket-round">
+                  <h3 className="bracket-round-title">
+                    {round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) 
+                      ? "Final" 
+                      : round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) - 1
+                      ? "Semi-Final"
+                      : round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) - 2
+                      ? "Quartas de Final"
+                      : `Rodada ${round.roundNumber}`}
+                  </h3>
+                  <div className="bracket-matches">
+                    {round.matches.map((match) => (
+                      <div key={match.MatchID} className="bracket-match">
+                        <div className="bracket-match-display">
+                          <div className="bracket-match-team">
+                            <span className={match.Winner_ID === match.Team1_ID ? "bracket-winner" : ""}>
+                              {match.Team1_Name || "Aguardando..."}
+                            </span>
+                            <span className="bracket-score">
+                              {match.Team1_Score !== null ? match.Team1_Score : "-"}
+                            </span>
+                          </div>
+                          <div className="bracket-match-vs">×</div>
+                          <div className="bracket-match-team">
+                            <span className={match.Winner_ID === match.Team2_ID ? "bracket-winner" : ""}>
+                              {match.Team2_Name || "Aguardando..."}
+                            </span>
+                            <span className="bracket-score">
+                              {match.Team2_Score !== null ? match.Team2_Score : "-"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="section-card">
+            <h2>Chaveamento (Bracket)</h2>
+            <p>O chaveamento ainda não foi gerado pelo organizador do evento.</p>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   // Renderizar UI do Leaderboard
   if (isLeaderboard) {

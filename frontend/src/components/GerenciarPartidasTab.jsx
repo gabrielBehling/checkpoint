@@ -33,6 +33,11 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
   const [editingRound, setEditingRound] = useState(null);
   const [roundScores, setRoundScores] = useState({});
   const [currentRoundNumber, setCurrentRoundNumber] = useState(1);
+  
+  // Estados para Single Elimination
+  const [bracket, setBracket] = useState([]);
+  const [editingBracketMatch, setEditingBracketMatch] = useState(null);
+  const [bracketMatchScores, setBracketMatchScores] = useState({ team1Score: "", team2Score: "" });
 
   // Carregar agenda de partidas
   const loadSchedule = useCallback(async () => {
@@ -123,6 +128,23 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
     }
   }, [eventId]);
 
+  // Carregar bracket do Single Elimination
+  const loadBracket = useCallback(async () => {
+    if (!eventId) return;
+    try {
+      const response = await api.get(`/events/${eventId}/single-elimination/bracket`);
+      if (response.data?.success) {
+        setBracket(response.data.data || []);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar bracket:", err);
+      // Não é erro fatal se o bracket ainda não foi gerado
+      if (err.response?.status !== 404) {
+        console.warn("Bracket ainda não foi gerado ou erro ao carregar.");
+      }
+    }
+  }, [eventId]);
+
   // Carregar dados iniciais
   useEffect(() => {
     if (!evento || !eventId) {
@@ -130,12 +152,13 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       return;
     }
 
-    // Verificar se é Round Robin ou Leaderboard
+    // Verificar se é Round Robin, Leaderboard ou Single Elimination
     const isRoundRobin = evento.mode === "Round Robin";
     const isLeaderboard = evento.mode === "Leaderboard";
+    const isSingleElimination = evento.mode === "Single Elimination";
     
-    if (!isRoundRobin && !isLeaderboard) {
-      setError("Esta página é apenas para eventos do tipo Round Robin ou Leaderboard.");
+    if (!isRoundRobin && !isLeaderboard && !isSingleElimination) {
+      setError("Esta página é apenas para eventos do tipo Round Robin, Leaderboard ou Single Elimination.");
       setLoading(false);
       return;
     }
@@ -161,8 +184,12 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       Promise.all([loadTeams(), loadRounds(), loadLeaderboard()]).finally(() => {
         setLoading(false);
       });
+    } else if (isSingleElimination) {
+      Promise.all([loadBracket()]).finally(() => {
+        setLoading(false);
+      });
     }
-  }, [eventId, evento, user, loadSchedule, loadRanking, loadTeams, loadRounds, loadLeaderboard]);
+  }, [eventId, evento, user, loadSchedule, loadRanking, loadTeams, loadRounds, loadLeaderboard, loadBracket]);
 
   // Configurar pontos
   const handleConfigurePoints = async () => {
@@ -302,9 +329,14 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
       setActionLoading("finish");
       setError("");
 
-      const endpoint = evento.mode === "Round Robin" 
-        ? `/events/${eventId}/round-robin/finish`
-        : `/events/${eventId}/leaderboard/finish`;
+      let endpoint;
+      if (evento.mode === "Round Robin") {
+        endpoint = `/events/${eventId}/round-robin/finish`;
+      } else if (evento.mode === "Leaderboard") {
+        endpoint = `/events/${eventId}/leaderboard/finish`;
+      } else if (evento.mode === "Single Elimination") {
+        endpoint = `/events/${eventId}/single-elimination/finish`;
+      }
 
       await api.post(endpoint);
 
@@ -395,6 +427,91 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
     }
   };
 
+  // Funções para Single Elimination
+  // Gerar bracket
+  const handleGenerateBracket = async () => {
+    if (!window.confirm("Deseja gerar o chaveamento (bracket) para este evento? Esta ação não pode ser desfeita.")) {
+      return;
+    }
+
+    try {
+      setActionLoading("generate-bracket");
+      setError("");
+
+      const response = await api.post(`/events/${eventId}/single-elimination/generate-bracket`);
+
+      if (response.data?.success) {
+        showSuccess(`Chaveamento gerado com sucesso! ${response.data.data?.matchesCreated || 0} partidas criadas.`);
+        await loadBracket();
+      }
+    } catch (err) {
+      console.error("Erro ao gerar bracket:", err);
+      const errorMsg = err.response?.data?.message || "Erro ao gerar chaveamento.";
+      setError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Iniciar edição de partida do bracket
+  const handleEditBracketMatch = (match) => {
+    setEditingBracketMatch(match.MatchID);
+    setBracketMatchScores({
+      team1Score: match.Team1_Score !== null ? match.Team1_Score.toString() : "",
+      team2Score: match.Team2_Score !== null ? match.Team2_Score.toString() : "",
+    });
+  };
+
+  // Cancelar edição de partida do bracket
+  const handleCancelBracketEdit = () => {
+    setEditingBracketMatch(null);
+    setBracketMatchScores({ team1Score: "", team2Score: "" });
+  };
+
+  // Salvar resultado da partida do bracket
+  const handleSaveBracketMatch = async (matchId) => {
+    const team1Score = parseInt(bracketMatchScores.team1Score);
+    const team2Score = parseInt(bracketMatchScores.team2Score);
+
+    if (isNaN(team1Score) || isNaN(team2Score)) {
+      showWarning("Por favor, insira placares válidos.");
+      return;
+    }
+
+    if (team1Score < 0 || team2Score < 0) {
+      showWarning("Os placares não podem ser negativos.");
+      return;
+    }
+
+    if (team1Score === team2Score) {
+      showWarning("Empates não são permitidos no modo Single Elimination.");
+      return;
+    }
+
+    try {
+      setActionLoading(`save-bracket-${matchId}`);
+      setError("");
+
+      await api.post(`/events/${eventId}/single-elimination/match/${matchId}`, {
+        team1Score,
+        team2Score,
+      });
+
+      showSuccess("Resultado da partida atualizado com sucesso!");
+      setEditingBracketMatch(null);
+      setBracketMatchScores({ team1Score: "", team2Score: "" });
+      await loadBracket();
+    } catch (err) {
+      console.error("Erro ao atualizar resultado da partida:", err);
+      const errorMsg = err.response?.data?.message || "Erro ao atualizar resultado da partida.";
+      setError(errorMsg);
+      showError(errorMsg);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return <div className="loading-state">Carregando informações...</div>;
   }
@@ -411,8 +528,181 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
   const hasRanking = ranking.length > 0;
   const isRoundRobin = evento?.mode === "Round Robin";
   const isLeaderboard = evento?.mode === "Leaderboard";
+  const isSingleElimination = evento?.mode === "Single Elimination";
   const hasRounds = rounds.length > 0;
   const hasLeaderboard = leaderboard.length > 0;
+  const hasBracket = bracket.length > 0;
+
+  // Organizar bracket por rodadas
+  const organizeBracketByRounds = (matches) => {
+    const roundsMap = {};
+    matches.forEach(match => {
+      const roundNum = match.RoundNumber;
+      if (!roundsMap[roundNum]) {
+        roundsMap[roundNum] = [];
+      }
+      roundsMap[roundNum].push(match);
+    });
+    // Ordenar rodadas (maior número = primeira rodada, menor = final)
+    return Object.keys(roundsMap)
+      .sort((a, b) => parseInt(b) - parseInt(a))
+      .map(roundNum => ({
+        roundNumber: parseInt(roundNum),
+        matches: roundsMap[roundNum].sort((a, b) => a.MatchNumber - b.MatchNumber)
+      }));
+  };
+
+  const bracketRounds = hasBracket ? organizeBracketByRounds(bracket) : [];
+
+  // Renderizar UI do Single Elimination
+  if (isSingleElimination) {
+    return (
+      <div className="gerenciar-partidas-tab">
+        {error && (
+          <div className="error-banner">
+            <strong>⚠️</strong> {error}
+          </div>
+        )}
+
+        {/* Seção: Gerar Bracket */}
+        {!hasBracket && (
+          <section className="section-card">
+            <h2>Gerar Chaveamento (Bracket)</h2>
+            <p>Gere o chaveamento (mata-mata) para as equipes aprovadas. As equipes serão embaralhadas aleatoriamente.</p>
+            <button
+              onClick={handleGenerateBracket}
+              disabled={actionLoading === "generate-bracket"}
+              className="btn-primary"
+            >
+              {actionLoading === "generate-bracket" ? "Gerando..." : "Gerar Chaveamento"}
+            </button>
+          </section>
+        )}
+
+        {/* Seção: Bracket */}
+        {hasBracket && (
+          <section className="section-card">
+            <div className="section-header">
+              <h2>Chaveamento (Bracket)</h2>
+              <button onClick={loadBracket} className="btn-refresh" disabled={actionLoading}>
+                🔄 Atualizar
+              </button>
+            </div>
+
+            <div className="bracket-container">
+              {bracketRounds.map((round) => (
+                <div key={round.roundNumber} className="bracket-round">
+                  <h3 className="bracket-round-title">
+                    {round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) 
+                      ? "Final" 
+                      : round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) - 1
+                      ? "Semi-Final"
+                      : round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) - 2
+                      ? "Quartas de Final"
+                      : `Rodada ${round.roundNumber}`}
+                  </h3>
+                  <div className="bracket-matches">
+                    {round.matches.map((match) => (
+                      <div key={match.MatchID} className="bracket-match">
+                        {editingBracketMatch === match.MatchID ? (
+                          <div className="bracket-match-edit">
+                            <div className="bracket-match-team">
+                              <span>{match.Team1_Name || "Aguardando..."}</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={bracketMatchScores.team1Score}
+                                onChange={(e) =>
+                                  setBracketMatchScores({ ...bracketMatchScores, team1Score: e.target.value })
+                                }
+                                className="score-input"
+                                placeholder="0"
+                              />
+                            </div>
+                            <div className="bracket-match-vs">×</div>
+                            <div className="bracket-match-team">
+                              <span>{match.Team2_Name || "Aguardando..."}</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={bracketMatchScores.team2Score}
+                                onChange={(e) =>
+                                  setBracketMatchScores({ ...bracketMatchScores, team2Score: e.target.value })
+                                }
+                                className="score-input"
+                                placeholder="0"
+                              />
+                            </div>
+                            <div className="bracket-match-actions">
+                              <button
+                                onClick={() => handleSaveBracketMatch(match.MatchID)}
+                                disabled={actionLoading === `save-bracket-${match.MatchID}`}
+                                className="btn-save"
+                              >
+                                {actionLoading === `save-bracket-${match.MatchID}` ? "Salvando..." : "Salvar"}
+                              </button>
+                              <button onClick={handleCancelBracketEdit} className="btn-cancel">
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bracket-match-display">
+                            <div className="bracket-match-team">
+                              <span className={match.Winner_ID === match.Team1_ID ? "bracket-winner" : ""}>
+                                {match.Team1_Name || "Aguardando..."}
+                              </span>
+                              <span className="bracket-score">
+                                {match.Team1_Score !== null ? match.Team1_Score : "-"}
+                              </span>
+                            </div>
+                            <div className="bracket-match-vs">×</div>
+                            <div className="bracket-match-team">
+                              <span className={match.Winner_ID === match.Team2_ID ? "bracket-winner" : ""}>
+                                {match.Team2_Name || "Aguardando..."}
+                              </span>
+                              <span className="bracket-score">
+                                {match.Team2_Score !== null ? match.Team2_Score : "-"}
+                              </span>
+                            </div>
+                            {evento?.status === "Active" && (
+                              <button
+                                onClick={() => handleEditBracketMatch(match)}
+                                disabled={editingBracketMatch !== null || match.Status === "Finished"}
+                                className="btn-edit bracket-edit-btn"
+                                title="Editar partida"
+                              >
+                                Editar
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Botão Finalizar Evento */}
+        {hasBracket && evento?.status === "Active" && (
+          <section className="section-card finish-section">
+            <h2>Finalizar Evento</h2>
+            <p>Finalize o evento após todas as partidas serem concluídas.</p>
+            <button
+              onClick={handleFinishEvent}
+              disabled={actionLoading === "finish"}
+              className="btn-finish"
+            >
+              {actionLoading === "finish" ? "Finalizando..." : "Finalizar Evento"}
+            </button>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   // Renderizar UI do Leaderboard
   if (isLeaderboard) {
