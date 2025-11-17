@@ -42,8 +42,12 @@ export default function Termos() {
                 conteudo: "Pode haver informações nos serviços que contennham erros, omissões ou imprecisões. Temos o direito de corrigir quaisquer erros, ommissões ou imprecisôes e de alterar ou atualizar qualquer uma das informações a qualquer sem aviso prévio."
             },
             {
-                titulo: "8. ",
-                conteudo: ""
+                titulo: "8. Cadastro de usuário",
+                conteudo: "Para usar os serviços sera necessario que você faça um cadastro. Você concorda em manter sua senha confidencial e será responsável por todo o uso de sua conta e senha. Reservamo-nos o direito de remover ou alterar um nome de usuário que você selecionar se determinarmos, a nosso exclusivo critério, que tal nome de usuário é inadequado, obsceno ou de alguma forma questionável."
+            },
+            {
+                titulo: "9. Limite de responsabilidade",
+                conteudo:"Nossa esponsabilidade perante a você por qualquer motivo e independentemente da forma da ação, estará sempre limitada ao funcionamento do site. EM NENHUMA HIPÓTESE NÓS OU NOSSOS DIRETORES, FUNCIONÁRIOS OU AGENTES SEREMOS RESPONSÁVEIS PERANTE VOCÊ OU QUALQUER TERCEIRO POR QUAISQUER DANOS DIRETOS, INDIRETOS, CONSEQUENCIAIS, EXEMPLARES, INCIDENTAIS, ESPECIAIS OU PUNITIVOS, INCLUINDO PERDA DE DADOS OU OUTROS DANOS DECORRENTES DO SEU USO DOS SERVIÇOS, MESMO QUE TENHAMOS SIDO AVISADOS DA POSSIBILIDADE DE TAIS DANOS. "
             }
         ]
     };

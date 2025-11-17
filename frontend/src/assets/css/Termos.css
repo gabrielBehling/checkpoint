@@ -1,102 +1,77 @@
-/* ============================== */
-/* TERMOS - PÁGINA DE POLÍTICAS   */
-/* ============================== */
+/* ==================================== */
+/* 📄 Termos.css (FINAL e com Escopo Corrigido) */
+/* ==================================== */
 
-:root {
-    --fundo: #0b1130;
-    --painel: #141b3b;
-    --painel-claro: #1b2144;
-    --texto: #ffffff;
-    --cinza: #b5b5b5;
-    --titulo: #4f79ff;
-    --borda: #2b3468;
-}
-
-/* Container geral */
+/* Container Principal (Escopo) */
 .termos-container {
-    max-width: 900px;
-    margin: 100px auto 40px auto;
-    padding: 30px;
-    background: var(--painel);
-    border-radius: 16px;
-    border: 1px solid var(--borda);
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    color: var(--texto);
+    background-color: #0d1a2d; /* Fundo principal escuro */
+    color: #e0e6ed; /* Texto principal claro */
+    font-family: 'Arial', sans-serif;
+    padding: 40px 20px;
+    max-width: 900px; /* Mais estreito para melhor leitura de texto longo */
+    margin: 0 auto;
+    border-radius: 8px;
+    line-height: 1.8; /* Aumenta o espaçamento entre linhas para legibilidade */
 }
 
-/* Introdução */
-.termos-intro h1 {
-    font-size: 2rem;
+/* Escopo: Títulos e Introdução (termos-intro) */
+.termos-container .termos-intro {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+}
+
+.termos-container .termos-intro h1 {
+    font-size: 2.8em;
+    color: #8db4e3; /* Azul para o título principal da página */
     margin-bottom: 10px;
-    color: var(--titulo);
-    text-align: center;
+    letter-spacing: 1px;
 }
 
-.data-atualizacao {
-    text-align: center;
-    color: var(--cinza);
-    font-size: 0.95rem;
+.termos-container .data-atualizacao {
+    font-size: 0.9em;
+    color: #f7a072; /* Laranja para a data, dando destaque */
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.termos-container .introducao {
+    font-size: 1.1em;
+    color: #c9d1d9;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Escopo: Linha Divisória */
+.termos-container hr {
+    border: none;
+    border-top: 1px solid #2a3e59;
+    margin: 40px 0;
+}
+
+/* ================================================= */
+/* Escopo: Seções de Termos */
+/* ================================================= */
+
+.termos-container .termos-secoes {
+    padding: 0 15px;
+}
+
+.termos-container .termo-item {
+    margin-bottom: 40px;
+}
+
+.termos-container .termo-item h2 {
+    font-size: 1.6em;
+    color: #f7a072; /* Laranja para os títulos das seções */
+    border-bottom: 1px solid #172a45;
+    padding-bottom: 5px;
     margin-bottom: 15px;
 }
 
-.introducao {
-    font-size: 1.05rem;
-    text-align: center;
-    line-height: 1.6;
-    color: var(--texto);
-    margin-bottom: 30px;
+.termos-container .termo-item p {
+    font-size: 1em;
+    color: #e0e6ed;
+    text-align: justify; /* Melhora a leitura do texto longo */
 }
 
-/* Linha divisória */
-hr {
-    border: none;
-    height: 1px;
-    background: var(--borda);
-    margin: 25px 0;
-}
-
-/* Cada seção */
-.termos-secoes {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.termo-item {
-    background: var(--painel-claro);
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--borda);
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.termo-item:hover {
-    transform: translateY(-3px);
-    background: #1e2650;
-}
-
-/* Título das seções */
-.termo-item h2 {
-    color: var(--titulo);
-    margin-bottom: 10px;
-    font-size: 1.3rem;
-}
-
-/* Conteúdo */
-.termo-item p {
-    color: var(--cinza);
-    line-height: 1.6;
-    font-size: 0.95rem;
-}
-
-/* Responsividade */
-@media (max-width: 600px) {
-    .termos-container {
-        padding: 20px;
-        margin: 90px 15px 30px 15px;
-    }
-
-    .termos-intro h1 {
-        font-size: 1.6rem;
-    }
-}
