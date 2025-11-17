@@ -1,0 +1,77 @@
+/* ==================================== */
+/* 📄 Termos.css (FINAL e com Escopo Corrigido) */
+/* ==================================== */
+
+/* Container Principal (Escopo) */
+.termos-container {
+    background-color: #0d1a2d; /* Fundo principal escuro */
+    color: #e0e6ed; /* Texto principal claro */
+    font-family: 'Arial', sans-serif;
+    padding: 40px 20px;
+    max-width: 900px; /* Mais estreito para melhor leitura de texto longo */
+    margin: 0 auto;
+    border-radius: 8px;
+    line-height: 1.8; /* Aumenta o espaçamento entre linhas para legibilidade */
+}
+
+/* Escopo: Títulos e Introdução (termos-intro) */
+.termos-container .termos-intro {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+}
+
+.termos-container .termos-intro h1 {
+    font-size: 2.8em;
+    color: #8db4e3; /* Azul para o título principal da página */
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.termos-container .data-atualizacao {
+    font-size: 0.9em;
+    color: #f7a072; /* Laranja para a data, dando destaque */
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.termos-container .introducao {
+    font-size: 1.1em;
+    color: #c9d1d9;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Escopo: Linha Divisória */
+.termos-container hr {
+    border: none;
+    border-top: 1px solid #2a3e59;
+    margin: 40px 0;
+}
+
+/* ================================================= */
+/* Escopo: Seções de Termos */
+/* ================================================= */
+
+.termos-container .termos-secoes {
+    padding: 0 15px;
+}
+
+.termos-container .termo-item {
+    margin-bottom: 40px;
+}
+
+.termos-container .termo-item h2 {
+    font-size: 1.6em;
+    color: #f7a072; /* Laranja para os títulos das seções */
+    border-bottom: 1px solid #172a45;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.termos-container .termo-item p {
+    font-size: 1em;
+    color: #e0e6ed;
+    text-align: justify; /* Melhora a leitura do texto longo */
+}
+
