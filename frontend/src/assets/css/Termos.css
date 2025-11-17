@@ -1,0 +1,102 @@
+/* ============================== */
+/* TERMOS - PÁGINA DE POLÍTICAS   */
+/* ============================== */
+
+:root {
+    --fundo: #0b1130;
+    --painel: #141b3b;
+    --painel-claro: #1b2144;
+    --texto: #ffffff;
+    --cinza: #b5b5b5;
+    --titulo: #4f79ff;
+    --borda: #2b3468;
+}
+
+/* Container geral */
+.termos-container {
+    max-width: 900px;
+    margin: 100px auto 40px auto;
+    padding: 30px;
+    background: var(--painel);
+    border-radius: 16px;
+    border: 1px solid var(--borda);
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    color: var(--texto);
+}
+
+/* Introdução */
+.termos-intro h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--titulo);
+    text-align: center;
+}
+
+.data-atualizacao {
+    text-align: center;
+    color: var(--cinza);
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.introducao {
+    font-size: 1.05rem;
+    text-align: center;
+    line-height: 1.6;
+    color: var(--texto);
+    margin-bottom: 30px;
+}
+
+/* Linha divisória */
+hr {
+    border: none;
+    height: 1px;
+    background: var(--borda);
+    margin: 25px 0;
+}
+
+/* Cada seção */
+.termos-secoes {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.termo-item {
+    background: var(--painel-claro);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--borda);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.termo-item:hover {
+    transform: translateY(-3px);
+    background: #1e2650;
+}
+
+/* Título das seções */
+.termo-item h2 {
+    color: var(--titulo);
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+/* Conteúdo */
+.termo-item p {
+    color: var(--cinza);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .termos-container {
+        padding: 20px;
+        margin: 90px 15px 30px 15px;
+    }
+
+    .termos-intro h1 {
+        font-size: 1.6rem;
+    }
+}
