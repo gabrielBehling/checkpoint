@@ -54,11 +54,7 @@ export default function ChatPage() {
     return () => socket.current?.disconnect();
   }, []);
 
-  // Carregar mensagens + entrar na sala realtime
-  useEffect(() => {
-    if (!selectedTeam) return;
-
-    async function loadMessages() {
+  async function loadMessages() {
       try {
         // Correção de sintaxe: Trocado regex /.../ por template string `...`
         const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
@@ -68,6 +64,12 @@ export default function ChatPage() {
         console.error("Erro ao carregar mensagens:", err);
       }
     }
+
+  // Carregar mensagens + entrar na sala realtime
+  useEffect(() => {
+    if (!selectedTeam) return;
+
+    
     loadMessages();
 
     // joinTeam somente quando socket conecta
@@ -128,6 +130,18 @@ export default function ChatPage() {
       message,
     });
     setMessage("");
+    setMessages((prev) => [
+      ...prev,
+      {
+        teamId: selectedTeam.TeamId,
+        userId: user.userId,
+        timestamp: new Date(),
+        type: "text",
+        author: user.username,
+        message,
+      },
+    ]);
+    scrollToBottom();
   }
 
   // Emit typing
@@ -160,9 +174,9 @@ export default function ChatPage() {
         </div>
 
         <div className="chat-list">
-          {teams.map((team) => (
+          {teams.map((team, i) => (
             <div
-              key={team.TeamId}
+              key={i}
               // Correção de sintaxe: Adicionado crases (`)
               className={`chat-list-item ${
                 selectedTeam?.TeamId === team.TeamId ? "active" : ""
@@ -200,7 +214,7 @@ export default function ChatPage() {
 
             <div className="message-list">
               {messages.map((msg, i) => {
-                const isSent = msg.userId === user.userId;
+                const isSent = msg.userId == user.userId;
                 return (
                   <div
                     key={i}
