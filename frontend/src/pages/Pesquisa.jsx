@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import "../assets/css/PesquisaEvento.css"; // ✅ importa o CSS
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
