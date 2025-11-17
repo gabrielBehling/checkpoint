@@ -556,5 +556,40 @@ router.put("/:eventId/teams/:teamId/status", authMiddleware, async (req, res) =>
         await sql.close();
     }
 });
+
+// Get all teams the logged user participates in
+router.get("/my-teams", authMiddleware, async (req, res) => {
+    const userId = req.user.userId;
+    let connection;
+
+    try {
+        await sql.connect(dbConfig);
+        connection = sql;
+
+        const result = await sql.query`
+            SELECT 
+                T.TeamId,
+                T.TeamName,
+                T.LogoURL,
+                TM.Role,
+                ER.EventID
+            FROM TeamMembers TM
+            INNER JOIN TeamsNotDeleted T ON TM.TeamId = T.TeamId
+            INNER JOIN EventRegistrations ER ON T.TeamId = ER.TeamID
+            WHERE TM.UserId = ${userId} AND TM.DeletedAt IS NULL AND ER.DeletedAt IS NULL
+        `;
+
+        return res.success(result.recordset, "Teams the user participates in retrieved successfully");
+
+    } catch (error) {
+        console.error(error);
+        return res.error(error.message, "INTERNAL_ERROR", 500);
+    } finally {
+        if (connection) {
+            await sql.close();
+        }
+    }
+});
+
 // 
 module.exports = router;

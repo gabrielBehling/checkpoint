@@ -17,8 +17,8 @@ app.use(express.json());
 
 const server = http.createServer(app);
 const io = socketIO(server, {
-  cors: {
-    path: 'api/chat',
+  cors: {  
+    path: '/api/chat/socket.io',
     origin: "*",
     methods: ["GET", "POST"],
     credentials: true

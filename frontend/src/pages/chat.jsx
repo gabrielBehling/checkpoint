@@ -1,290 +1,261 @@
-import React, { useEffect, useState, useRef } from 'react';
-import io from 'socket.io-client';
-import validator from 'validator';
+import React, { useEffect, useState, useRef } from "react";
+import { io } from "socket.io-client";
+import api from "./api";
 import "../assets/css/chat.css";
-import { useAuth } from '../contexts/AuthContext.jsx';
-import { useCustomModal } from "../hooks/useCustomModal";
-import api from './api';
+import { useAuth } from "../contexts/AuthContext";
 
-import Header from "../components/Header";
-import Footer from "../components/Footer";  
-
-//  O componente agora recebe 'teamId' como uma "prop" 
-// NECESSITA passar o ID da equipe para este componente quando o usar.
-export default function App({ teamId }) { 
-  const [messages, setMessages] = useState([]);
-  const [messageText, setMessageText] = useState('');
-  const [status, setStatus] = useState('Aguardando ID da Equipe...');
-  const [notification, setNotification] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+export default function ChatPage() {
+  // --- Estados e Refs ---
   const { user } = useAuth();
-  const { Modal, showError, showWarning } = useCustomModal();
+  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
+  const [typingUsers, setTypingUsers] = useState({});
+  const [unread, setUnread] = useState({});
+  const socket = useRef(null);
+  const bottomRef = useRef(null);
 
-  const messagesContainerRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const socketRef = useRef(null);
+  // --- Funções Auxiliares ---
 
-  const BASE_URL = 'http://checkpoint.localhost';
-  const SOCKET_PATH = '/api/chat/socket.io';
+  // Auto scroll
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (bottomRef.current) {
+        bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 50);
+  };
 
+  // --- Efeitos (useEffect) ---
+
+  // Carregar times do usuário
   useEffect(() => {
-    // Se não houver teamId, não faz nada.
-    if (!teamId) {
-      setStatus('Nenhuma equipe selecionada.');
-      return;
+    async function loadTeams() {
+      try {
+        const res = await api.get("/events/my-teams");
+        setTeams(res.data.data);
+      } catch (err) {
+        console.error("Erro ao carregar teams:", err);
+      }
     }
+    loadTeams();
+  }, []);
 
-    // Initialize socket
-    const socket = io(BASE_URL, {
-      path: SOCKET_PATH,
-      reconnectionAttempts: 5,
-      timeout: 10000,
-      // Enviar cookies de autenticação (JWT) com o socket
-      withCredentials: true 
+  // Conectar socket apenas uma vez
+  useEffect(() => {
+    if (!socket.current) {
+      socket.current = io("http://checkpoint.localhost", {
+        path: "/api/chat/socket.io",
+        withCredentials: true,
+        transports: ["websocket"],
+      });
+    }
+    return () => socket.current?.disconnect();
+  }, []);
+
+  // Carregar mensagens + entrar na sala realtime
+  useEffect(() => {
+    if (!selectedTeam) return;
+
+    async function loadMessages() {
+      try {
+        // Correção de sintaxe: Trocado regex /.../ por template string `...`
+        const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
+        setMessages(Array.isArray(res.data) ? res.data : []);
+        scrollToBottom();
+      } catch (err) {
+        console.error("Erro ao carregar mensagens:", err);
+      }
+    }
+    loadMessages();
+
+    // joinTeam somente quando socket conecta
+    function handleConnect() {
+      console.log("JOIN TEAM →", selectedTeam.TeamId);
+      socket.current.emit("joinTeam", selectedTeam.TeamId);
+    }
+    socket.current.on("connect", handleConnect);
+
+    // Mensagens realtime
+    socket.current.on("receivedMessage", (msg) => {
+      if (msg.teamId === selectedTeam.TeamId) {
+        setMessages((prev) => [...prev, msg]);
+        scrollToBottom();
+      } else {
+        setUnread((prev) => ({
+          ...prev,
+          [msg.teamId]: (prev[msg.teamId] || 0) + 1,
+        }));
+      }
     });
 
-    socketRef.current = socket;
+    // Digitando realtime
+    socket.current.on("typing", ({ teamId, username }) => {
+      if (teamId !== selectedTeam.TeamId) return;
+      
+      setTypingUsers((prev) => ({
+        ...prev,
+        [username]: true,
+      }));
 
-    socket.on('connect', () => {
-      setIsConnected(true);
-      setStatus('Conectado');
-      showNotification('Conectado ao chat');
-
-      // Entrar na sala da equipe baseado no teamId
-      socket.emit('joinTeam', teamId);
+      setTimeout(() => {
+        setTypingUsers((prev) => {
+          const c = { ...prev };
+          delete c[username];
+          return c;
+        });
+      }, 1200);
     });
 
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-      setStatus('Desconectado');
-    });
-
-    socket.on('connect_error', (err) => {
-      setStatus('Erro de conexão: ' + (err?.message || err));
-    });
-
-    socket.on('receivedMessage', (msg) => {
-      const withTs = { ...msg, timestamp: msg.timestamp || Date.now() };
-      setMessages(prev => [...prev, withTs]);
-      scrollToBottom();
-    });
-
+    // Função de Limpeza
     return () => {
-      socket.disconnect();
+      socket.current.off("connect", handleConnect);
+      socket.current.off("receivedMessage");
+      socket.current.off("typing");
     };
-  }, [teamId]); // <-- O useEffect agora depende do teamId
+  }, [selectedTeam]);
 
-  useEffect(() => {
-    // Só busca mensagens se tiver um teamId
-    if (!teamId) {
-      setMessages([]); // Limpa mensagens se o teamId for removido
-      return;
-    }
+  // --- Handlers de Eventos ---
 
-    // load initial messages
-    // <-- MUDANÇA 4: Buscar histórico da API usando o 'teamId'
-    fetch(`${BASE_URL}/api/chat/messages/${teamId}`, {
-      credentials: 'include' // envia os cookies de autenticação (JWT)
-    })
-      .then(res => res.json())
-      .then(msgs => {
-        if (Array.isArray(msgs)) {
-          setMessages(msgs);
-          setStatus(`${msgs.length || 0} mensagens carregadas`);
-          scrollToBottom();
-        } else {
-          setMessages([]);
-          setStatus('Erro ao carregar mensagens.');
-        }
-      })
-      .catch(err => {
-        console.error('Erro ao carregar mensagens antigas:', err);
-        setStatus('Não foi possível carregar mensagens antigas');
-      });
-  }, [teamId]); // <-- O useEffect agora depende do teamId
-
-  function showNotification(text) {
-    setNotification(text);
-    setTimeout(() => setNotification(''), 3000);
-  }
-
-  function scrollToBottom() {
-    const el = messagesContainerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }
-
-  function formatDate(date) {
-    try {
-      return new Date(date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } catch (e) {
-      return '';
-    }
-  }
-
-  function renderMessageElement(msg, idx) {
-    const currentUsername = user ? user.Username : '';
-    const safeAuthor = validator.escape(msg.author);
-    const isOwn = (currentUsername && currentUsername === msg.author);
-
-    return (
-      <div className={`message ${isOwn ? 'own' : ''}`} key={idx}>
-        <div className="author">
-          <span>{safeAuthor}</span>
-          <span className="timestamp">{formatDate(msg.timestamp)}</span>
-        </div>
-        {msg.type === 'text' && msg.message && (
-          <div className="message-text">{validator.escape(msg.message)}</div>
-        )}
-        {msg.type === 'image' && msg.fileUrl && (
-          <>
-            {msg.message && <div className="message-text">{validator.escape(msg.message)}</div>}
-            <div className="message-image">
-              <img src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}/api/chat${msg.fileUrl}`} alt="Imagem enviada" />
-            </div>
-          </>
-        )}
-        {msg.type === 'audio' && msg.fileUrl && (
-          <>
-            {msg.message && <div className="message-text">{validator.escape(msg.message)}</div>}
-            <div className="message-audio">
-              <audio controls src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `${BASE_URL}/api/chat${msg.fileUrl}`} />
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-
-  function handleSend(e) {
+  // Enviar mensagem de texto
+  function sendMessage(e) {
     e.preventDefault();
-    const msg = messageText.trim();
+    if (!message.trim()) return;
 
-    if (!msg) {
-      showWarning('Digite uma mensagem para enviar.');
-      return;
-    }
-
-    // Verifica se temos o teamId
-    if (!teamId) {
-      showWarning('Nenhuma equipe selecionada.');
-      return;
-    }
-
-    if (socketRef.current && socketRef.current.connected) {
-      // <-- MUDANÇA 5: Enviar um objeto contendo a mensagem E o teamId -->
-      socketRef.current.emit('sendMessage', { 
-        message: msg,
-        teamId: teamId 
-      });
-      setMessageText('');
-    } else {
-      showError('Socket não conectado. Tente novamente.');
-    }
+    socket.current.emit("sendMessage", {
+      teamId: selectedTeam.TeamId,
+      message,
+    });
+    setMessage("");
   }
 
-  function handleFileChange(ev) {
-    const file = ev.target.files[0];
-
-    if (!file) return;
-
-    // Verifica se temos o teamId e o usuário antes de enviar
-    if (!teamId) {
-      showWarning('Nenhuma equipe selecionada. Não é possível enviar o arquivo.');
-      return;
-    }
-    if (!user || !user.Username) {
-      showWarning('Usuário não autenticado. Faça login para enviar arquivos.');
-      return;
-    }
-
-    const type = file.type.startsWith('image') ? 'image' : file.type.startsWith('audio') ? 'audio' : null;
-    if (!type) {
-      showWarning('Apenas imagens ou áudios são suportados.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', type);
-    // <-- MUDANÇA 6: Adicionar 'teamId' e 'author' ao formulário de upload -->
-    formData.append('teamId', teamId);
-    formData.append('author', user.Username); // O backend precisa saber quem enviou
-
-    setUploadProgress(30);
-
-    fetch(`${BASE_URL}/api/chat/upload`, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    })
-      .then(response => {
-        setUploadProgress(60);
-        if (!response.ok) {
-          // Se a resposta não for 2xx, joga um erro
-          return response.json().then(err => { throw new Error(err.error || 'Erro no servidor') });
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          setUploadProgress(100);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-          setTimeout(() => setUploadProgress(0), 500);
-          showNotification('Arquivo enviado com sucesso!');
-        } else {
-          throw new Error(data.error || 'Erro ao enviar arquivo.');
-        }
-      })
-      .catch(err => {
-        console.error('Erro no upload:', err);
-        showError('Erro ao enviar arquivo!');
-        setUploadProgress(0);
-      });
+  // Emit typing
+  function handleTyping(e) {
+    setMessage(e.target.value);
+    socket.current.emit("typing", {
+      teamId: selectedTeam.TeamId,
+      username: user.username,
+    });
   }
 
+  // Enviar imagem
+  function sendImage(file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      socket.current.emit("sendMessage", {
+        teamId: selectedTeam.TeamId,
+        image: reader.result,
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // --- Renderização JSX ---
   return (
-    <div className="chat-root">
-      <Modal/>
-      <Header/>
-
-      <form id="chat" onSubmit={handleSend} className="chat-form">
-        <div className="messages" id="messages-container" ref={messagesContainerRef}>
-          {messages.map((m, i) => renderMessageElement(m, i))}
+    <div className="chat-container">
+      <aside className="chat-sidebar">
+        <div className="sidebar-header">
+          <h2>Seus Chats</h2>
         </div>
 
-        <div className="input-area">
-          <div className="message-input">
-            <input
-              type="text"
-              name="message"
-              placeholder="Mensagem"
-              id="message-input"
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              disabled={!teamId || !isConnected} // Desabilita se não houver equipe
-            />
-            <button type="submit" disabled={!teamId || !isConnected}>Enviar</button>
-          </div>
+        <div className="chat-list">
+          {teams.map((team) => (
+            <div
+              key={team.TeamId}
+              // Correção de sintaxe: Adicionado crases (`)
+              className={`chat-list-item ${
+                selectedTeam?.TeamId === team.TeamId ? "active" : ""
+              }`}
+              onClick={() => {
+                setUnread((prev) => ({ ...prev, [team.TeamId]: 0 }));
+                setSelectedTeam(team);
+              }}
+            >
+              <div className="chat-item-info">
+                <span className="chat-item-name">{team.TeamName}</span>
+                <span className="chat-item-last-message">
+                  Clique para abrir a conversa
+                </span>
+              </div>
 
-          <div className="file-input-container">
-            <label htmlFor="file">Enviar imagem ou áudio:</label>
-            <input 
-                ref={fileInputRef} 
-                type="file" 
-                id="file" 
-                accept="image/*,audio/*" 
-                onChange={handleFileChange} 
-                disabled={!teamId || !isConnected} // Desabilita se não houver equipe
-            />
-            <div className="progress-bar" id="progress-bar" style={{ width: `${uploadProgress}%` }} />
-          </div>
+              {unread[team.TeamId] > 0 && (
+                <div className="chat-item-unread">{unread[team.TeamId]}</div>
+              )}
+            </div>
+          ))}
         </div>
-      </form>
+      </aside>
 
-      <div className="status" id="status">{status}</div>
-      <div className="notification" id="notification">{notification}</div>
-      <Footer/>
+      <main className="chat-window">
+        {!selectedTeam ? (
+          <div className="no-chat-selected">
+            Selecione um chat na barra lateral →
+          </div>
+        ) : (
+          <>
+            <div className="chat-header">
+              <h3>{selectedTeam.TeamName}</h3>
+            </div>
+
+            <div className="message-list">
+              {messages.map((msg, i) => {
+                const isSent = msg.userId === user.userId;
+                return (
+                  <div
+                    key={i}
+                    // Correção de sintaxe: Adicionado crases (`)
+                    className={`message-bubble ${
+                      isSent ? "sent" : "received"
+                    }`}
+                  >
+                    {!isSent && (
+                      <span className="message-sender">{msg.author}</span>
+                    )}
+
+                    {msg.image ? (
+                      <img src={msg.image} className="chat-image" />
+                    ) : (
+                      <span className="message-text">{msg.message}</span>
+                    )}
+
+                    <span className="message-timestamp">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                );
+              })}
+
+              {Object.keys(typingUsers).length > 0 && (
+                <div className="typing-indicator">
+                  {Object.keys(typingUsers).join(", ")} digitando...
+                </div>
+              )}
+
+              <div ref={bottomRef}></div>
+            </div>
+
+            <form className="message-input-form" onSubmit={sendMessage}>
+              <input
+                type="text"
+                placeholder="Digite sua mensagem..."
+                value={message}
+                onChange={handleTyping}
+              />
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => sendImage(e.target.files[0])}
+              />
+
+              <button type="submit" disabled={!message.trim()}>
+                Enviar
+              </button>
+            </form>
+          </>
+        )}
+      </main>
     </div>
   );
 }

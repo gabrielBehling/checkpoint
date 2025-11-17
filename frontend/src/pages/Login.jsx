@@ -1,5 +1,5 @@
 import { React, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import "../assets/css/login.css"; // O CSS que você forneceu
 import api from "./api";
 import LOGO_IMG from "../assets/img/imagem.png";
@@ -13,10 +13,14 @@ import Footer from "../components/Footer";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { checkAuth } = useAuth();
   const { Modal, showError } = useCustomModal();
+  
+  // Pega a URL de onde o usuário veio, ou redireciona para home
+  const from = location.state?.from?.pathname || "/";
 
   function handleEmailChange(e) {
     setEmail(e.target.value);
@@ -35,7 +39,7 @@ export default function LoginPage() {
       .then((res) => {
         if (res.data.success) {
           checkAuth();
-          navigate("/");
+          navigate(from, { replace: true });
         }
       })                                     
       .catch((err) => {
@@ -95,7 +99,7 @@ export default function LoginPage() {
             <button type="submit" className="btn" style={{ marginTop: '30px' }}>ENTRAR</button>
 
             <div className="link-info" style={{ marginTop: '50px' }}>
-              Ainda não possui uma conta? <Link to="/cadastro">Cadastre-se</Link>
+              Ainda não possui uma conta? <Link to="/cadastro" state={{ from: location.state?.from }}>Cadastre-se</Link>
             </div>
 
             <div className="link-info" style={{ marginTop: '50px' }}>

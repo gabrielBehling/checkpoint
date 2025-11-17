@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api"; 
 import "../assets/css/EventoInfo.css"; 
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { useCustomModal } from "../hooks/useCustomModal";
 import { useAuth } from "../contexts/AuthContext";
 import GerenciarPartidasTab from "../components/GerenciarPartidasTab";
@@ -38,6 +38,7 @@ export default function EventoInfo() {
   const { eventId } = useParams();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { Modal, showError } = useCustomModal();
   
   // Verificar se há parâmetro de tab na URL
@@ -127,7 +128,7 @@ export default function EventoInfo() {
   const halfTicketPrice = ticketPrice / 2;
   const participationCost = evento.participationCost || 0;
 
-  // Verificar se o usuário é organizador e se o evento é Round Robin
+  // Verificar se o usuário é organizador e se o evento é Round Robin ou Leaderboard
   const isOrganizer =
     (evento.createdBy?.userId === user?.userId) ||
     (evento.createdBy === user?.userId) ||
@@ -135,8 +136,12 @@ export default function EventoInfo() {
   
   const isAdmin = user?.userRole === "administrator";
   const isRoundRobin = evento.mode === "Round Robin";
-  const showGerenciarTab = isOrganizer && isRoundRobin && evento.status === "Active";
-  const showVerPartidasTab = !isOrganizer && isRoundRobin && (evento.status === "Active" || evento.status === "Finished");
+  const isLeaderboard = evento.mode === "Leaderboard";
+  const isSingleElimination = evento.mode === "Single Elimination";
+  const canManageMatches = isRoundRobin || isLeaderboard || isSingleElimination;
+  const canViewMatches = isRoundRobin || isLeaderboard || isSingleElimination;
+  const showGerenciarTab = isOrganizer && canManageMatches && evento.status === "Active";
+  const showVerPartidasTab = canViewMatches && (evento.status === "Finished" || (evento.status === "Active" && !isOrganizer));
   const showGerenciarTimesTab = (isOrganizer || isAdmin);
 
   const showMeuTimeTab = evento.isRegistered === true;
@@ -352,7 +357,7 @@ export default function EventoInfo() {
                     {evento.status === "Active" && (
                         <>
                             {!user ? (
-                                <Link to="/login">
+                                <Link to="/login" state={{ from: location }}>
                                     <button className="btn-inscricao">Faça login para se inscrever</button>
                                 </Link>
                             ) : evento.isRegistered === true ? (
@@ -411,7 +416,7 @@ export default function EventoInfo() {
                         </form>
                     )}
                     {!user && (
-                        <p className="small center">Faça <Link to="/login">login</Link> para comentar.</p>
+                        <p className="small center">Faça <Link to="/login" state={{ from: location }}>login</Link> para comentar.</p>
                     )}
                 </section>
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import "../assets/css/cadastro.css";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,7 +10,11 @@ import Footer from "../components/Footer";
 
 export default function CadastroPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { checkAuth } = useAuth();
+  
+  // Pega a URL de onde o usuário veio, ou redireciona para home
+  const from = location.state?.from?.pathname || "/";
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -48,7 +52,7 @@ export default function CadastroPage() {
         if (response.data.success) {
           showSuccess("Cadastro realizado com sucesso!");
           checkAuth();
-          navigate("/");
+          navigate(from, { replace: true });
         }
       })
       .catch((error) => {
@@ -137,7 +141,7 @@ export default function CadastroPage() {
             </button>
 
             <div className="auth-bottom-link">
-              Já possui uma conta? <Link to="/login">Log-in</Link>
+              Já possui uma conta? <Link to="/login" state={{ from: location.state?.from }}>Log-in</Link>
             </div>
           </form>
         </section>

@@ -445,7 +445,12 @@ router.get("/:eventId", async (req, res) => {
   }
 
   const accessToken = req.cookies?.accessToken;
-  const userId = accessToken ? jwt.verify(accessToken, process.env.JWT_SECRET)?.userId || null : null;
+  let userId;
+  try {
+    userId = accessToken ? jwt.verify(accessToken, process.env.JWT_SECRET)?.userId || null : null;
+  } catch (error) {
+    userId = null;
+  }
 
   let connection;
   try {
