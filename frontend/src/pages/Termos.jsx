@@ -18,37 +18,41 @@ export default function Termos() {
                 conteudo: "Ao se cadastrar ou usar a plataforma, você declara ter lido, compreendido e aceito estes Termos, que constituem um acordo legal vinculante entre você e a administração da plataforma."
             },
             {
-                titulo: "2. Cadastro e Contas de Usuário",
-                conteudo: "Você deve fornecer informações precisas e completas durante o processo de registro. Você é o único responsável pela segurança de sua senha e por todas as atividades que ocorrem em sua conta. A conta é pessoal e intransferível."
+                titulo: "2. Cadastro de usuário",
+                conteudo: "Para usar os serviços será necessário que você faça um cadastro. Você concorda em manter sua senha confidencial e será responsável por todo o uso de sua conta e senha. Reservamo-nos o direito de remover ou alterar um nome de usuário que você selecionar se determinarmos, a nosso exclusivo critério, que tal nome de usuário é inadequado, obsceno ou de alguma forma questionável."
             },
             {
                 titulo: "3. Regras de Conduta e Jogo Limpo",
-                conteudo: "É estritamente proibido o uso de qualquer forma de trapaça, hack, script ou software de terceiros que ofereça vantagem injusta em torneios. Comportamento tóxico, discurso de ódio e assédio a outros usuários resultarão em desqualificação imediata e banimento permanente da plataforma."
+                conteudo: "Em relação às regras dos torneios cabe restritamente e exclusivamente ao criador do evento decidir o que pode e não pode. Nós não nos responsabilizamos por quaisquer violações nas regras, trapaças ou mau comportamento que ocorrer durante o torneio."
             },
+
             {
-                titulo: "4. Propriedade Intelectual",
-                conteudo: "Todo o conteúdo da plataforma, incluindo logotipos, designs, textos e código-fonte, é propriedade da nossa equipe e está protegido por leis de direitos autorais. O uso não autorizado é proibido."
-            },
-            {
-                titulo: "5. Resolução de Disputas",
+                titulo: "4. Resolução de Disputas",
                 conteudo: "Qualquer disputa ou contestação de resultado deve ser submetida por meio de um Ticket de Suporte oficial dentro do prazo estipulado nas regras do torneio. A decisão da equipe de administração do torneio sobre qualquer disputa é final e obrigatória."
             },
             {
+                titulo: "5. Propriedade Intelectual",
+                conteudo: "Todo o conteúdo da plataforma, incluindo logotipos, designs, textos e código-fonte, é propriedade da nossa equipe e está protegido por leis de direitos autorais. O uso não autorizado é proibido."
+            },
+            
+            {
                 titulo: "6. Anunciantes",
-                conteudo: "Permitimos que anuciantes exibam seus anúcios em áreas especificas do site. Apenas fornecemos os espaços para esses anúncios e não temos qualquer outro tipo de relação com os anunciantes. "
+                conteudo: "Permitimos que anunciantes exibam seus anúncios em áreas específicas do site. Apenas fornecemos os espaços para esses anúncios e não temos qualquer outro tipo de relação com os anunciantes. "
             },
             {
                 titulo: "7. Correções",
-                conteudo: "Pode haver informações nos serviços que contennham erros, omissões ou imprecisões. Temos o direito de corrigir quaisquer erros, ommissões ou imprecisôes e de alterar ou atualizar qualquer uma das informações a qualquer sem aviso prévio."
+                conteudo: "Pode haver informações nos serviços que contenham erros, omissões ou imprecisões. Temos o direito de corrigir quaisquer erros, omissões ou imprecisões e de alterar ou atualizar qualquer uma das informações a qualquer momento sem aviso prévio."
             },
             {
-                titulo: "8. Cadastro de usuário",
-                conteudo: "Para usar os serviços sera necessario que você faça um cadastro. Você concorda em manter sua senha confidencial e será responsável por todo o uso de sua conta e senha. Reservamo-nos o direito de remover ou alterar um nome de usuário que você selecionar se determinarmos, a nosso exclusivo critério, que tal nome de usuário é inadequado, obsceno ou de alguma forma questionável."
+                titulo:"8. Erros de Funcionamento e Bugs",
+                conteudo: "Não garantimos o funcionamento perfeito do sistema, podendo incluir erros ou problemas de funcionamento durante o uso do site, mas o usuário tem todo o direito de reportar os erros na seção de 'Ajuda' localizado na parte inferior do site."      
             },
+
             {
-                titulo: "9. Limite de responsabilidade",
-                conteudo:"Nossa esponsabilidade perante a você por qualquer motivo e independentemente da forma da ação, estará sempre limitada ao funcionamento do site. EM NENHUMA HIPÓTESE NÓS OU NOSSOS DIRETORES, FUNCIONÁRIOS OU AGENTES SEREMOS RESPONSÁVEIS PERANTE VOCÊ OU QUALQUER TERCEIRO POR QUAISQUER DANOS DIRETOS, INDIRETOS, CONSEQUENCIAIS, EXEMPLARES, INCIDENTAIS, ESPECIAIS OU PUNITIVOS, INCLUINDO PERDA DE DADOS OU OUTROS DANOS DECORRENTES DO SEU USO DOS SERVIÇOS, MESMO QUE TENHAMOS SIDO AVISADOS DA POSSIBILIDADE DE TAIS DANOS. "
+                titulo: "9. Mau Uso",
+                conteudo:"EM NENHUMA HIPÓTESE NÓS OU NOSSOS DIRETORES, FUNCIONÁRIOS OU AGENTES SEREMOS RESPONSÁVEIS PERANTE VOCÊ OU QUALQUER TERCEIRO POR QUAISQUER DANOS DIRETOS, INDIRETOS, CONSEQUENCIAIS, EXEMPLARES, INCIDENTAIS, ESPECIAIS OU PUNITIVOS, INCLUINDO PERDA DE DADOS OU OUTROS DANOS DECORRENTES DO SEU USO DOS SERVIÇOS, MESMO QUE TENHAMOS SIDO AVISADOS DA POSSIBILIDADE DE TAIS DANOS. "
             }
+          
         ]
     };
 
