@@ -22,7 +22,6 @@ const RequestPasswordResetPage = React.lazy(() => import("./pages/RequestPasswor
 const HistoricoEventos = React.lazy(() => import("/src/pages/HistoricoEventos"));
 const DashboardOrganizador = React.lazy(() => import("./pages/DashboardDoOrganizador"));
 const DashboardJogador = React.lazy(() => import("./pages/DashboardDoJogador"));
-const GerenciarPartidas = React.lazy(() => import("./pages/GerenciarPartidas"));
 const Contato = React.lazy(() => import("./pages/Contato"));
 const Ajuda = React.lazy(() => import("./pages/Ajuda"));
 const Termos = React.lazy(() => import("./pages/Termos"));
@@ -59,7 +58,6 @@ createRoot(document.getElementById("root")).render(
             <Route path="/historico" element={<HistoricoEventos />} />
             <Route path="/dashboardOrganizador" element={<DashboardOrganizador />} />
             <Route path="/dashboardJogador" element={<DashboardJogador />} />
-            <Route path="/evento/:eventId/gerenciar-partidas" element={<GerenciarPartidas />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

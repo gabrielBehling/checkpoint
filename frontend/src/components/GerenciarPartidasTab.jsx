@@ -593,11 +593,11 @@ export default function GerenciarPartidasTab({ eventId, evento }) {
               {bracketRounds.map((round) => (
                 <div key={round.roundNumber} className="bracket-round">
                   <h3 className="bracket-round-title">
-                    {round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) 
+                    {round.roundNumber === 2
                       ? "Final" 
-                      : round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) - 1
+                      : round.roundNumber === 4
                       ? "Semi-Final"
-                      : round.roundNumber === Math.max(...bracketRounds.map(r => r.roundNumber)) - 2
+                      : round.roundNumber === 8
                       ? "Quartas de Final"
                       : `Rodada ${round.roundNumber}`}
                   </h3>
