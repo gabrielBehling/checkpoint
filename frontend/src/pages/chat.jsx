@@ -4,6 +4,9 @@ import api from "./api";
 import "../assets/css/chat.css";
 import { useAuth } from "../contexts/AuthContext";
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 export default function ChatPage() {
   // --- Estados e Refs ---
   const { user } = useAuth();
@@ -167,7 +170,12 @@ export default function ChatPage() {
 
   // --- Renderização JSX ---
   return (
-    <div className="chat-container">
+
+    <div>
+      <Header/>
+    
+        <div className="chat-container">
+         
       <aside className="chat-sidebar">
         <div className="sidebar-header">
           <h2>Seus Chats</h2>
@@ -267,9 +275,12 @@ export default function ChatPage() {
                 Enviar
               </button>
             </form>
+              
           </>
         )}
       </main>
     </div>
+    <Footer/>
+</div>
   );
 }
