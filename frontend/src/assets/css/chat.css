@@ -1,9 +1,5 @@
 /* --- Estilização Base (Inspirado no seu .dashboard-organizer) --- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+
 
 /* Este seletor assume que o 'body' ou '#root' já tem o fundo do seu site.
 Se 'chat.css' for importado globalmente, 'body'/'html' funciona.
