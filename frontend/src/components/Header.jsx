@@ -53,10 +53,14 @@ function Header() {
           {!user ? (
             <>
               <li>
-                <Link to="/login" state={{ from: location }}>Login</Link>
+                <Link to="/login" state={{ from: location }}>
+                  Login
+                </Link>
               </li>
               <li>
-                <Link to="/cadastro" state={{ from: location }}>Cadastre-se</Link>
+                <Link to="/cadastro" state={{ from: location }}>
+                  Cadastre-se
+                </Link>
               </li>
             </>
           ) : (
@@ -64,11 +68,19 @@ function Header() {
               <li>
                 <Link to="/chat">Chat</Link>
               </li>
+
+              {user.userRole === "Player" && (
+                <li>
+                  <Link to="/dashboardJogador">Meus Eventos</Link>
+                </li>
+              )}
+
               {user.userRole !== "Player" && (
                 <li>
                   <Link to="/dashboardOrganizador">Gerenciar Eventos</Link>
                 </li>
               )}
+
               <li className="user-welcome">
                 <Link to="/perfil" className="user-link">
                   {user?.profileURL ? (

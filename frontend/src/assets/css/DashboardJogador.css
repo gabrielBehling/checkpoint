@@ -1,0 +1,283 @@
+.dashboard-jogador {
+  min-height: calc(100vh - 200px);
+  padding: 40px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: radial-gradient(circle at top, rgba(77, 142, 255, 0.12), transparent 55%);
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dashboard-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboard-title-group h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dashboard-title-group p {
+  color: #c7cbff;
+  font-size: 0.95rem;
+}
+
+.dashboard-refresh {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4d8eff, #6a5eff);
+  border: none;
+  border-radius: 28px;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-refresh:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(77, 142, 255, 0.35);
+}
+
+.dashboard-panel {
+  background: rgba(17, 21, 55, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.dashboard-panel h2 {
+  margin-bottom: 22px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #e8eaff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-panel h2::before {
+  content: "";
+  width: 6px;
+  height: 24px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #4d8eff, #3f70ff); /* Cor ajustada para jogador (opcional) */
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.event-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(26, 32, 74, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.45);
+}
+
+.event-card-banner {
+  position: relative;
+  height: 150px;
+  background: linear-gradient(135deg, rgba(77, 142, 255, 0.25), rgba(90, 92, 255, 0.25));
+  background-size: cover;
+  background-position: center;
+}
+
+.event-card-content {
+  padding: 24px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.event-card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.35;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-active {
+  background: rgba(77, 210, 111, 0.18);
+  color: #4dd26f;
+  border: 1px solid rgba(77, 210, 111, 0.35);
+}
+
+.status-canceled {
+  background: rgba(248, 96, 96, 0.18);
+  color: #ff8080;
+  border: 1px solid rgba(255, 128, 128, 0.35);
+}
+
+.status-finished {
+  background: rgba(255, 193, 70, 0.18);
+  color: #ffc146;
+  border: 1px solid rgba(255, 193, 70, 0.35);
+}
+
+.status-draft {
+  background: rgba(121, 127, 255, 0.18);
+  color: #b9bdff;
+  border: 1px solid rgba(185, 189, 255, 0.35);
+}
+
+.event-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #d1d6ff;
+}
+
+.event-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.event-card-actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-button {
+  flex: 1 1 140px;
+  min-width: 120px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dashboard-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dashboard-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.35);
+}
+
+.btn-view {
+  background: linear-gradient(135deg, #4d8eff, #3f70ff);
+}
+
+.btn-manage {
+  background: linear-gradient(135deg, #a26bff, #7153ff);
+}
+
+.btn-cancel {
+  background: linear-gradient(135deg, #f86161, #d84343);
+}
+
+.empty-state,
+.error-state {
+  padding: 40px;
+  text-align: center;
+  color: #d1d6ff;
+  border-radius: 16px;
+  background: rgba(22, 27, 64, 0.85);
+  border: 1px dashed rgba(177, 186, 255, 0.35);
+}
+
+.error-state strong {
+  color: #ff8080;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.loading-state {
+  padding: 60px 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: #b9bdff;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-jogador {
+    padding: 32px 28px;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-jogador {
+    padding: 28px 18px 80px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .event-card-content {
+    padding: 20px 18px 18px;
+  }
+
+  .dashboard-button {
+    flex: 1 1 100%;
+  }
+}
