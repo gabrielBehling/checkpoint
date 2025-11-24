@@ -76,6 +76,7 @@ async function isUserMemberOfTeam(userId, teamId, authToken) {
 
     if (!response.ok) {
       // Se o Events Service rejeitar (401, 403, 404), o usuário não é membro
+      console.log("response", response);
       return false;
     }
 
@@ -281,7 +282,8 @@ async function isUserMemberOfTeam(userId, teamId, authToken) {
       });
 
       // (Evento SEGURO) Usuário envia uma mensagem
-      socket.on('sendMessage', async data => {
+      socket.on('sendMessage', async (data, callback) => {
+        console.log("sendMessage", data);
         if (!data.teamId || !data.message) {
           return;
         }
@@ -303,7 +305,13 @@ async function isUserMemberOfTeam(userId, teamId, authToken) {
         });
 
         await message.save();
+        console.log(data.teamId);
         io.to(data.teamId).emit('receivedMessage', message);
+        console.log("receivedMessage", message);
+        callback({
+          status: 'success',
+          message: 'Mensagem enviada com sucesso'
+        })
       });
     });
 

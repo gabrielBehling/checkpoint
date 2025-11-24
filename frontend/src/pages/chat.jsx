@@ -58,33 +58,26 @@ export default function ChatPage() {
   }, []);
 
   async function loadMessages() {
-      try {
-        // Correção de sintaxe: Trocado regex /.../ por template string `...`
-        const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
-        setMessages(Array.isArray(res.data) ? res.data : []);
-        scrollToBottom();
-      } catch (err) {
-        console.error("Erro ao carregar mensagens:", err);
-      }
+    try {
+      // Correção de sintaxe: Trocado regex /.../ por template string `...`
+      const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
+      setMessages(Array.isArray(res.data) ? res.data : []);
+      scrollToBottom();
+    } catch (err) {
+      console.error("Erro ao carregar mensagens:", err);
     }
+  }
 
   // Carregar mensagens + entrar na sala realtime
   useEffect(() => {
     if (!selectedTeam) return;
-
     
     loadMessages();
-
-    // joinTeam somente quando socket conecta
-    function handleConnect() {
-      console.log("JOIN TEAM →", selectedTeam.TeamId);
-      socket.current.emit("joinTeam", selectedTeam.TeamId);
-    }
-    socket.current.on("connect", handleConnect);
+    socket.current.emit("joinTeam", selectedTeam.TeamId);
 
     // Mensagens realtime
     socket.current.on("receivedMessage", (msg) => {
-      if (msg.teamId === selectedTeam.TeamId) {
+      if (msg.teamId == selectedTeam.TeamId) {
         setMessages((prev) => [...prev, msg]);
         scrollToBottom();
       } else {
@@ -98,7 +91,7 @@ export default function ChatPage() {
     // Digitando realtime
     socket.current.on("typing", ({ teamId, username }) => {
       if (teamId !== selectedTeam.TeamId) return;
-      
+
       setTypingUsers((prev) => ({
         ...prev,
         [username]: true,
@@ -113,12 +106,7 @@ export default function ChatPage() {
       }, 1200);
     });
 
-    // Função de Limpeza
-    return () => {
-      socket.current.off("connect", handleConnect);
-      socket.current.off("receivedMessage");
-      socket.current.off("typing");
-    };
+    
   }, [selectedTeam]);
 
   // --- Handlers de Eventos ---
@@ -131,20 +119,14 @@ export default function ChatPage() {
     socket.current.emit("sendMessage", {
       teamId: selectedTeam.TeamId,
       message,
+    }, (response) => {
+      if (response.status === 'success') {
+        setMessage("");
+        scrollToBottom();
+      } else {
+        console.error(response.message);
+      }
     });
-    setMessage("");
-    setMessages((prev) => [
-      ...prev,
-      {
-        teamId: selectedTeam.TeamId,
-        userId: user.userId,
-        timestamp: new Date(),
-        type: "text",
-        author: user.username,
-        message,
-      },
-    ]);
-    scrollToBottom();
   }
 
   // Emit typing
@@ -170,117 +152,83 @@ export default function ChatPage() {
 
   // --- Renderização JSX ---
   return (
-
     <div>
-      <Header/>
-    
-        <div className="chat-container">
-         
-      <aside className="chat-sidebar">
-        <div className="sidebar-header">
-          <h2>Seus Chats</h2>
-        </div>
+      <Header />
 
-        <div className="chat-list">
-          {teams.map((team, i) => (
-            <div
-              key={i}
-              // Correção de sintaxe: Adicionado crases (`)
-              className={`chat-list-item ${
-                selectedTeam?.TeamId === team.TeamId ? "active" : ""
-              }`}
-              onClick={() => {
-                setUnread((prev) => ({ ...prev, [team.TeamId]: 0 }));
-                setSelectedTeam(team);
-              }}
-            >
-              <div className="chat-item-info">
-                <span className="chat-item-name">{team.TeamName}</span>
-                <span className="chat-item-last-message">
-                  Clique para abrir a conversa
-                </span>
+      <div className="chat-container">
+        <aside className="chat-sidebar">
+          <div className="sidebar-header">
+            <h2>Seus Chats</h2>
+          </div>
+
+          <div className="chat-list">
+            {teams.map((team, i) => (
+              <div
+                key={i}
+                // Correção de sintaxe: Adicionado crases (`)
+                className={`chat-list-item ${selectedTeam?.TeamId === team.TeamId ? "active" : ""}`}
+                onClick={() => {
+                  setUnread((prev) => ({ ...prev, [team.TeamId]: 0 }));
+                  setSelectedTeam(team);
+                }}
+              >
+                <div className="chat-item-info">
+                  <span className="chat-item-name">{team.TeamName}</span>
+                  <span className="chat-item-last-message">Clique para abrir a conversa</span>
+                </div>
+
+                {unread[team.TeamId] > 0 && <div className="chat-item-unread">{unread[team.TeamId]}</div>}
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <main className="chat-window">
+          {!selectedTeam ? (
+            <div className="no-chat-selected">Selecione um chat na barra lateral →</div>
+          ) : (
+            <>
+              <div className="chat-header">
+                <h3>{selectedTeam.TeamName}</h3>
               </div>
 
-              {unread[team.TeamId] > 0 && (
-                <div className="chat-item-unread">{unread[team.TeamId]}</div>
-              )}
-            </div>
-          ))}
-        </div>
-      </aside>
+              <div className="message-list">
+                {messages.map((msg, i) => {
+                  const isSent = msg.userId == user.userId;
+                  return (
+                    <div
+                      key={i}
+                      // Correção de sintaxe: Adicionado crases (`)
+                      className={`message-bubble ${isSent ? "sent" : "received"}`}
+                    >
+                      {!isSent && <span className="message-sender">{msg.author}</span>}
 
-      <main className="chat-window">
-        {!selectedTeam ? (
-          <div className="no-chat-selected">
-            Selecione um chat na barra lateral →
-          </div>
-        ) : (
-          <>
-            <div className="chat-header">
-              <h3>{selectedTeam.TeamName}</h3>
-            </div>
+                      {msg.image ? <img src={msg.image} className="chat-image" /> : <span className="message-text">{msg.message}</span>}
 
-            <div className="message-list">
-              {messages.map((msg, i) => {
-                const isSent = msg.userId == user.userId;
-                return (
-                  <div
-                    key={i}
-                    // Correção de sintaxe: Adicionado crases (`)
-                    className={`message-bubble ${
-                      isSent ? "sent" : "received"
-                    }`}
-                  >
-                    {!isSent && (
-                      <span className="message-sender">{msg.author}</span>
-                    )}
+                      <span className="message-timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                  );
+                })}
 
-                    {msg.image ? (
-                      <img src={msg.image} className="chat-image" />
-                    ) : (
-                      <span className="message-text">{msg.message}</span>
-                    )}
+                {Object.keys(typingUsers).length > 0 && <div className="typing-indicator">{Object.keys(typingUsers).join(", ")} digitando...</div>}
 
-                    <span className="message-timestamp">
-                      {new Date(msg.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
-                );
-              })}
+                <div ref={bottomRef}></div>
+              </div>
 
-              {Object.keys(typingUsers).length > 0 && (
-                <div className="typing-indicator">
-                  {Object.keys(typingUsers).join(", ")} digitando...
-                </div>
-              )}
+              <form className="message-input-form" onSubmit={sendMessage}>
+                <input type="text" placeholder="Digite sua mensagem..." value={message} onChange={handleTyping} />
 
-              <div ref={bottomRef}></div>
-            </div>
+                <input type="file" accept="image/*" onChange={(e) => sendImage(e.target.files[0])} />
 
-            <form className="message-input-form" onSubmit={sendMessage}>
-              <input
-                type="text"
-                placeholder="Digite sua mensagem..."
-                value={message}
-                onChange={handleTyping}
-              />
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => sendImage(e.target.files[0])}
-              />
-
-              <button type="submit" disabled={!message.trim()}>
-                Enviar
-              </button>
-            </form>
-              
-          </>
-        )}
-      </main>
+                <button type="submit" disabled={!message.trim()}>
+                  Enviar
+                </button>
+              </form>
+            </>
+          )}
+        </main>
+      </div>
+      <Footer />
     </div>
-    <Footer/>
-</div>
   );
 }
