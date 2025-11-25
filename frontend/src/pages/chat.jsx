@@ -8,31 +8,34 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 export default function ChatPage() {
-  // --- Estados e Refs ---
+  // --- Estados ---
   const { user } = useAuth();
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  
+  // preview de imagens
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const fileInputRef = useRef(null);
+
+
   const [typingUsers, setTypingUsers] = useState({});
-  const [unread, setUnread] = useState({});
   const socket = useRef(null);
   const bottomRef = useRef(null);
 
-  // --- Funções Auxiliares ---
-
-  // Auto scroll
   const scrollToBottom = () => {
     setTimeout(() => {
       if (bottomRef.current) {
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }
-    }, 50);
+    }, 100);
   };
 
-  // --- Efeitos (useEffect) ---
+  // --- Efeitos ---
 
-  // Carregar times do usuário
+  // Carregar Times
   useEffect(() => {
     async function loadTeams() {
       try {
@@ -45,7 +48,7 @@ export default function ChatPage() {
     loadTeams();
   }, []);
 
-  // Conectar socket apenas uma vez
+  //  Conectar Socket
   useEffect(() => {
     if (!socket.current) {
       socket.current = io("http://checkpoint.localhost", {
@@ -59,7 +62,6 @@ export default function ChatPage() {
 
   async function loadMessages() {
     try {
-      // Correção de sintaxe: Trocado regex /.../ por template string `...`
       const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
       setMessages(Array.isArray(res.data) ? res.data : []);
       scrollToBottom();
@@ -68,35 +70,26 @@ export default function ChatPage() {
     }
   }
 
-  // Carregar mensagens + entrar na sala realtime
+  // 3. Lógica da Sala (Mensagens)
   useEffect(() => {
     if (!selectedTeam) return;
-    
+
     loadMessages();
     socket.current.emit("joinTeam", selectedTeam.TeamId);
 
-    // Mensagens realtime
-    socket.current.on("receivedMessage", (msg) => {
+    // Função de receber mensagem
+    const handleReceiveMessage = (msg) => {
+      // Verifica se a mensagem pertence ao time atual
       if (msg.teamId == selectedTeam.TeamId) {
         setMessages((prev) => [...prev, msg]);
         scrollToBottom();
-      } else {
-        setUnread((prev) => ({
-          ...prev,
-          [msg.teamId]: (prev[msg.teamId] || 0) + 1,
-        }));
       }
-    });
+    };
 
-    // Digitando realtime
-    socket.current.on("typing", ({ teamId, username }) => {
+    // Função de digitando
+    const handleTyping = ({ teamId, username }) => {
       if (teamId !== selectedTeam.TeamId) return;
-
-      setTypingUsers((prev) => ({
-        ...prev,
-        [username]: true,
-      }));
-
+      setTypingUsers((prev) => ({ ...prev, [username]: true }));
       setTimeout(() => {
         setTypingUsers((prev) => {
           const c = { ...prev };
@@ -104,32 +97,77 @@ export default function ChatPage() {
           return c;
         });
       }, 1200);
-    });
+    };
 
-    
+    // Registrar ouvintes
+    socket.current.on("receivedMessage", handleReceiveMessage);
+    socket.current.on("typing", handleTyping);
+
+    // --- LIMPEZA (Crucial para não duplicar) ---
+    return () => {
+      socket.current.off("receivedMessage", handleReceiveMessage);
+      socket.current.off("typing", handleTyping);
+    };
+
   }, [selectedTeam]);
 
-  // --- Handlers de Eventos ---
+  // --- Handlers ---
 
-  // Enviar mensagem de texto
-  function sendMessage(e) {
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const clearFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // ENVIO UNIFICADO
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!message.trim()) return;
 
-    socket.current.emit("sendMessage", {
-      teamId: selectedTeam.TeamId,
-      message,
-    }, (response) => {
-      if (response.status === 'success') {
-        setMessage("");
-        scrollToBottom();
-      } else {
-        console.error(response.message);
-      }
-    });
+    if (!message.trim() && !selectedFile) return;
+
+    // 1. Enviar Imagem (API POST)
+    if (selectedFile) {
+        const formData = new FormData();
+        formData.append('teamId', selectedTeam.TeamId);
+        formData.append('type', 'image');
+        formData.append('file', selectedFile);
+    
+        try {
+          await api.post('/chat/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+        } catch (err) {
+          console.error("Erro ao enviar imagem:", err);
+          alert("Erro no upload da imagem");
+        }
+    }
+
+    // 2. Enviar Texto (Socket)
+    if (message.trim()) {
+        socket.current.emit("sendMessage", {
+            teamId: selectedTeam.TeamId,
+            message,
+        }, (response) => {
+            if (response.status !== 'success') {
+                console.error(response.message);
+            }
+        });
+    }
+
+    // Limpar tudo
+    setMessage("");
+    clearFile();
+    // NÃO fazemos setMessages manual aqui, confiamos no retorno do socket
   }
 
-  // Emit typing
   function handleTyping(e) {
     setMessage(e.target.value);
     socket.current.emit("typing", {
@@ -138,24 +176,13 @@ export default function ChatPage() {
     });
   }
 
-  // Enviar imagem
-  function sendImage(file) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      socket.current.emit("sendMessage", {
-        teamId: selectedTeam.TeamId,
-        image: reader.result,
-      });
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // --- Renderização JSX ---
+  // --- Render ---
   return (
     <div>
       <Header />
 
       <div className="chat-container">
+        {/* Sidebar */}
         <aside className="chat-sidebar">
           <div className="sidebar-header">
             <h2>Seus Chats</h2>
@@ -165,24 +192,22 @@ export default function ChatPage() {
             {teams.map((team, i) => (
               <div
                 key={i}
-                // Correção de sintaxe: Adicionado crases (`)
                 className={`chat-list-item ${selectedTeam?.TeamId === team.TeamId ? "active" : ""}`}
                 onClick={() => {
-                  setUnread((prev) => ({ ...prev, [team.TeamId]: 0 }));
                   setSelectedTeam(team);
+                  clearFile();
                 }}
               >
                 <div className="chat-item-info">
                   <span className="chat-item-name">{team.TeamName}</span>
                   <span className="chat-item-last-message">Clique para abrir a conversa</span>
                 </div>
-
-                {unread[team.TeamId] > 0 && <div className="chat-item-unread">{unread[team.TeamId]}</div>}
               </div>
             ))}
           </div>
         </aside>
 
+        {/* Janela Principal */}
         <main className="chat-window">
           {!selectedTeam ? (
             <div className="no-chat-selected">Selecione um chat na barra lateral →</div>
@@ -198,29 +223,81 @@ export default function ChatPage() {
                   return (
                     <div
                       key={i}
-                      // Correção de sintaxe: Adicionado crases (`)
                       className={`message-bubble ${isSent ? "sent" : "received"}`}
                     >
                       {!isSent && <span className="message-sender">{msg.author}</span>}
 
-                      {msg.image ? <img src={msg.image} className="chat-image" /> : <span className="message-text">{msg.message}</span>}
+                      {/* Lógica de Renderização: Imagem ou Texto */}
+                      {msg.type === 'image' || msg.fileUrl ? (
+                        <img
+                          // Ajuste aqui a URL base caso necessário
+                          src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `http://checkpoint.localhost/api/chat${msg.fileUrl}`}
+                          className="chat-image"
+                          alt="Enviada"
+                          onError={(e) => { e.target.style.display = 'none'; }} 
+                        />
+                      ) : (
+                        <span className="message-text">{msg.message}</span>
+                      )}
 
-                      <span className="message-timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                      <span className="message-timestamp">
+                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                   );
                 })}
 
-                {Object.keys(typingUsers).length > 0 && <div className="typing-indicator">{Object.keys(typingUsers).join(", ")} digitando...</div>}
+                {Object.keys(typingUsers).length > 0 && (
+                  <div className="typing-indicator">
+                    {Object.keys(typingUsers).join(", ")} digitando...
+                  </div>
+                )}
 
                 <div ref={bottomRef}></div>
               </div>
 
-              <form className="message-input-form" onSubmit={sendMessage}>
-                <input type="text" placeholder="Digite sua mensagem..." value={message} onChange={handleTyping} />
+              {/* Área de Preview */}
+              {previewUrl && (
+                <div className="image-preview-container" style={{ padding: '10px', background: 'rgba(0,0,0,0.2)' }}>
+                  <div className="preview-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
+                    <img 
+                      src={previewUrl} 
+                      alt="Preview" 
+                      style={{ height: '80px', borderRadius: '8px', border: '1px solid #4d8eff' }} 
+                    />
+                    <button 
+                      onClick={clearFile}
+                      style={{
+                        position: 'absolute', top: '-8px', right: '-8px', 
+                        background: '#ff6b3c', color: 'white', borderRadius: '50%', 
+                        width: '20px', height: '20px', border: 'none', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                <input type="file" accept="image/*" onChange={(e) => sendImage(e.target.files[0])} />
+              {/* Formulário */}
+              <form className="message-input-form" onSubmit={handleSubmit}>
+                <input 
+                    type="text" 
+                    placeholder="Digite sua mensagem..." 
+                    value={message} 
+                    onChange={handleTyping} 
+                />
 
-                <button type="submit" disabled={!message.trim()}>
+                <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFileSelect}
+                    ref={fileInputRef} 
+                    style={{ maxWidth: '100px' }} // Ajuste visual simples
+                />
+
+                <button type="submit" disabled={!message.trim() && !selectedFile}>
                   Enviar
                 </button>
               </form>
