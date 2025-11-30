@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import "../assets/css/PesquisaEvento.css"; // ✅ importa o CSS
+import "../assets/css/PesquisaEvento.css"; // ✅ Importa o CSS estilizado
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,11 +47,12 @@ function SearchPage() {
     isOnline: searchParams.get("isOnline") === "true",
   });
 
-  // 1. Busca as opções de filtro (games, modes, etc.)
+  // 1. Busca as opções de filtro
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
         setFiltersLoading(true);
+        // Ajuste a URL se necessário para o seu ambiente
         const response = await fetch(`http://checkpoint.localhost/api/events/filters`);
         if (!response.ok) {
           throw new Error("Falha ao buscar opções de filtro");
@@ -69,9 +70,9 @@ function SearchPage() {
       }
     };
     fetchFilterOptions();
-  }, []); // Roda apenas uma vez
+  }, []);
 
-  // 2. Busca os eventos quando a busca ativa, filtros ou página mudam
+  // 2. Busca os eventos
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
@@ -99,7 +100,6 @@ function SearchPage() {
         
         if (data.success) {
           setEvents(data.data.data || []);
-          // CORRIGIDO: A API envia "pagination", não "meta"
           setPaginationInfo(data.data.pagination || null); 
         } else {
           throw new Error(data.message || "Erro ao buscar eventos");
@@ -113,9 +113,9 @@ function SearchPage() {
       }
     };
     fetchEvents();
-  }, [activeSearchTerm, filters, currentPage]); // Depende da busca ATIVA
+  }, [activeSearchTerm, filters, currentPage]);
 
-  // 3. Atualiza a URL quando a busca ativa, filtros ou página mudam
+  // 3. Atualiza a URL
   useEffect(() => {
     const params = new URLSearchParams();
     
@@ -131,7 +131,7 @@ function SearchPage() {
     setSearchParams(params, { replace: true });
   }, [activeSearchTerm, filters, currentPage, setSearchParams]);
 
-  // 4. Sincroniza o input de "ir para página" com a página atual
+  // 4. Sincroniza o input
   useEffect(() => {
     setPageInput(currentPage);
   }, [currentPage]);
@@ -145,14 +145,12 @@ function SearchPage() {
     } else {
       setFilters(prev => ({ ...prev, [name]: value }));
     }
-    // ADICIONADO: Reseta para a página 1 ao mudar qualquer filtro
     setCurrentPage(1);
   };
 
-  // Ativa a busca ao clicar no botão ou pressionar Enter
   const handleSearch = () => {
     setActiveSearchTerm(searchTerm);
-    setCurrentPage(1); // Reseta para a página 1 em nova busca
+    setCurrentPage(1); 
   };
 
   const handleClearFilters = () => {
@@ -179,7 +177,6 @@ function SearchPage() {
   // --- Funções de Paginação ---
   const goToPage = (page) => {
     const pageNum = Number(page);
-    // CORRIGIDO: A API envia "totalPages"
     if (pageNum >= 1 && pageNum <= (paginationInfo?.totalPages || 1)) {
       setCurrentPage(pageNum);
     }
@@ -192,13 +189,11 @@ function SearchPage() {
 
   // Componente de renderização da paginação
   const renderPagination = () => {
-    // CORRIGIDO: A API envia "totalPages"
     if (!paginationInfo || paginationInfo.totalPages <= 1) return null;
 
-    // CORRIGIDO: Renomeia "page" para "currentPage" e "totalPages" para "lastPage"
     const { page: currentPage, totalPages: lastPage } = paginationInfo;
     const pageButtons = [];
-    const pagesToShow = 5; // Quantos números mostrar
+    const pagesToShow = 5; 
 
     let startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
     let endPage = Math.min(lastPage, startPage + pagesToShow - 1);
@@ -208,13 +203,22 @@ function SearchPage() {
     }
 
     if (startPage > 1) {
-      pageButtons.push(<button key="start-ellipsis" onClick={() => goToPage(startPage - 1)}>...</button>);
+      pageButtons.push(
+        <button 
+          key="start-ellipsis" 
+          className="pagination-btn"
+          onClick={() => goToPage(startPage - 1)}
+        >
+          ...
+        </button>
+      );
     }
 
     for (let i = startPage; i <= endPage; i++) {
       pageButtons.push(
         <button 
           key={i} 
+          className={`pagination-btn ${i === currentPage ? 'active' : ''}`}
           onClick={() => goToPage(i)}
           disabled={i === currentPage}
         >
@@ -224,36 +228,61 @@ function SearchPage() {
     }
 
     if (endPage < lastPage) {
-      pageButtons.push(<button key="end-ellipsis" onClick={() => goToPage(endPage + 1)}>...</button>);
+      pageButtons.push(
+        <button 
+          key="end-ellipsis" 
+          className="pagination-btn"
+          onClick={() => goToPage(endPage + 1)}
+        >
+          ...
+        </button>
+      );
     }
 
     return (
-      <div>
-        <button onClick={() => goToPage(1)} disabled={currentPage === 1}>
-          Primeira
+      <div className="pagination-container">
+        <button 
+          className="pagination-btn"
+          onClick={() => goToPage(1)} 
+          disabled={currentPage === 1}
+        >
+          Prim.
         </button>
-        <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
-          Anterior
+        <button 
+          className="pagination-btn"
+          onClick={() => goToPage(currentPage - 1)} 
+          disabled={currentPage === 1}
+        >
+          Ant.
         </button>
         
         {pageButtons}
 
-        <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === lastPage}>
-          Próximo
+        <button 
+          className="pagination-btn"
+          onClick={() => goToPage(currentPage + 1)} 
+          disabled={currentPage === lastPage}
+        >
+          Próx.
         </button>
-        <button onClick={() => goToPage(lastPage)} disabled={currentPage === lastPage}>
-          Última
+        <button 
+          className="pagination-btn"
+          onClick={() => goToPage(lastPage)} 
+          disabled={currentPage === lastPage}
+        >
+          Últ.
         </button>
 
-        <form onSubmit={handlePageInputSubmit}>
+        <form onSubmit={handlePageInputSubmit} className="pagination-form">
           <input 
             type="number" 
+            className="pagination-input"
             value={pageInput} 
             onChange={(e) => setPageInput(e.target.value)} 
             min="1" 
             max={lastPage}
           />
-          <button type="submit">
+          <button type="submit" className="pagination-btn">
             Ir
           </button>
         </form>
@@ -263,44 +292,46 @@ function SearchPage() {
 
   // --- Início do return (JSX) ---
   return (
-    <div>
-      <h1>Pesquisa de Eventos</h1>
+    <div className="search-page-container">
+      <h1 className="search-page-title">Pesquisa de Eventos</h1>
 
       {/* --- BARRA DE BUSCA --- */}
-      <div>
+      <div className="search-bar-wrapper">
         <input
           type="text"
+          className="search-input"
           placeholder="Buscar eventos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSearch()}
         />
-        <button onClick={handleSearch}>
+        <button className="btn-primary" onClick={handleSearch}>
           Buscar
         </button>
       </div>
 
       {/* --- FILTROS --- */}
-      <div>
-        <div>
+      <div className="filters-section">
+        <div className="filters-header">
           <h2>Filtros</h2>
-          {/* Botão para mostrar/esconder */}
-          <button onClick={() => setShowFilters(prev => !prev)}>
-            {showFilters ? "Esconder" : "Mostrar"}
-          </button>
-          <button onClick={handleClearFilters}>
-            Limpar filtros
-          </button>
+          <div className="filters-actions">
+            <button className="btn-secondary" onClick={() => setShowFilters(prev => !prev)}>
+              {showFilters ? "Esconder" : "Mostrar"}
+            </button>
+            <button className="btn-secondary" onClick={handleClearFilters}>
+              Limpar filtros
+            </button>
+          </div>
         </div>
         
         {/* --- CONTEÚDO CONDICIONAL (Filtros) --- */}
         {showFilters && (
           <>
             {filtersLoading ? (
-              <p>Carregando filtros...</p>
+              <p className="loading-state">Carregando filtros...</p>
             ) : (
-              // Div principal dos filtros (aparece quando não está loading)
-              <div> 
+              // Div principal dos filtros
+              <div className="filters-grid"> 
                 <select name="game" value={filters.game} onChange={handleChange}>
                   <option value="">Todos os Jogos</option>
                   {filterOptions.games.map(game => (
@@ -353,7 +384,7 @@ function SearchPage() {
 
                 <input name="maxParticipants" type="number" placeholder="Máx. participantes" value={filters.maxParticipants} onChange={handleChange} min="1" />
 
-                <div>
+                <div className="checkbox-wrapper">
                   <input 
                     id="isOnline" 
                     name="isOnline" 
@@ -368,39 +399,38 @@ function SearchPage() {
               </div>
             )} 
 
-            {/* Este botão "Aplicar Filtros" SÓ aparece se os filtros estiverem visíveis */}
-            <div>
-              <button onClick={handleSearch}>
+            <div className="apply-filters-btn-container">
+              <button className="btn-primary" onClick={handleSearch}>
                 Aplicar Filtros
               </button>
             </div>
           </>
         )}
-        {/* --- FIM DO CONTEÚDO CONDICIONAL --- */}
       </div>
 
       {/* --- RESULTADOS --- */}
       <div>
         {loading ? (
-          <div>
+          <div className="loading-state">
             <div>Carregando eventos...</div>
           </div>
         ) : error ? (
-          <div>
+          <div className="error-state">
             {error}
           </div>
         ) : events.length === 0 ? (
-          <div>
+          <div className="empty-state">
             Nenhum evento encontrado com os filtros aplicados.
           </div>
         ) : (
           <>
-            <h2>Eventos Encontrados ({paginationInfo?.total || events.length})</h2>
-            <div>
+            <h2 className="results-info">Eventos Encontrados ({paginationInfo?.total || events.length})</h2>
+            <div className="events-grid">
               {events.map((event) => (
-                <div key={event.eventId}>
+                <div key={event.eventId} className="event-card">
                   {event.bannerURL && (
                     <img 
+                      className="event-card-image"
                       src={event.bannerURL} 
                       alt={event.title} 
                       onError={(e) => {
@@ -409,44 +439,44 @@ function SearchPage() {
                       }}
                     />
                   )}
-                  <div>
+                  <div className="event-card-content">
                     <div>
-                      <h3>{event.title}</h3>
-                      <span>
-                        {event.status}
-                      </span>
+                        <div className="event-card-header">
+                        <h3 className="event-card-title">{event.title}</h3>
+                        <span className="event-card-status">
+                            {event.status}
+                        </span>
+                        </div>
+                        <p className="event-description">{event.description}</p>
+                        
+                        <div className="event-details-grid">
+                        <div className="event-detail-item">
+                            <strong>Data:</strong>
+                            <span> {new Date(event.startDate).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <div className="event-detail-item">
+                            <strong>Jogo:</strong>
+                            <span> {event.gameName || "N/A"}</span>
+                        </div>
+                        <div className="event-detail-item">
+                            <strong>Formato:</strong>
+                            <span> {
+                            filterOptions.modes.find(m => m.ModeName === event.mode)?.ModeName || event.mode
+                            }</span>
+                        </div>
+                        <div className="event-detail-item">
+                            <strong>Local:</strong>
+                            <span> {event.isOnline ? "Online" : event.location}</span>
+                        </div>
+                        </div>
                     </div>
-                    <p>{event.description}</p>
                     
-                    <div>
-                      <div>
-                        <strong>Data:</strong>
-                        <span> {new Date(event.startDate).toLocaleDateString('pt-BR')} - {new Date(event.endDate).toLocaleDateString('pt-BR')}</span>
-                      </div>
-                      <div>
-                        <strong>Jogo:</strong>
-                        <span> {event.gameName || "N/A"}</span>
-                      </div>
-                      <div>
-                        <strong>Formato:</strong>
-                        {/* Mostra o nome do modo se o encontrarmos, senão o texto bruto */}
-                        <span> {
-                          filterOptions.modes.find(m => m.ModeName === event.mode)?.ModeName || event.mode
-                        }</span>
-                      </div>
-                      <div>
-                        <strong>Local:</strong>
-                        <span> {event.isOnline ? "Online" : event.location}</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div>
-                        <strong>Ingresso:</strong> 
-                        <span>R$ {event.ticket?.toFixed(2) || "Grátis"}</span>
+                    <div className="event-footer">
+                      <div className="event-price">
+                        {event.ticket ? `R$ ${event.ticket.toFixed(2)}` : "Grátis"}
                       </div>
                       <Link to={`/evento/${event.eventId}`}>
-                        <button>
+                        <button className="btn-details">
                           Ver detalhes
                         </button>
                       </Link> 

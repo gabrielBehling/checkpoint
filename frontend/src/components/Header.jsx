@@ -47,7 +47,7 @@ function Header() {
 
         <ul>
           <li>
-            <Link to="/eventos">Eventos</Link>
+            <Link to="/search">Eventos</Link>
           </li>
 
           {!user ? (
