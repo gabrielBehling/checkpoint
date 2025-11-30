@@ -8,23 +8,22 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 export default function ChatPage() {
-  // --- Estados ---
   const { user } = useAuth();
   const [teams, setTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   
-  // preview de imagens
+  // Estados de Imagem
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
-
 
   const [typingUsers, setTypingUsers] = useState({});
   const socket = useRef(null);
   const bottomRef = useRef(null);
 
+  // --- Scroll ---
   const scrollToBottom = () => {
     setTimeout(() => {
       if (bottomRef.current) {
@@ -33,9 +32,7 @@ export default function ChatPage() {
     }, 100);
   };
 
-  // --- Efeitos ---
-
-  // Carregar Times
+  // --- Carregar Times ---
   useEffect(() => {
     async function loadTeams() {
       try {
@@ -48,7 +45,7 @@ export default function ChatPage() {
     loadTeams();
   }, []);
 
-  //  Conectar Socket
+  // --- Socket Connection ---
   useEffect(() => {
     if (!socket.current) {
       socket.current = io("http://checkpoint.localhost", {
@@ -60,34 +57,31 @@ export default function ChatPage() {
     return () => socket.current?.disconnect();
   }, []);
 
-  async function loadMessages() {
-    try {
-      const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
-      setMessages(Array.isArray(res.data) ? res.data : []);
-      scrollToBottom();
-    } catch (err) {
-      console.error("Erro ao carregar mensagens:", err);
-    }
-  }
-
-  // 3. Lógica da Sala (Mensagens)
+  // --- Carregar Mensagens ao Mudar de Time ---
   useEffect(() => {
     if (!selectedTeam) return;
+
+    async function loadMessages() {
+      try {
+        const res = await api.get(`/chat/messages/${selectedTeam.TeamId}`);
+        setMessages(Array.isArray(res.data) ? res.data : []);
+        scrollToBottom();
+      } catch (err) {
+        console.error("Erro ao carregar mensagens:", err);
+      }
+    }
 
     loadMessages();
     socket.current.emit("joinTeam", selectedTeam.TeamId);
 
-    // Função de receber mensagem
     const handleReceiveMessage = (msg) => {
-      // Verifica se a mensagem pertence ao time atual
       if (msg.teamId == selectedTeam.TeamId) {
         setMessages((prev) => [...prev, msg]);
         scrollToBottom();
       }
     };
 
-    // Função de digitando
-    const handleTyping = ({ teamId, username }) => {
+    const handleTypingServer = ({ teamId, username }) => {
       if (teamId !== selectedTeam.TeamId) return;
       setTypingUsers((prev) => ({ ...prev, [username]: true }));
       setTimeout(() => {
@@ -99,14 +93,12 @@ export default function ChatPage() {
       }, 1200);
     };
 
-    // Registrar ouvintes
     socket.current.on("receivedMessage", handleReceiveMessage);
-    socket.current.on("typing", handleTyping);
+    socket.current.on("typing", handleTypingServer);
 
-    // --- LIMPEZA (Crucial para não duplicar) ---
     return () => {
       socket.current.off("receivedMessage", handleReceiveMessage);
-      socket.current.off("typing", handleTyping);
+      socket.current.off("typing", handleTypingServer);
     };
 
   }, [selectedTeam]);
@@ -127,67 +119,70 @@ export default function ChatPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // ENVIO UNIFICADO
-  async function handleSubmit(e) {
-    e.preventDefault();
-
-    if (!message.trim() && !selectedFile) return;
-
-    // 1. Enviar Imagem (API POST)
-    if (selectedFile) {
-        const formData = new FormData();
-        formData.append('teamId', selectedTeam.TeamId);
-        formData.append('type', 'image');
-        formData.append('file', selectedFile);
-    
-        try {
-          await api.post('/chat/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
-        } catch (err) {
-          console.error("Erro ao enviar imagem:", err);
-          alert("Erro no upload da imagem");
-        }
-    }
-
-    // 2. Enviar Texto (Socket)
-    if (message.trim()) {
-        socket.current.emit("sendMessage", {
-            teamId: selectedTeam.TeamId,
-            message,
-        }, (response) => {
-            if (response.status !== 'success') {
-                console.error(response.message);
-            }
-        });
-    }
-
-    // Limpar tudo
-    setMessage("");
-    clearFile();
-    // NÃO fazemos setMessages manual aqui, confiamos no retorno do socket
-  }
-
-  function handleTyping(e) {
+  const handleTypingInput = (e) => {
     setMessage(e.target.value);
     socket.current.emit("typing", {
       teamId: selectedTeam.TeamId,
       username: user.username,
     });
+  };
+
+  //  ENVIO DA MENSAGEM 
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!message.trim() && !selectedFile) return;
+
+    let finalFileUrl = null;
+
+    // 1. UPLOAD (Se houver arquivo)
+    if (selectedFile) {
+        const formData = new FormData();
+        formData.append('teamId', selectedTeam.TeamId);
+        formData.append('file', selectedFile);
+    
+        try {
+          // O Await aqui é essencial. O código para até o upload terminar.
+          const res = await api.post('/chat/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          
+          if (res.data && res.data.fileUrl) {
+             finalFileUrl = res.data.fileUrl;
+          }
+        } catch (err) {
+          console.error("Erro ao enviar imagem:", err);
+          alert("Falha no upload da imagem");
+          return; 
+        }
+    }
+
+    // 2. SOCKET EMIT (Texto e/ou URL)
+    if (message.trim() || finalFileUrl) {
+        socket.current.emit("sendMessage", {
+            teamId: selectedTeam.TeamId,
+            message: message,
+            fileUrl: finalFileUrl 
+        }, (response) => {
+            if (response && response.status !== 'success') {
+                console.error("Erro no socket:", response);
+            }
+        });
+    }
+
+    setMessage("");
+    clearFile();
   }
 
-  // --- Render ---
+  //  RENDER 
   return (
     <div>
       <Header />
-
       <div className="chat-container">
-        {/* Sidebar */}
         <aside className="chat-sidebar">
           <div className="sidebar-header">
             <h2>Seus Chats</h2>
           </div>
-
           <div className="chat-list">
             {teams.map((team, i) => (
               <div
@@ -200,14 +195,13 @@ export default function ChatPage() {
               >
                 <div className="chat-item-info">
                   <span className="chat-item-name">{team.TeamName}</span>
-                  <span className="chat-item-last-message">Clique para abrir a conversa</span>
                 </div>
               </div>
             ))}
           </div>
         </aside>
 
-        {/* Janela Principal */}
+        {/* Chat Window */}
         <main className="chat-window">
           {!selectedTeam ? (
             <div className="no-chat-selected">Selecione um chat na barra lateral →</div>
@@ -227,17 +221,22 @@ export default function ChatPage() {
                     >
                       {!isSent && <span className="message-sender">{msg.author}</span>}
 
-                      {/* Lógica de Renderização: Imagem ou Texto */}
-                      {msg.type === 'image' || msg.fileUrl ? (
-                        <img
-                          // Ajuste aqui a URL base caso necessário
-                          src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `http://checkpoint.localhost/api/chat${msg.fileUrl}`}
-                          className="chat-image"
-                          alt="Enviada"
-                          onError={(e) => { e.target.style.display = 'none'; }} 
-                        />
-                      ) : (
-                        <span className="message-text">{msg.message}</span>
+                      {msg.fileUrl && (
+                        <div className="message-image-container">
+                             <img
+                              src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `http://checkpoint.localhost/api/chat${msg.fileUrl}`}
+                              className="chat-image"
+                              alt="Anexo"
+                              style={{ maxWidth: '100%', borderRadius: '8px', display: 'block' }}
+                              onError={(e) => { e.target.style.display = 'none'; }} 
+                            />
+                        </div>
+                      )}
+
+                      {msg.message && (
+                        <span className="message-text" style={{ display: 'block', marginTop: msg.fileUrl ? '5px' : '0' }}>
+                          {msg.message}
+                        </span>
                       )}
 
                       <span className="message-timestamp">
@@ -247,54 +246,50 @@ export default function ChatPage() {
                   );
                 })}
 
+                {/* Typing Indicator */}
                 {Object.keys(typingUsers).length > 0 && (
                   <div className="typing-indicator">
                     {Object.keys(typingUsers).join(", ")} digitando...
                   </div>
                 )}
-
                 <div ref={bottomRef}></div>
               </div>
 
-              {/* Área de Preview */}
+              {/* Preview da Imagem Selecionada */}
               {previewUrl && (
-                <div className="image-preview-container" style={{ padding: '10px', background: 'rgba(0,0,0,0.2)' }}>
-                  <div className="preview-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
-                      style={{ height: '80px', borderRadius: '8px', border: '1px solid #4d8eff' }} 
-                    />
-                    <button 
-                      onClick={clearFile}
-                      style={{
-                        position: 'absolute', top: '-8px', right: '-8px', 
-                        background: '#ff6b3c', color: 'white', borderRadius: '50%', 
-                        width: '20px', height: '20px', border: 'none', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
+                <div className="image-preview-container" style={{ padding: '10px', background: 'rgba(0,0,0,0.1)', display: 'flex' }}>
+                   <div style={{ position: 'relative' }}>
+                      <img src={previewUrl} alt="Preview" style={{ height: '80px', borderRadius: '5px' }} />
+                      <button 
+                        onClick={clearFile}
+                        style={{
+                          position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', 
+                          borderRadius: '50%', border: 'none', cursor: 'pointer', width: '20px', height: '20px'
+                        }}
+                      >X</button>
+                   </div>
                 </div>
               )}
 
-              {/* Formulário */}
+              {/* Input Form */}
               <form className="message-input-form" onSubmit={handleSubmit}>
                 <input 
                     type="text" 
                     placeholder="Digite sua mensagem..." 
                     value={message} 
-                    onChange={handleTyping} 
+                    onChange={handleTypingInput} 
                 />
 
+                <label htmlFor="file-upload" className="file-upload-btn" style={{ cursor: 'pointer', margin: '0 10px' }}>
+                    📷
+                </label>
                 <input 
+                    id="file-upload"
                     type="file" 
                     accept="image/*" 
                     onChange={handleFileSelect}
                     ref={fileInputRef} 
-                    style={{ maxWidth: '100px' }} // Ajuste visual simples
+                    style={{ display: 'none' }}
                 />
 
                 <button type="submit" disabled={!message.trim() && !selectedFile}>

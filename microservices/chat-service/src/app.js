@@ -28,7 +28,6 @@ const io = socketIO(server, {
 });
 
 const EVENTS_SERVICE_URL = process.env.EVENTS_SERVICE_URL || 'http://events-service:3000';
-
 const mongoUser = process.env.MONGO_USER;
 const mongoPass = process.env.MONGO_PASSWORD;
 const mongoDb = process.env.MONGO_DB;
@@ -45,7 +44,6 @@ app.set('views', publicDir);
 app.engine('html', renderFile);
 app.set('view engine', 'html');
 
-// Garante que a pasta existe
 const uploadDir = path.join(publicDir, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -61,7 +59,6 @@ const upload = multer({
 // --- Função Porteiro ---
 async function isUserMemberOfTeam(userId, teamId, authToken) {
   if (!userId || !teamId || !authToken) return false;
-
   const checkUrl = `${EVENTS_SERVICE_URL}/teams/${teamId}`;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 3000);
@@ -72,17 +69,11 @@ async function isUserMemberOfTeam(userId, teamId, authToken) {
       headers: { 'Cookie': `accessToken=${authToken}` },
       signal: controller.signal
     });
-
     if (!response.ok) return false;
-
     const body = await response.json();
     const members = body.data?.members;
-
     if (!Array.isArray(members)) return false;
-
-    const userIdString = userId.toString();
-    return members.some(member => member.userId.toString() === userIdString);
-
+    return members.some(member => member.userId.toString() === userId.toString());
   } catch (error) {
     console.log(`[AUTH_CHECK] Erro: ${error.message}`);
     return false;
@@ -97,93 +88,35 @@ app.get('/', (req, res) => {
   res.render('index.html');
 });
 
-// Rota de Upload
+//  ROTA DE UPLOAD 
 app.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   try {
-    const { type, teamId } = req.body;
+    const { teamId } = req.body;
     const user = req.user;
     const authToken = req.cookies.accessToken;
 
-    if (!user || !user.userId) {
-        return res.status(401).json({ error: 'JWT inválido.' });
-    }
+    if (!user || !user.userId) return res.status(401).json({ error: 'JWT inválido.' });
+    if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
     
-    if (!req.file) {
-      return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
-    }
-
-    if (!teamId) {
-      return res.status(400).json({ error: 'TeamId é obrigatório' });
-    }
-
+    // Verificação de segurança
     const isMember = await isUserMemberOfTeam(user.userId, teamId, authToken);
     if (!isMember) {
-      fs.unlink(req.file.path, () => {}); // Apaga arquivo se falhar auth
+      fs.unlink(req.file.path, () => {}); 
       return res.status(403).json({ error: 'Não autorizado.' });
     }
 
     const fileUrl = `/uploads/${req.file.filename}`;
     
-    const message = new Message({
-      author: user.username,
-      userId: user.userId,
-      type: type || 'image',
-      fileUrl: fileUrl,    
-      teamId: teamId,
-      timestamp: new Date()
-    });
-
-    await message.save();
-
-    // EMISSÃO EM TEMPO REAL
-    io.to(teamId).emit('receivedMessage', message);
-
+    // Retorna a URL para o socket usar depois
     res.json({ success: true, fileUrl: fileUrl });
 
   } catch (error) {
     console.error('Erro upload:', error);
     res.status(500).json({ error: 'Erro interno.' });
   }
-  
 });
 
-// Comentários de eventos
-app.post('/events/:eventId/comments', authMiddleware, async (req, res) => {
-  try {
-    const { eventId } = req.params;
-    const { content } = req.body;
-    const user = req.user;
-
-    if (!content || !content.trim()) return res.status(400).json({ error: 'Conteúdo obrigatório' });
-
-    const message = new Message({
-      author: user.username,
-      userId: user.userId,
-      message: content.trim(),
-      type: 'comment',
-      eventId: eventId
-    });
-
-    await message.save();
-    res.status(201).json(message);
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao criar comentário' });
-  }
-});
-
-app.get('/events/:eventId/comments', async (req, res) => {
-  try {
-    const { eventId } = req.params;
-    const comments = await Message.find({ eventId: eventId, type: 'comment' })
-      .sort({ timestamp: -1 })
-      .limit(100);
-    res.json(comments);
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar comentários' });
-  }
-});
-
-// Mensagens Chat
+// Mensagens Chat (Histórico)
 app.get('/messages/:teamId', authMiddleware, async (req, res) => {
   try {
     const { teamId } = req.params;
@@ -200,7 +133,54 @@ app.get('/messages/:teamId', authMiddleware, async (req, res) => {
   }
 });
 
-// Servir arquivos estáticos
+// COMENTÁRIOS DE EVENTOS (POST)
+app.post('/events/:eventId/comments', authMiddleware, async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { content } = req.body;
+    const user = req.user;
+
+    // Validação estrita: Conteúdo é obrigatório
+    if (!content || !content.trim()) {
+        return res.status(400).json({ error: 'Conteúdo do comentário é obrigatório' });
+    }
+
+    const message = new Message({
+      author: user.username,
+      userId: user.userId,
+      message: content.trim(), 
+      type: 'comment',         
+      eventId: eventId,
+      timestamp: new Date(),
+      fileUrl: null,           
+      teamId: null            
+    });
+
+    await message.save();
+    res.status(201).json(message);
+
+  } catch (err) {
+    console.error("Erro ao salvar comentário:", err);
+    res.status(500).json({ error: 'Erro ao criar comentário' });
+  }
+});
+
+// 3. COMENTÁRIOS DE EVENTOS (GET)
+app.get('/events/:eventId/comments', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    // Busca apenas mensagens do tipo 'comment'
+    const comments = await Message.find({ eventId: eventId, type: 'comment' })
+      .sort({ timestamp: -1 })
+      .limit(100);
+    res.json(comments);
+  } catch (err) {
+    console.error("Erro ao buscar comentários:", err);
+    res.status(500).json({ error: 'Erro ao buscar comentários' });
+  }
+});
+
+// Servir arquivos estáticos (upload manual, fallback)
 app.get('/upload/:filename', (req, res) => {
   const filePath = path.join(publicDir, 'uploads', req.params.filename);
   fs.access(filePath, fs.constants.F_OK, (err) => {
@@ -224,14 +204,13 @@ function getCookie(cookieString, cname) {
 }
 
 io.on('connection', socket => {
-  console.log(`ID Conectado: ${socket.id}`);
   const cookieString = socket.handshake.headers.cookie || socket.request.headers.cookie;
   const authToken = getCookie(cookieString, 'accessToken');
-
   let user;
+
   try {
     user = jwt.verify(authToken, process.env.JWT_SECRET, { maxAge: "1h" });
-    if (!user.userId || !user.username) throw new Error("Token inválido");
+    if (!user.userId) throw new Error("Token inválido");
   } catch (err) {
     return socket.disconnect();
   }
@@ -246,27 +225,47 @@ io.on('connection', socket => {
     socket.join(teamId);
   });
 
+  // Socket APENAS para Chat de Times (Aceita Imagem e Texto)
   socket.on('sendMessage', async (data, callback) => {
-    if (!data.teamId || !data.message) return;
+    try {
+        if (!data.teamId) return;
+        
+        const hasText = data.message && data.message.trim().length > 0;
+        const hasFile = data.fileUrl && data.fileUrl.trim().length > 0;
 
-    const isMember = await isUserMemberOfTeam(user.userId, data.teamId, authToken);
-    if (!isMember) {
-      socket.emit('authError', 'Sem permissão.');
-      return;
+        if (!hasText && !hasFile) return; 
+
+        const isMember = await isUserMemberOfTeam(user.userId, data.teamId, authToken);
+        if (!isMember) return socket.emit('authError', 'Sem permissão.');
+
+        // Define o tipo
+        let msgType = 'text';
+        if (hasFile && !hasText) msgType = 'image';
+        if (hasFile && hasText) msgType = 'mixed';
+
+        const message = new Message({
+          author: user.username,
+          userId: user.userId,
+          teamId: data.teamId,
+          timestamp: new Date(),
+          type: msgType,
+          message: hasText ? data.message : null,
+          fileUrl: hasFile ? data.fileUrl : null
+        });
+
+        await message.save();
+        io.to(data.teamId).emit('receivedMessage', message);
+        
+        if (callback) callback({ status: 'success' });
+
+    } catch (err) {
+        console.error("Erro no socket sendMessage:", err);
+        if (callback) callback({ status: 'error', message: 'Erro ao salvar mensagem' });
     }
+  });
 
-    const message = new Message({
-      author: user.username,
-      userId: user.userId,
-      message: data.message,
-      type: 'text',
-      teamId: data.teamId
-    });
-
-    await message.save();
-    io.to(data.teamId).emit('receivedMessage', message);
-    
-    if (callback) callback({ status: 'success' });
+  socket.on('typing', (data) => {
+     socket.to(data.teamId).emit('typing', data);
   });
 });
 

@@ -13,19 +13,16 @@ import RankingFinal from "../components/RankingFinal";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-// --- Função Auxiliar de Formatação (Mantida) ---
-// Formata datas para o formato local (ex: dd/mm/aaaa, hh:mm:ss)
+// --- Função Auxiliar de Formatação ---
 function formatarData(dataISO) {
   if (!dataISO) return "-";
   const data = new Date(dataISO);
-  // Adaptei para um formato mais limpo para o layout
   return data.toLocaleString("pt-BR", { 
     timeZone: 'UTC',
     year: 'numeric', month: '2-digit', day: '2-digit', 
     hour: '2-digit', minute: '2-digit', second: '2-digit' 
   }).replace(/\//g, '-').replace(',', '');
 }
-
 
 // --- Componente Principal ---
 export default function EventoInfo() {
@@ -55,63 +52,94 @@ export default function EventoInfo() {
     }
   }, [searchParams]);
   
+  // useEffect para Carregar Dados
+  useEffect(() => {
+    let isMounted = true; 
+
+    async function carregarDados() {
+      if (!eventId) {
+        if (isMounted) {
+            setErro("Evento não encontrado.");
+            setLoading(false);
+        }
+        return;
+      }
+
+      setLoading(true);
+
+      // 1. Tenta carregar o EVENTO (Essencial)
+      try {
+        const eventoRes = await api.get(`/events/${eventId}/`);
+        
+        if (!isMounted) return;
+
+        if (eventoRes.data.success) {
+          setEvento(eventoRes.data.data);
+        } else {
+          setErro("Falha ao recuperar dados do evento.");
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Erro crítico ao carregar evento:", err);
+        if (isMounted) {
+            setErro("Erro ao carregar informações do evento.");
+            setLoading(false);
+        }
+        return;
+      }
+
+      // 2. Tenta carregar comentários
+      try {
+        const commentsRes = await api.get(`/chat/events/${eventId}/comments`);
+        if (isMounted) {
+            setComments(commentsRes.data || []);
+        }
+      } catch (err) {
+        console.warn("Serviço de chat indisponível :", err.message);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    carregarDados();
+
+    return () => { isMounted = false; };
+  }, [eventId]);
+
   // --- Funções de Handler (Comentário) ---
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     try {
-      // Mock do objeto de resposta do comentário, já que o backend pode não retornar o autor completo
-      const mockCommentResponse = {
-        _id: Date.now().toString(), // ID único temporário
-        author: user?.username || "Usuário Anônimo", 
+      // Chamada para a API
+      const response = await api.post(`/chat/events/${eventId}/comments`, { 
+          content: newComment.trim() 
+      });
+      
+      // Usa a resposta do servidor se disponível, ou fallback para objeto local
+      const savedComment = response.data || {
+        _id: Date.now().toString(),
+        author: user?.username || "Você", 
         message: newComment.trim(),
         timestamp: new Date().toISOString(),
       };
 
-      // Simula o POST (substitua a linha abaixo pela chamada real)
-      // const response = await api.post(`/chat/events/${eventId}/comments`, { content: newComment.trim() });
-      
-      setComments(prev => [mockCommentResponse, ...prev]);
+      setComments(prev => [savedComment, ...prev]);
       setNewComment('');
     } catch (err) {
       console.error('Erro ao enviar comentário:', err);
-      showError('Não foi possível enviar o comentário. Tente novamente.');
+      if (err.response && err.response.status === 504) {
+          showError('O servidor de chat não está respondendo no momento.');
+      } else {
+          showError('Não foi possível enviar o comentário. Tente novamente.');
+      }
     }
   };
 
-  // --- useEffect para Carregar Dados (Mantido) ---
-  useEffect(() => {
-    async function carregarDados() {
-      try {
-        if (!eventId) {
-          setErro("Evento não encontrado.");
-          return;
-        }
-
-        const [eventoRes, commentsRes] = await Promise.all([
-          api.get(`/events/${eventId}/`),
-          api.get(`/chat/events/${eventId}/comments`)
-        ]);
-        
-        if (eventoRes.data.success) {
-          setEvento(eventoRes.data.data);
-        }
-        // Os comentários devem ter a estrutura { author, message, timestamp }
-        setComments(commentsRes.data || []); 
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
-        setErro("Erro ao carregar informações do evento.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    carregarDados();
-  }, [eventId]);
-
   if (loading) return <p>Carregando informações...</p>;
-  if (erro) return <p style={{ color: "red" }}>{erro}</p>;
+  if (erro) return <p style={{ color: "red", padding: "20px" }}>{erro}</p>;
   if (!evento) return null;
 
   // --- Variáveis para Dados (Limpeza e Formatação) ---
@@ -119,10 +147,9 @@ export default function EventoInfo() {
   const creatorUsername = evento.createdBy?.username
   const creatorAvatar = evento.organizerProfileURL ? "http://checkpoint.localhost/api/auth/" + evento.organizerProfileURL : "caminho/padrao/avatar.png"; 
 
-  const isAtivo = evento.status === "Active"; // Para o badge de status
+  const isAtivo = evento.status === "Active";
 
-  // Assumindo que evento.miniaturaURLs é um array de strings
-  const miniaturas = evento.miniaturaURLs || ["miniatura1.jpg", "miniatura2.jpg", "miniatura3.jpg"]; 
+  const miniaturas = evento.miniaturaURLs || []; 
 
   const ticketPrice = evento.ticket || 0;
   const halfTicketPrice = ticketPrice / 2;
@@ -232,12 +259,12 @@ export default function EventoInfo() {
                         className="evento-banner"
                     />
 
-                    {/* Miniaturas (Imagens na lateral direita do banner) */}
+                    {/* Miniaturas */}
                     <div className="evento-miniaturas">
                         {miniaturas.slice(0, 3).map((url, index) => (
                             <img 
                                 key={index} 
-                                src={url} // Ajuste o caminho se necessário: "http://checkpoint.localhost/api/events" + url
+                                src={url} 
                                 alt={`Miniatura ${index + 1}`} 
                             />
                         ))}
@@ -282,19 +309,16 @@ export default function EventoInfo() {
                         <div className="info-card times">
                             <div className="label">HORÁRIOS</div>
                             <div className="value">
-                                {/* Assumindo que os horários são o segundo elemento da formatação da data */}
                                 <span className="time">{formatarData(evento.startHour).split(' ')[1]}</span> 
                                 <span className="time">{formatarData(evento.endHour).split(' ')[1]}</span>
                             </div>
                         </div>
 
-                        {/* 3. LOCALIZAÇÃO (Ocupa a linha toda) */}
+                        {/* 3. LOCALIZAÇÃO */}
                         <div className="info-card location-card" style={{gridColumn: '1 / span 2'}}>
                             <div className="label">LOCALIZAÇÃO</div>
                             <div className="value location">
                                 {evento.location || "Local não especificado"}{evento.isOnline ? " (Online)" : " (Presencial)"}
-                                {/* Ponto de referência não está no objeto, mas se estivesse seria: */}
-                                {/* <br />Ponto de Referência: {evento.referencePoint} */}
                             </div>
                         </div>
 
@@ -306,7 +330,6 @@ export default function EventoInfo() {
                                     <span className="price-tag">R$ {ticketPrice.toFixed(2)}</span>
                                     <span>INTEIRA</span>
                                 </div>
-                                {/* Adicionando a opção de Meia, mesmo que o backend não envie explicitamente */}
                                 <div className="value">
                                     <span className="price-tag meia">R$ {halfTicketPrice.toFixed(2)}</span>
                                     <span>MEIA</span>
@@ -346,14 +369,13 @@ export default function EventoInfo() {
                     </div>
                 </section>
 
-                {/* --- RANKING FINAL (se evento finalizado e Round Robin) --- */}
+                {/* --- RANKING FINAL --- */}
                 {evento.status === "Finished" && isRoundRobin && (
                   <RankingFinal eventId={eventId} />
                 )}
 
                 {/* --- BOTÕES DE AÇÃO --- */}
                 <div className="actions-row">
-                    {/* Botão de inscrição só aparece se o usuário não estiver inscrito e o evento estiver ativo */}
                     {evento.status === "Active" && (
                         <>
                             {!user ? (
@@ -369,7 +391,6 @@ export default function EventoInfo() {
                             )}
                         </>
                     )}
-                    {/* Botão de Edição visível para Admin/Organizer */}
                     {(user && (user.userRole === "administrator" || user.userRole === "organizer")) && (
                         <Link to={`/evento/${evento.eventId}/editarEvento`}>
                             <button className="btn-inscricao">Editar Evento</button>
@@ -383,11 +404,12 @@ export default function EventoInfo() {
                     
                     <div className="comments-list">
                         {comments.length === 0 ? (
-                            <p className="no-comments">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+                            <p className="no-comments">
+                                {erro && !loading ? "Sistema de comentários indisponível." : "Nenhum comentário ainda. Seja o primeiro a comentar!"}
+                            </p>
                         ) : (
-                            // Mapeia os comentários (assumindo que o mais recente está no topo: prev => [new, ...prev])
-                            comments.map(comment => (
-                                <div key={comment._id} className="comment">
+                            comments.map((comment, index) => (
+                                <div key={comment._id || index} className="comment">
                                     <div className="comment-header">
                                         <strong className="author">{comment.author}</strong>
                                         <span className="comment-date">
@@ -400,8 +422,7 @@ export default function EventoInfo() {
                         )}
                     </div>
 
-                    {/* Formulário de Comentário */}
-                    {user && ( // O formulário só aparece se o usuário estiver logado
+                    {user && (
                         <form className="comment-form" onSubmit={handleCommentSubmit}>
                             <textarea
                                 value={newComment}
@@ -422,10 +443,8 @@ export default function EventoInfo() {
 
             </div>
             
-              {/* Coluna Lateral (Sidebar - Vazia no design da imagem, mas mantida por consistência) */}
-              <div className="evento-side">
-                  {/* Aqui poderiam ir cards laterais (mini-stats, criador, etc.) */}
-              </div>
+            <div className="evento-side">
+            </div>
           </div>
         </main>
       )}

@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 export default function Contato() { 
 
     const membrosDoTime = [
-        { nome: "Adryel Arlindo", githubUser: "Adryel115", url: "https://github.com/Adryel115" },
+        { nome: "Adryel Anderson", githubUser: "Adryel115", url: "https://github.com/Adryel115" },
         { nome: "Gabriel Behling", githubUser: "gabrielBehling", url: "https://github.com/gabrielBehling" },
         { nome: "Lucas Rodrigues", githubUser: "lucas14BRzx", url: "https://github.com/lucas14BRzx" },
         { nome: "Mateus Rodrigues", githubUser: "MLino5", url: "https://github.com/MLino5" },
