@@ -176,7 +176,7 @@ export default function ChatPage() {
 
   //  RENDER 
   return (
-    <div>
+    <div id="chat-page-wrapper">
       <Header />
       <div className="chat-container">
         <aside className="chat-sidebar">

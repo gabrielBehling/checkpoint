@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCustomModal } from "../hooks/useCustomModal";
-import "../assets/css/style-perfil.css";
+import "../assets/css/style-perfil.css"; // Certifique-se que o CSS Novo está aqui
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
+// Ícones SVG simples
 const IconCamera = () => <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" /><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z" /></svg>;
 const IconEdit = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>;
 
 export default function PerfilPage() {
     const { user, loading, updateUserInfo, logout, deleteAccount, checkAuth } = useAuth();
-    const { showError, showSuccess } = useCustomModal(); // Adicione Modal se precisar renderizar
+    const { showError, showSuccess } = useCustomModal();
     const navigate = useNavigate();
 
     const [previewImage, setPreviewImage] = useState(null);
@@ -20,7 +21,6 @@ export default function PerfilPage() {
     const [selectedRole, setSelectedRole] = useState('');
     const [isUpdating, setIsUpdating] = useState(false);
 
-    // Helper para URL da imagem
     const getImageUrl = (path) => {
         if (!path) return null;
         return path.startsWith("http") ? path : `${window.location.origin}/api/auth${path}`;
@@ -39,7 +39,6 @@ export default function PerfilPage() {
         }
     }, [user, loading, navigate]);
 
-    // Manipula erro de imagem (mostra placeholder)
     const handleImageError = (e) => {
         e.target.src = "https://via.placeholder.com/150/14122a/a78bfa?text=User";
     };
@@ -63,7 +62,6 @@ export default function PerfilPage() {
         } catch (err) {
             console.error(`Erro ao atualizar ${type}:`, err);
             showError(`Erro ao atualizar: ${err.message}`);
-            // Reverte preview
             if (type === 'profile') setPreviewImage(getImageUrl(user.profileURL));
             else setPreviewBanner(user.bannerImage);
         } finally {
@@ -125,142 +123,144 @@ export default function PerfilPage() {
     if (!user) return null;
 
     return (
-        <div className="perfil-container">
-            <Header />
+        <div id="perfil-page-wrapper"> 
+            <div className="perfil-container">
+                <Header />
 
-            <section className="perfil-banner">           
-                <div
-                    className="background-img"
-                    style={{
-                        backgroundImage: previewBanner
-                            ? `url(${previewBanner})`
-                            : "linear-gradient(135deg, #241D3B, #100C1F)"
-                    }}
-                />
-                <label className="edit-banner-btn">
-                    <IconCamera />
-                    <span>Alterar Banner</span>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        hidden
-                        onChange={(e) => handleFileChange(e, 'banner')}
-                        disabled={isUpdating}
+                <section className="perfil-banner">           
+                    <div
+                        className="background-img"
+                        style={{
+                            backgroundImage: previewBanner
+                                ? `url(${previewBanner})`
+                                : "linear-gradient(135deg, #241D3B, #100C1F)"
+                        }}
                     />
-                </label>
-            </section>
-
-            {/* === HEADER INFO (Foto flutuante) === */}
-            <div className="perfil-header-info">
-                <div className="foto-wrapper">
-                    <label className="foto-perfil">
-                        {previewImage ? (
-                            <img
-                                src={previewImage}
-                                alt="Perfil"
-                                className="perfil-img"
-                                onError={handleImageError}
-                            />
-                        ) : (
-                            <span>{user.username?.charAt(0)}</span>
-                        )}
-                        <div className="foto-overlay">
-                            <IconCamera />
-                        </div>
+                    <label className="edit-banner-btn">
+                        <IconCamera />
+                        <span>Alterar Banner</span>
                         <input
                             type="file"
                             accept="image/*"
                             hidden
-                            onChange={(e) => handleFileChange(e, 'profile')}
+                            onChange={(e) => handleFileChange(e, 'banner')}
                             disabled={isUpdating}
                         />
                     </label>
-                </div>
-
-                <div className="user-identity">
-                    <h2>{user.username}</h2>
-                    <div className="status">
-                        <span className="dot"></span> Online
-                    </div>
-                </div>
-
-                <div className="perfil-actions">
-                    <Link to="/historico" className="btn-secondary">Histórico</Link>
-                    <Link to="/chat" className="btn-primary">Abrir Chat</Link>
-                </div>
-            </div>
-
-            {/* === MAIN CONTENT === */}
-            <main>
-                {/* COLUNA DA ESQUERDA: Informações e Configurações */}
-                <aside className="card-box info-box">
-                    <h3 className="section-title">
-                        <IconEdit /> Dados da Conta
-                    </h3>
-
-                    <div className="info-group">
-                        <div className="info-item">
-                            <strong>E-mail</strong>
-                            {user.email}
-                        </div>
-
-                        <form className="role-form" onSubmit={handleRoleChangeSubmit}>
-                            <label htmlFor="role-select"><strong>Tipo de Conta</strong></label>
-                            <select
-                                id="role-select"
-                                value={selectedRole}
-                                onChange={(e) => setSelectedRole(e.target.value)}
-                                disabled={isUpdating}
-                            >
-                                <option value="Player">Jogador</option>
-                                <option value="Organizer">Organizador</option>
-                                <option value="Visitor">Visitante</option>
-                                {user.userRole === 'Administrator' && <option value="Administrator">Admin</option>}
-                            </select>
-                            <button
-                                type="submit"
-                                className="btn-small"
-                                disabled={selectedRole === user.userRole || isUpdating}
-                            >
-                                {isUpdating ? 'Salvando...' : 'Salvar Tipo'}
-                            </button>
-                        </form>
-                    </div>
-
-                    <div className="danger-zone">
-                        <button className="btn-danger" onClick={handleLogout}>
-                            Sair da conta
-                        </button>
-                        <button className="btn-danger" onClick={handleDeleteAccount}>
-                            Excluir conta permanentemente
-                        </button>
-                    </div>
-                </aside>
-
-                {/* COLUNA DA DIREITA: Histórico */}
-                <section className="card-box participacoes">
-                    <h3 className="section-title">Participações Recentes</h3>
-
-                    {user.eventsHistory?.length > 0 ? (
-                        <div className="events-grid">
-                            {user.eventsHistory.map((evento, index) => (
-                                <div className="event-card" key={index}>
-                                    <h4>{evento.title}</h4>
-                                    <div className="event-date">
-                                        📅 {new Date(evento.startDate).toLocaleDateString("pt-br")}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="empty-state">
-                            <p>Nenhum evento participado recentemente.</p>
-                        </div>
-                    )}
                 </section>
-            </main>
 
-            <Footer />
+                {/* === HEADER INFO (Foto flutuante) === */}
+                <div className="perfil-header-info">
+                    <div className="foto-wrapper">
+                        <label className="foto-perfil">
+                            {previewImage ? (
+                                <img
+                                    src={previewImage}
+                                    alt="Perfil"
+                                    className="perfil-img"
+                                    onError={handleImageError}
+                                />
+                            ) : (
+                                <span>{user.username?.charAt(0)}</span>
+                            )}
+                            <div className="foto-overlay">
+                                <IconCamera />
+                            </div>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                onChange={(e) => handleFileChange(e, 'profile')}
+                                disabled={isUpdating}
+                            />
+                        </label>
+                    </div>
+
+                    <div className="user-identity">
+                        <h2>{user.username}</h2>
+                        <div className="status">
+                            <span className="dot"></span> Online
+                        </div>
+                    </div>
+
+                    <div className="perfil-actions">
+                        <Link to="/historico" className="btn-secondary">Histórico</Link>
+                        <Link to="/chat" className="btn-primary">Abrir Chat</Link>
+                    </div>
+                </div>
+
+                {/* === MAIN CONTENT === */}
+                <main>
+                    {/* COLUNA DA ESQUERDA: Informações e Configurações */}
+                    <aside className="card-box info-box">
+                        <h3 className="section-title">
+                            <IconEdit /> Dados da Conta
+                        </h3>
+
+                        <div className="info-group">
+                            <div className="info-item">
+                                <strong>E-mail</strong>
+                                {user.email}
+                            </div>
+
+                            <form className="role-form" onSubmit={handleRoleChangeSubmit}>
+                                <label htmlFor="role-select"><strong>Tipo de Conta</strong></label>
+                                <select
+                                    id="role-select"
+                                    value={selectedRole}
+                                    onChange={(e) => setSelectedRole(e.target.value)}
+                                    disabled={isUpdating}
+                                >
+                                    <option value="Player">Jogador</option>
+                                    <option value="Organizer">Organizador</option>
+                                    <option value="Visitor">Visitante</option>
+                                    {user.userRole === 'Administrator' && <option value="Administrator">Admin</option>}
+                                </select>
+                                <button
+                                    type="submit"
+                                    className="btn-small"
+                                    disabled={selectedRole === user.userRole || isUpdating}
+                                >
+                                    {isUpdating ? 'Salvando...' : 'Salvar Tipo'}
+                                </button>
+                            </form>
+                        </div>
+
+                        <div className="danger-zone">
+                            <button className="btn-danger" onClick={handleLogout}>
+                                Sair da conta
+                            </button>
+                            <button className="btn-danger" onClick={handleDeleteAccount}>
+                                Excluir conta permanentemente
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* COLUNA DA DIREITA: Histórico */}
+                    <section className="card-box participacoes">
+                        <h3 className="section-title">Participações Recentes</h3>
+
+                        {user.eventsHistory?.length > 0 ? (
+                            <div className="events-grid">
+                                {user.eventsHistory.map((evento, index) => (
+                                    <div className="event-card" key={index}>
+                                        <h4>{evento.title}</h4>
+                                        <div className="event-date">
+                                            📅 {new Date(evento.startDate).toLocaleDateString("pt-br")}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <p>Nenhum evento participado recentemente.</p>
+                            </div>
+                        )}
+                    </section>
+                </main>
+
+                <Footer />
+            </div>
         </div>
     );
 }
