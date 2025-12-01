@@ -1,97 +1,81 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; 
+import { useAuth } from "../contexts/AuthContext";
 import { useCustomModal } from "../hooks/useCustomModal";
 import "../assets/css/style-perfil.css";
-import LOGO_IMG from "../assets/img/imagem.png";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
+const IconCamera = () => <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" /><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z" /></svg>;
+const IconEdit = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>;
+
 export default function PerfilPage() {
     const { user, loading, updateUserInfo, logout, deleteAccount, checkAuth } = useAuth();
+    const { showError, showSuccess } = useCustomModal(); // Adicione Modal se precisar renderizar
+    const navigate = useNavigate();
+
     const [previewImage, setPreviewImage] = useState(null);
     const [previewBanner, setPreviewBanner] = useState(null);
     const [selectedRole, setSelectedRole] = useState('');
-    const { Modal, showError, showSuccess } = useCustomModal();
-    
-    const navigate = useNavigate();
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // Helper para URL da imagem
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        return path.startsWith("http") ? path : `${window.location.origin}/api/auth${path}`;
+    };
 
     useEffect(() => {
         if (!loading && !user) {
             navigate("/login");
+            return;
         }
 
         if (user) {
             setSelectedRole(user.userRole);
-
-            
-            const profilePath = user.profileURL || null;
-            if (profilePath) {
-                const src = profilePath.startsWith("http")
-                    ? profilePath
-                    : `${window.location.origin}/api/auth${profilePath}`;
-                setPreviewImage(src);
-            }
-
-            if (user.bannerImage) {
-                setPreviewBanner(user.bannerImage);
-            }
+            setPreviewImage(getImageUrl(user.profileURL));
+            setPreviewBanner(user.bannerImage);
         }
     }, [user, loading, navigate]);
 
-    // Atualiza a foto de perfil usando o Context
-    const handleImageChange = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const previewUrl = URL.createObjectURL(file);
-            setPreviewImage(previewUrl);
-
-            const formData = new FormData();
-            formData.append("ProfileFile", file); 
-
-            try {
-                await updateUserInfo(formData); 
-                showSuccess("Foto de perfil atualizada!");
-            } catch (err) {
-                console.error("Erro ao enviar imagem de perfil:", err);
-                showError("Erro ao atualizar foto: " + err.message);
-                // Reverte o preview se falhar
-                const oldSrc = user.profileURL.startsWith("http")
-                    ? user.profileURL
-                    : `${window.location.origin}/api/auth${user.profileURL}`;
-                setPreviewImage(oldSrc);
-            }
-        }
+    // Manipula erro de imagem (mostra placeholder)
+    const handleImageError = (e) => {
+        e.target.src = "https://via.placeholder.com/150/14122a/a78bfa?text=User";
     };
 
-   
-    const handleBannerChange = async (e) => {
+    const handleFileChange = async (e, type) => {
         const file = e.target.files[0];
-        if (file) {
-            const previewUrl = URL.createObjectURL(file);
-            setPreviewBanner(previewUrl);
+        if (!file) return;
 
-            const formData = new FormData();
-           
-            formData.append("BannerFile", file); 
+        const previewUrl = URL.createObjectURL(file);
 
-            try {
-                await updateUserInfo(formData); 
-                showSuccess("Banner atualizado!");
-            } catch (err) {
-                console.error("Erro ao enviar banner:", err);
-                showError("Erro ao enviar banner: " + err.message);
-                setPreviewBanner(user?.bannerImage || null);
-            }
+        if (type === 'profile') setPreviewImage(previewUrl);
+        else setPreviewBanner(previewUrl);
+
+        const formData = new FormData();
+        formData.append(type === 'profile' ? "ProfileFile" : "BannerFile", file);
+
+        setIsUpdating(true);
+        try {
+            await updateUserInfo(formData);
+            showSuccess(type === 'profile' ? "Foto atualizada!" : "Banner atualizado!");
+        } catch (err) {
+            console.error(`Erro ao atualizar ${type}:`, err);
+            showError(`Erro ao atualizar: ${err.message}`);
+            // Reverte preview
+            if (type === 'profile') setPreviewImage(getImageUrl(user.profileURL));
+            else setPreviewBanner(user.bannerImage);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
     const handleRoleChangeSubmit = async (e) => {
         e.preventDefault();
         if (selectedRole === user.userRole) return;
-        
-        if (!window.confirm(`Deseja alterar seu tipo de conta para "${selectedRole}"?`)) {
+
+        if (!window.confirm(`Confirmar alteração para "${selectedRole}"?`)) {
             setSelectedRole(user.userRole);
             return;
         }
@@ -99,191 +83,178 @@ export default function PerfilPage() {
         const formData = new FormData();
         formData.append("userRole", selectedRole);
 
+        setIsUpdating(true);
         try {
-            await updateUserInfo(formData); 
+            await updateUserInfo(formData);
             showSuccess("Tipo de conta atualizado!");
         } catch (err) {
-            console.error("Erro ao trocar tipo de conta:", err);
-            showError("Erro ao trocar tipo de conta: " + err.message);
+            console.error("Erro role:", err);
+            showError("Erro: " + err.message);
             setSelectedRole(user.userRole);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
     const handleLogout = async () => {
-      if (!window.confirm("Tem certeza que deseja sair?")) {
-            return;
-        }
+        if (!window.confirm("Deseja sair da conta?")) return;
         try {
             await logout();
             navigate("/login");
-            checkAuth();}
-         catch (err) {
-            console.error("Erro ao apagar conta:", err);
-            showError("Erro ao apagar conta: " + err.message);
+            checkAuth();
+        } catch (err) {
+            showError("Erro ao sair: " + err.message);
         }
     };
 
     const handleDeleteAccount = async () => {
-        if (!window.confirm("ATENÇÃO: Tem certeza que deseja apagar sua conta? Esta ação é irreversível.")) {
-            return;
-        }
+        const confirmStr = prompt("Para confirmar, digite 'DELETAR':");
+        if (confirmStr !== "DELETAR") return;
+
         try {
             await deleteAccount();
-            showSuccess("Conta apagada com sucesso.");
+            showSuccess("Conta apagada.");
             navigate("/");
             checkAuth();
         } catch (err) {
-            console.error("Erro ao apagar conta:", err);
-            showError("Erro ao apagar conta: " + err.message);
+            showError("Erro ao apagar: " + err.message);
         }
     };
 
-   
-    if (loading) {
-        return <div>Carregando...</div>;
-    }
-
-  
-    if (!user) {
-        return null;
-    }
+    if (loading) return <div className="loading-screen">Carregando...</div>;
+    if (!user) return null;
 
     return (
         <div className="perfil-container">
             <Header />
 
-            <section className="perfil-banner">
+            <section className="perfil-banner">           
                 <div
                     className="background-img"
                     style={{
                         backgroundImage: previewBanner
                             ? `url(${previewBanner})`
-                            : "linear-gradient(135deg, #241D3B, #100C1F)",
+                            : "linear-gradient(135deg, #241D3B, #100C1F)"
                     }}
-                >
-                    <label htmlFor="upload-banner" className="edit-banner-btn">
-                        Alterar Banner
-                        <input
-                            id="upload-banner"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleBannerChange}
-                            style={{ display: "none" }}
-                        />
-                    </label>
-
-                    <div className="perfil-info">
-                        <label htmlFor="upload-image" className="foto-perfil">
-                            {previewImage ? (
-                                <img
-                                    src={previewImage}
-                                    alt="Foto de perfil"
-                                    className="perfil-img"
-                                />
-                            ) : (
-                                <span>+</span>
-                            )}
-                            <input
-                                id="upload-image"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                style={{ display: "none" }}
-                            />
-                        </label>
-
-                        <div className="status">
-                            <span className="dot"></span> status: online
-                        </div>
-
-                        <div className="perfil-buttons">
-                            <button>{user.username || "Usuário"}</button> 
-                            <Link to="/historico" className="btn">
-                                Histórico
-                            </Link>
-                            <Link to="/chat">
-                                <button type="submit" className="btn">
-                                    Chat
-                                </button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+                />
+                <label className="edit-banner-btn">
+                    <IconCamera />
+                    <span>Alterar Banner</span>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) => handleFileChange(e, 'banner')}
+                        disabled={isUpdating}
+                    />
+                </label>
             </section>
 
+            {/* === HEADER INFO (Foto flutuante) === */}
+            <div className="perfil-header-info">
+                <div className="foto-wrapper">
+                    <label className="foto-perfil">
+                        {previewImage ? (
+                            <img
+                                src={previewImage}
+                                alt="Perfil"
+                                className="perfil-img"
+                                onError={handleImageError}
+                            />
+                        ) : (
+                            <span>{user.username?.charAt(0)}</span>
+                        )}
+                        <div className="foto-overlay">
+                            <IconCamera />
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={(e) => handleFileChange(e, 'profile')}
+                            disabled={isUpdating}
+                        />
+                    </label>
+                </div>
+
+                <div className="user-identity">
+                    <h2>{user.username}</h2>
+                    <div className="status">
+                        <span className="dot"></span> Online
+                    </div>
+                </div>
+
+                <div className="perfil-actions">
+                    <Link to="/historico" className="btn-secondary">Histórico</Link>
+                    <Link to="/chat" className="btn-primary">Abrir Chat</Link>
+                </div>
+            </div>
+
+            {/* === MAIN CONTENT === */}
             <main>
-                <aside className="info-box">
-                    <h3>Informações:</h3>
-                    <p>
-                        <strong>Nome:</strong> {user.username}
-                    </p>
-                    <p>
-                        <strong>E-mail:</strong> {user.email}
-                    </p>
+                {/* COLUNA DA ESQUERDA: Informações e Configurações */}
+                <aside className="card-box info-box">
+                    <h3 className="section-title">
+                        <IconEdit /> Dados da Conta
+                    </h3>
 
-                    {/* (NOVO) Formulário de Troca de Conta */}
-                    <form className="role-form" onSubmit={handleRoleChangeSubmit}>
-                        <label htmlFor="role-select">
-                            <strong>Tipo da conta:</strong>
-                        </label>
-                        <select 
-                            id="role-select"
-                            value={selectedRole} 
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                        >
-                            <option value="Player">Jogador</option>
-                            <option value="Organizer">Organizador</option>
-                            <option value="Visitor">Visitante</option>
-                            {user.userRole === 'Administrator' && (
-                                <option value="Administrator">Administrator</option>
-                            )}
-                        </select>
-                        <button 
-                            type="submit" 
-                            className="secondary" 
-                            disabled={selectedRole === user.userRole || loading}
-                        >
-                            Salvar Alteração
+                    <div className="info-group">
+                        <div className="info-item">
+                            <strong>E-mail</strong>
+                            {user.email}
+                        </div>
+
+                        <form className="role-form" onSubmit={handleRoleChangeSubmit}>
+                            <label htmlFor="role-select"><strong>Tipo de Conta</strong></label>
+                            <select
+                                id="role-select"
+                                value={selectedRole}
+                                onChange={(e) => setSelectedRole(e.target.value)}
+                                disabled={isUpdating}
+                            >
+                                <option value="Player">Jogador</option>
+                                <option value="Organizer">Organizador</option>
+                                <option value="Visitor">Visitante</option>
+                                {user.userRole === 'Administrator' && <option value="Administrator">Admin</option>}
+                            </select>
+                            <button
+                                type="submit"
+                                className="btn-small"
+                                disabled={selectedRole === user.userRole || isUpdating}
+                            >
+                                {isUpdating ? 'Salvando...' : 'Salvar Tipo'}
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className="danger-zone">
+                        <button className="btn-danger" onClick={handleLogout}>
+                            Sair da conta
                         </button>
-                    </form>
-
-                    <h3>Configurações</h3>
-                    <p>
-                        <strong>Idioma:</strong> Português BR
-                    </p>
-                    <p>
-                        <strong>Notificações:</strong> ativadas
-                    </p>
-                    <button className="secondary">Trocar notificações</button>
-
-                    
-                    <div className="danger">
-                        <button className="danger-link" onClick={handleLogout}>
-                            Sair
-                        </button>
-                        <button className="danger-link" onClick={handleDeleteAccount}>
-                            Apagar Conta
+                        <button className="btn-danger" onClick={handleDeleteAccount}>
+                            Excluir conta permanentemente
                         </button>
                     </div>
                 </aside>
 
-                <section className="participacoes">
-                    <h3>Participações recentes</h3>
-                    {/* Usa 'user.eventsHistory' do context */}
+                {/* COLUNA DA DIREITA: Histórico */}
+                <section className="card-box participacoes">
+                    <h3 className="section-title">Participações Recentes</h3>
+
                     {user.eventsHistory?.length > 0 ? (
-                        <div className="grid">
+                        <div className="events-grid">
                             {user.eventsHistory.map((evento, index) => (
-                                <div className="card" key={index}>
+                                <div className="event-card" key={index}>
                                     <h4>{evento.title}</h4>
-                                    <p>
-                                        {new Date(evento.startDate).toLocaleDateString("pt-br")}
-                                    </p>
+                                    <div className="event-date">
+                                        📅 {new Date(evento.startDate).toLocaleDateString("pt-br")}
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="sem-participacoes">
-                            <p>Você ainda não participou de nenhum evento.</p>
+                        <div className="empty-state">
+                            <p>Nenhum evento participado recentemente.</p>
                         </div>
                     )}
                 </section>

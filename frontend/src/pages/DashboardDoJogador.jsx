@@ -192,8 +192,7 @@ export default function DashboardDoJogador() {
             {!error && sortedEvents.length === 0 && (
               <div className="empty-state">
                 Você ainda não está inscrito em nenhum evento.
-                <br />
-                <Link to="/">Explore eventos ativos e participe!</Link>
+                <br/>
               </div>
             )}
             {!error && sortedEvents.length > 0 && (

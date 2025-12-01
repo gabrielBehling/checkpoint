@@ -4,7 +4,7 @@ import "../assets/css/cadastro.css";
 import api from "./api";
 import { useAuth } from "../contexts/AuthContext";
 import { useCustomModal } from "../hooks/useCustomModal";
-import LOGO_IMG from "../assets/img/imagem.png"; // Importa o logo
+import LOGO_IMG from "../assets/img/imagem.png";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
@@ -22,10 +22,21 @@ export default function CadastroPage() {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [type, setType] = useState("Player");
   const [profileFile, setProfileFile] = useState(null);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [confirmationError, setConfirmationError] = useState("");
   const { Modal, showSuccess, showError } = useCustomModal();
+
+  function togglePasswordVisibility() {
+    setShowPassword(!showPassword);
+  }
+  function toggleConfirmPasswordVisibility() {
+    setShowConfirmPassword(!showConfirmPassword);
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -109,18 +120,62 @@ export default function CadastroPage() {
             {profileFile && <div className="file-name">{profileFile.name}</div>}
 
             <label htmlFor="senha-cadastro">Senha</label>
-            <input type="password" id="senha-cadastro" placeholder="Insira sua senha..." required value={password} onChange={(e) => setPassword(e.target.value)} name="password" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$" title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres." />
+            <div className="password-input-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                id="senha-cadastro" 
+                placeholder="Insira sua senha..." 
+                required 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                name="password" 
+                pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&#\.]{8,}$" 
+                title="A senha deve conter pelo menos uma letra, um número e ter no mínimo 8 caracteres." 
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={togglePasswordVisibility}
+                aria-label="Alternar visibilidade da senha"
+              >
+                {showPassword ? (
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                ) : (
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                )}
+              </button>
+            </div>
+            
             <small style={{ color: "#666", fontSize: "0.8em", marginTop: "4px" }}>
-              A senha deve conter pelo menos:
-              <br />
-              - 8 caracteres
-              <br />
-              - Uma letra
-              <br />- Um número
+              A senha deve conter pelo menos:<br />
+              - 8 caracteres<br />
+              - Uma letra<br />- Um número
             </small>
 
             <label htmlFor="confirmar-senha">Confirmar Senha</label>
-            <input type="password" id="confirmar-senha" placeholder="Insira a senha novamente..." required value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} name="confirmarSenha" />
+            <div className="password-input-wrapper">
+              <input 
+                type={showConfirmPassword ? "text" : "password"} 
+                id="confirmar-senha" 
+                placeholder="Insira a senha novamente..." 
+                required 
+                value={passwordConfirm} 
+                onChange={(e) => setPasswordConfirm(e.target.value)} 
+                name="confirmarSenha" 
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={toggleConfirmPasswordVisibility}
+                aria-label="Alternar visibilidade da confirmação de senha"
+              >
+                {showConfirmPassword ? (
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                ) : (
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                )}
+              </button>
+            </div>
             {confirmationError && <div className="error-message">{confirmationError}</div>}
 
             <div className="type-selection">
@@ -149,7 +204,5 @@ export default function CadastroPage() {
       </main>
        <Footer />
     </>
-
-
   );
 }
