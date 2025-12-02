@@ -75,7 +75,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get("/events/");
+      const response = await api.get("/events/?limit=5");
 
       if (response.data.success) {
         const newCarouselData = response.data.data.data.map((event) => ({
@@ -137,7 +137,7 @@ function App() {
 
   return (
     <>
-      <Header/> {/* ✅ Header padronizado */}
+      <Header /> {/* ✅ Header padronizado */}
 
       <section className="hero">
         {loading && <div className="loading-message">Carregando banners de eventos...</div>}
@@ -146,23 +146,23 @@ function App() {
         <div className="carousel" style={{ overflowX: "auto" }}>
           {!loading && carouselData.length > 0
             ? carouselData.map((item, index) => {
-                const currentSrc = errorSources[index] ? FALLBACK_IMAGE_SRC : item.src;
-                return (
-                  <img
-                    key={item.id}
-                    className={getSlideClasses(index)}
-                    src={currentSrc}
-                    alt={item.alt}
-                    onError={(e) => {
-                      if (e.target.src !== FALLBACK_IMAGE_SRC) {
-                        handleImageError(index);
-                        e.target.src = FALLBACK_IMAGE_SRC;
-                      }
-                    }}
-                    onClick={() => navigate(item.link)}
-                  />
-                );
-              })
+              const currentSrc = errorSources[index] ? FALLBACK_IMAGE_SRC : item.src;
+              return (
+                <img
+                  key={item.id}
+                  className={getSlideClasses(index)}
+                  src={currentSrc}
+                  alt={item.alt}
+                  onError={(e) => {
+                    if (e.target.src !== FALLBACK_IMAGE_SRC) {
+                      handleImageError(index);
+                      e.target.src = FALLBACK_IMAGE_SRC;
+                    }
+                  }}
+                  onClick={() => navigate(item.link)}
+                />
+              );
+            })
             : !loading && !error && <div className="placeholder-card card active">Nenhum evento encontrado para o carrossel.</div>}
         </div>
 
@@ -285,7 +285,7 @@ function App() {
         </div>
       </section>
 
-     <Footer/> {/* ✅ Footer padronizado */}
+      <Footer /> {/* ✅ Footer padronizado */}
     </>
   );
 }
