@@ -282,6 +282,12 @@ router.get("/", async (req, res) => {
     const query = `
             SELECT 
                 e.*,
+                CASE 
+                    WHEN e.StartDate >= CAST(GETDATE() AS DATE) 
+                         AND e.StartDate <= DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
+                    THEN 1 
+                    ELSE 0 
+                END AS IsUpcoming,
                 u.Username AS OrganizerUsername,
                 u.ProfileURL AS OrganizerProfileURL,
                 m.ModeName AS ModeName,
@@ -370,6 +376,9 @@ router.get("/", async (req, res) => {
     // Enriquecer eventos com estatísticas e adicionar OrganizerProfileURL
     const enrichedEvents = events.map((event, idx) => {
       const eventObj = { ...event };
+      
+      eventObj.upcoming = eventsResult.recordset[idx].IsUpcoming === 1;
+      
       // Add organizer profileURL from raw recordset
       eventObj.organizerProfileURL = eventsResult.recordset[idx].OrganizerProfileURL || null;
       // map ModeName/LanguageName into friendly fields

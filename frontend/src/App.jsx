@@ -39,7 +39,9 @@ function App() {
       });
 
       if (response.data.success) {
-        const eventos = response.data.data.data.sort((a, b) => (b.currentParticipants || 0) - (a.currentParticipants || 0)).slice(0, 6);
+        const eventos = response.data.data.data
+          .sort((a, b) => (b.currentParticipants || 0) - (a.currentParticipants || 0))
+          .slice(0, 6);
         setEventosEmAlta(eventos);
       }
     } catch (err) {
@@ -53,16 +55,35 @@ function App() {
     setLoadingEventos(true);
     try {
       const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      const limiteSeteDias = new Date(hoje);
+      limiteSeteDias.setDate(hoje.getDate() + 7);
+      limiteSeteDias.setHours(23, 59, 59, 999);
+
       const response = await api.get("/events/", {
-        params: { page: 1, limit: 6, status: "Active" },
+        params: { page: 1, limit: 50, status: "Active" },
       });
 
       if (response.data.success) {
-        const eventos = response.data.data.data.filter((evento) => {
-          const dataEvento = new Date(evento.startDate);
-          return dataEvento >= hoje;
+        const eventosFiltrados = response.data.data.data.filter((evento) => {
+  
+          if (!evento.startDate) return false;
+          
+          const dataString = evento.startDate.toString().split('T')[0]; 
+          const partesData = dataString.split('-'); 
+          
+          const dataEvento = new Date(partesData[0], partesData[1] - 1, partesData[2]);
+          dataEvento.setHours(0, 0, 0, 0);
+
+          return dataEvento >= hoje && dataEvento <= limiteSeteDias;
         });
-        setEventosProximos(eventos);
+
+        const eventosOrdenados = eventosFiltrados.sort((a, b) => {
+          return new Date(a.startDate) - new Date(b.startDate);
+        });
+
+        setEventosProximos(eventosOrdenados.slice(0, 6));
       }
     } catch (err) {
       console.error("Erro ao carregar eventos próximos:", err);
@@ -80,7 +101,9 @@ function App() {
       if (response.data.success) {
         const newCarouselData = response.data.data.data.map((event) => ({
           id: event.eventId,
-          src: event.bannerURL && event.bannerURL.trim() !== "" ? "http://checkpoint.localhost/api/events" + event.bannerURL : FALLBACK_IMAGE_SRC,
+          src: event.bannerURL && event.bannerURL.trim() !== "" 
+            ? "http://checkpoint.localhost/api/events" + event.bannerURL 
+            : FALLBACK_IMAGE_SRC,
           alt: event.title || "Evento sem título",
           link: `/evento/${event.eventId}/`,
         }));
@@ -198,11 +221,18 @@ function App() {
           ) : eventosProximos.length > 0 ? (
             eventosProximos.map((evento) => {
               const dataEvento = new Date(evento.startDate);
+              const diaDisplay = dataEvento.getUTCDate();
+              const mesDisplay = dataEvento.getUTCMonth() + 1;
+              const anoDisplay = dataEvento.getUTCFullYear();
+              const dataFormatada = `${diaDisplay.toString().padStart(2, '0')}/${mesDisplay.toString().padStart(2, '0')}/${anoDisplay}`;
+
               return (
                 <div key={evento.eventId} className="evento-card">
                   <div className="imagem-evento">
                     <img
-                      src={evento.bannerURL || FALLBACK_IMAGE_SRC}
+                      src={evento.bannerURL && evento.bannerURL.trim() !== "" 
+                        ? "http://checkpoint.localhost/api/events" + evento.bannerURL 
+                        : FALLBACK_IMAGE_SRC}
                       alt={evento.title}
                       onError={(e) => {
                         e.target.src = FALLBACK_IMAGE_SRC;
@@ -212,13 +242,9 @@ function App() {
                   <div className="info-evento">
                     <h3>{evento.title}</h3>
                     <p>
-                      Data: {dataEvento.toLocaleDateString()}
+                      Data: {dataFormatada}
                       <br />
-                      Horário:{" "}
-                      {dataEvento.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      Horário: {evento.startHour || "Definir"}
                       <br />
                       {evento.prizes && `Premiação: ${evento.prizes}`}
                       <br />
@@ -232,7 +258,7 @@ function App() {
               );
             })
           ) : (
-            <p>Nenhum evento próximo encontrado.</p>
+            <p>Nenhum evento próximo (próximos 7 dias) encontrado.</p>
           )}
         </div>
       </section>
@@ -245,11 +271,18 @@ function App() {
           ) : eventosEmAlta.length > 0 ? (
             eventosEmAlta.map((evento) => {
               const dataEvento = new Date(evento.startDate);
+              const diaDisplay = dataEvento.getUTCDate();
+              const mesDisplay = dataEvento.getUTCMonth() + 1;
+              const anoDisplay = dataEvento.getUTCFullYear();
+              const dataFormatada = `${diaDisplay.toString().padStart(2, '0')}/${mesDisplay.toString().padStart(2, '0')}/${anoDisplay}`;
+
               return (
                 <div key={evento.eventId} className="evento-card">
                   <div className="imagem-evento">
                     <img
-                      src={evento.bannerURL || FALLBACK_IMAGE_SRC}
+                      src={evento.bannerURL && evento.bannerURL.trim() !== "" 
+                        ? "http://checkpoint.localhost/api/events" + evento.bannerURL 
+                        : FALLBACK_IMAGE_SRC}
                       alt={evento.title}
                       onError={(e) => {
                         e.target.src = FALLBACK_IMAGE_SRC;
@@ -260,13 +293,9 @@ function App() {
                   <div className="info-evento">
                     <h3>{evento.title}</h3>
                     <p>
-                      Data: {dataEvento.toLocaleDateString()}
+                      Data: {dataFormatada}
                       <br />
-                      Horário:{" "}
-                      {dataEvento.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      Horário: {evento.startHour || "Definir"}
                       <br />
                       {evento.prizes && `Premiação: ${evento.prizes}`}
                       <br />
@@ -285,7 +314,7 @@ function App() {
         </div>
       </section>
 
-      <Footer /> {/* ✅ Footer padronizado */}
+      <Footer />
     </>
   );
 }

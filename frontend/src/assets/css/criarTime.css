@@ -1,8 +1,8 @@
-
 /* ===== CONTAINER PRINCIPAL ===== */
 .inscricao-container {
+  /* Mantém o fundo escuro azulado */
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a0d2a 0%, #1c1238 100%);
+  background: linear-gradient(180deg, #0a0d2a 0%, #161b40 100%); /* Ajustado o segundo ponto para um azul escuro coerente */
   color: #ffffff;
   padding: 50px 20px;
   display: flex;
@@ -12,17 +12,19 @@
 
 /* ===== TÍTULO PRINCIPAL ===== */
 .inscricao-container h1 {
+  /* Azul principal */
   font-size: 2rem;
-  color: #4a90e2;
-  text-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+  color: #4d8eff; /* Usando o novo azul principal */
+  text-shadow: 0 0 10px rgba(77, 142, 255, 0.5); /* Ajustado a sombra para o azul */
   margin-bottom: 40px;
   text-align: center;
 }
 
 /* ===== FORMULÁRIO ===== */
 .criar-time {
-  background: rgba(25, 20, 45, 0.9);
-  border: 1px solid rgba(74, 144, 226, 0.3);
+  /* Cor de fundo do painel coerente com a paleta */
+  background: rgba(17, 21, 55, 0.9); 
+  border: 1px solid rgba(77, 142, 255, 0.3); /* Ajustado a borda para o azul */
   border-radius: 12px;
   padding: 30px 40px;
   width: 100%;
@@ -36,9 +38,10 @@
 /* ===== CAMPOS DE INPUT ===== */
 .criar-time input[type="text"],
 .criar-time input[type="file"] {
+  /* Fundo de input escuro */
   background: #241d3b;
   color: #f0f0f0;
-  border: 1px solid #4a90e2;
+  border: 1px solid #4d8eff; /* Borda inicial azul principal */
   border-radius: 8px;
   padding: 12px 15px;
   font-size: 1rem;
@@ -48,14 +51,16 @@
 
 .criar-time input[type="text"]:focus,
 .criar-time input[type="file"]:focus {
-  border-color: #ff8c00;
-  box-shadow: 0 0 8px #ff8c00;
+  /* Foco do input em azul escuro (Accent) */
+  border-color: #1a56ff; /* Novo Accent (Azul Escuro) */
+  box-shadow: 0 0 8px rgba(26, 86, 255, 0.8); /* Sombra do foco em azul */
 }
 
 /* ===== BOTÃO DE SUBMIT ===== */
 .criar-time input[type="submit"] {
-  background: linear-gradient(90deg, #ff8c00 0%, #ffb84d 100%);
-  color: #0a0d2a;
+  /* Gradiente Azul Claro -> Azul Escuro */
+  background: linear-gradient(90deg, #4d8eff 0%, #1a56ff 100%);
+  color: #ffffff; /* Cor do texto do botão branco */
   font-weight: bold;
   text-transform: uppercase;
   border: none;
@@ -67,9 +72,10 @@
 }
 
 .criar-time input[type="submit"]:hover {
-  background: linear-gradient(90deg, #ffb84d 0%, #ff8c00 100%);
+  /* Gradiente invertido para efeito de hover */
+  background: linear-gradient(90deg, #1a56ff 0%, #4d8eff 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(77, 142, 255, 0.6); /* Sombra de hover em azul */
 }
 
 /* ===== ESTADO DE ERRO OU CARREGAMENTO ===== */
@@ -81,7 +87,8 @@ p {
 }
 
 p[style*="color: red"] {
-  color: #ff5555 !important;
+  /* Mantém a cor de erro em vermelho para clareza, mas utiliza um tom mais suave se for o caso */
+  color: #ff8080 !important; 
   font-weight: 600;
 }
 

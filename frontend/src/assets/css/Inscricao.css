@@ -1,4 +1,7 @@
-
+/* Definição de Cores da Paleta Azul */
+/* --primary: #4d8eff; (Azul Principal) */
+/* --accent: #1a56ff; (Azul Destaque/Escuro) */
+/* --primary-glow: #3f70ff; */
 
 /* ===== CONTAINER PRINCIPAL ===== */
 .inscricao-container {
@@ -23,22 +26,22 @@
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 25px;
-  border-bottom: 3px solid #ff914d; /* Faixa laranja */
+  border-bottom: 3px solid #4d8eff; /* Alterado de Laranja para Azul Principal */
   display: inline-block;
   padding-bottom: 6px;
 }
 
 .inscricao-container h2 {
   font-size: 1.6rem;
-  color: #ff914d;
+  color: #4d8eff; /* Alterado de Laranja para Azul Principal */
   margin-bottom: 20px;
-  border-left: 4px solid #ff914d;
+  border-left: 4px solid #1a56ff; /* Alterado de Laranja para Azul Destaque */
   padding-left: 12px;
 }
 
 .inscricao-container h3 {
   font-size: 1.2rem;
-  color: #4aa8ff;
+  color: #4d8eff; /* Azul Principal (mantido o tom original, mas ajustado à variável primária) */
   margin-bottom: 8px;
 }
 
@@ -49,7 +52,8 @@
 }
 
 .criar-time button {
-  background: linear-gradient(135deg, #4aa8ff, #2766ff);
+  /* Botão principal de Ação: Gradiente Azul Claro -> Azul Escuro */
+  background: linear-gradient(135deg, #4d8eff, #1a56ff); /* Ajustado */
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -61,7 +65,7 @@
 }
 
 .criar-time button:hover {
-  background: linear-gradient(135deg, #3a90ff, #1744e0);
+  background: linear-gradient(135deg, #3f70ff, #153e9a); /* Tons de Azul mais escuro no hover */
   transform: translateY(-2px);
 }
 
@@ -87,18 +91,19 @@
   border-radius: 10px;
   padding: 20px;
   text-align: center;
-  border-left: 4px solid #4aa8ff;
+  border-left: 4px solid #4d8eff; /* Alterado para Azul Principal */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .times-list li:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0 18px rgba(74, 168, 255, 0.25);
+  box-shadow: 0 0 18px rgba(77, 142, 255, 0.25); /* Sombra em Azul */
 }
 
 /* ===== BOTÕES DE INSCRIÇÃO ===== */
 .times-list button {
-  background: linear-gradient(135deg, #ff914d, #ff6b00);
+  /* Botão secundário de Inscrição: Gradiente Azul Claro -> Azul Escuro */
+  background: linear-gradient(135deg, #4d8eff, #1a56ff); /* Alterado de Laranja para Azul */
   color: white;
   border: none;
   padding: 10px 24px;
@@ -111,7 +116,7 @@
 }
 
 .times-list button:hover {
-  background: linear-gradient(135deg, #ff7b2e, #e65c00);
+  background: linear-gradient(135deg, #3f70ff, #153e9a); /* Tons de Azul mais escuro no hover */
   transform: translateY(-2px);
 }
 
