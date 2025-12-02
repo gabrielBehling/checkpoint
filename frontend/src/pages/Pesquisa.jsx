@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import "../assets/css/PesquisaEvento.css"; // ✅ Importa o CSS estilizado
 
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -239,7 +242,7 @@ function SearchPage() {
       );
     }
 
-    return (
+    return ( 
       <div className="pagination-container">
         <button 
           className="pagination-btn"
@@ -292,6 +295,9 @@ function SearchPage() {
 
   // --- Início do return (JSX) ---
   return (
+    <div> 
+      <Header/>
+    
     <div className="search-page-container">
       <h1 className="search-page-title">Pesquisa de Eventos</h1>
 
@@ -489,6 +495,8 @@ function SearchPage() {
           </>
         )}
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 }

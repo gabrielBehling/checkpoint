@@ -123,144 +123,149 @@ export default function PerfilPage() {
     if (!user) return null;
 
     return (
-        <div id="perfil-page-wrapper"> 
-            <div className="perfil-container">
-                <Header />
+        <>
+            <Header />
+            <div id="perfil-page-wrapper">
+                <div className="perfil-container">
 
-                <section className="perfil-banner">           
-                    <div
-                        className="background-img"
-                        style={{
-                            backgroundImage: previewBanner
-                                ? `url(${previewBanner})`
-                                : "linear-gradient(135deg, #241D3B, #100C1F)"
-                        }}
-                    />
-                    <label className="edit-banner-btn">
-                        <IconCamera />
-                        <span>Alterar Banner</span>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={(e) => handleFileChange(e, 'banner')}
-                            disabled={isUpdating}
+
+                    <section className="perfil-banner">
+                        <div
+                            className="background-img"
+                            style={{
+                                backgroundImage: previewBanner
+                                    ? `url(${previewBanner})`
+                                    : "linear-gradient(135deg, #241D3B, #100C1F)"
+                            }}
                         />
-                    </label>
-                </section>
-
-                {/* === HEADER INFO (Foto flutuante) === */}
-                <div className="perfil-header-info">
-                    <div className="foto-wrapper">
-                        <label className="foto-perfil">
-                            {previewImage ? (
-                                <img
-                                    src={previewImage}
-                                    alt="Perfil"
-                                    className="perfil-img"
-                                    onError={handleImageError}
-                                />
-                            ) : (
-                                <span>{user.username?.charAt(0)}</span>
-                            )}
-                            <div className="foto-overlay">
-                                <IconCamera />
-                            </div>
+                        <label className="edit-banner-btn">
+                            <IconCamera />
+                            <span>Alterar Banner</span>
                             <input
                                 type="file"
                                 accept="image/*"
                                 hidden
-                                onChange={(e) => handleFileChange(e, 'profile')}
+                                onChange={(e) => handleFileChange(e, 'banner')}
                                 disabled={isUpdating}
                             />
                         </label>
-                    </div>
+                    </section>
 
-                    <div className="user-identity">
-                        <h2>{user.username}</h2>
-                        <div className="status">
-                            <span className="dot"></span> Online
+                    {/* === HEADER INFO (Foto flutuante) === */}
+                    <div className="perfil-header-info">
+                        <div className="foto-wrapper">
+                            <label className="foto-perfil">
+                                {previewImage ? (
+                                    <img
+                                        src={previewImage}
+                                        alt="Perfil"
+                                        className="perfil-img"
+                                        onError={handleImageError}
+                                    />
+                                ) : (
+                                    <span>{user.username?.charAt(0)}</span>
+                                )}
+                                <div className="foto-overlay">
+                                    <IconCamera />
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    hidden
+                                    onChange={(e) => handleFileChange(e, 'profile')}
+                                    disabled={isUpdating}
+                                />
+                            </label>
+                        </div>
+
+                        <div className="user-identity">
+                            <h2>{user.username}</h2>
+                            <div className="status">
+                                <span className="dot"></span> Online
+                            </div>
+                        </div>
+
+                        <div className="perfil-actions">
+                            <Link to="/historico" className="btn-secondary">Histórico</Link>
+                            <Link to="/chat" className="btn-primary">Abrir Chat</Link>
                         </div>
                     </div>
 
-                    <div className="perfil-actions">
-                        <Link to="/historico" className="btn-secondary">Histórico</Link>
-                        <Link to="/chat" className="btn-primary">Abrir Chat</Link>
-                    </div>
+                    {/* === MAIN CONTENT === */}
+                    <main>
+                        {/* COLUNA DA ESQUERDA: Informações e Configurações */}
+                        <aside className="card-box info-box">
+                            <h3 className="section-title">
+                                <IconEdit /> Dados da Conta
+                            </h3>
+
+                            <div className="info-group">
+                                <div className="info-item">
+                                    <strong>E-mail</strong>
+                                    {user.email}
+                                </div>
+
+                                <form className="role-form" onSubmit={handleRoleChangeSubmit}>
+                                    <label htmlFor="role-select"><strong>Tipo de Conta</strong></label>
+                                    <select
+                                        id="role-select"
+                                        value={selectedRole}
+                                        onChange={(e) => setSelectedRole(e.target.value)}
+                                        disabled={isUpdating}
+                                    >
+                                        <option value="Player">Jogador</option>
+                                        <option value="Organizer">Organizador</option>
+                                        <option value="Visitor">Visitante</option>
+                                        {user.userRole === 'Administrator' && <option value="Administrator">Admin</option>}
+                                    </select>
+                                    <button
+                                        type="submit"
+                                        className="btn-small"
+                                        disabled={selectedRole === user.userRole || isUpdating}
+                                    >
+                                        {isUpdating ? 'Salvando...' : 'Salvar Tipo'}
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div className="danger-zone">
+                                <button className="btn-danger" onClick={handleLogout}>
+                                    Sair da conta
+                                </button>
+                                <button className="btn-danger" onClick={handleDeleteAccount}>
+                                    Excluir conta permanentemente
+                                </button>
+                            </div>
+                        </aside>
+
+                        {/* COLUNA DA DIREITA: Histórico */}
+                        <section className="card-box participacoes">
+                            <h3 className="section-title">Participações Recentes</h3>
+
+                            {user.eventsHistory?.length > 0 ? (
+                                <div className="events-grid">
+                                    {user.eventsHistory.map((evento, index) => (
+                                        <div className="event-card" key={index}>
+                                            <h4>{evento.title}</h4>
+                                            <div className="event-date">
+                                                📅 {new Date(evento.startDate).toLocaleDateString("pt-br")}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="empty-state">
+                                    <p>Nenhum evento participado recentemente.</p>
+                                </div>
+                            )}
+                        </section>
+                    </main>
+
+
                 </div>
 
-                {/* === MAIN CONTENT === */}
-                <main>
-                    {/* COLUNA DA ESQUERDA: Informações e Configurações */}
-                    <aside className="card-box info-box">
-                        <h3 className="section-title">
-                            <IconEdit /> Dados da Conta
-                        </h3>
-
-                        <div className="info-group">
-                            <div className="info-item">
-                                <strong>E-mail</strong>
-                                {user.email}
-                            </div>
-
-                            <form className="role-form" onSubmit={handleRoleChangeSubmit}>
-                                <label htmlFor="role-select"><strong>Tipo de Conta</strong></label>
-                                <select
-                                    id="role-select"
-                                    value={selectedRole}
-                                    onChange={(e) => setSelectedRole(e.target.value)}
-                                    disabled={isUpdating}
-                                >
-                                    <option value="Player">Jogador</option>
-                                    <option value="Organizer">Organizador</option>
-                                    <option value="Visitor">Visitante</option>
-                                    {user.userRole === 'Administrator' && <option value="Administrator">Admin</option>}
-                                </select>
-                                <button
-                                    type="submit"
-                                    className="btn-small"
-                                    disabled={selectedRole === user.userRole || isUpdating}
-                                >
-                                    {isUpdating ? 'Salvando...' : 'Salvar Tipo'}
-                                </button>
-                            </form>
-                        </div>
-
-                        <div className="danger-zone">
-                            <button className="btn-danger" onClick={handleLogout}>
-                                Sair da conta
-                            </button>
-                            <button className="btn-danger" onClick={handleDeleteAccount}>
-                                Excluir conta permanentemente
-                            </button>
-                        </div>
-                    </aside>
-
-                    {/* COLUNA DA DIREITA: Histórico */}
-                    <section className="card-box participacoes">
-                        <h3 className="section-title">Participações Recentes</h3>
-
-                        {user.eventsHistory?.length > 0 ? (
-                            <div className="events-grid">
-                                {user.eventsHistory.map((evento, index) => (
-                                    <div className="event-card" key={index}>
-                                        <h4>{evento.title}</h4>
-                                        <div className="event-date">
-                                            📅 {new Date(evento.startDate).toLocaleDateString("pt-br")}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-state">
-                                <p>Nenhum evento participado recentemente.</p>
-                            </div>
-                        )}
-                    </section>
-                </main>
-
-                <Footer />
             </div>
-        </div>
+            <Footer />
+        </>
     );
 }
