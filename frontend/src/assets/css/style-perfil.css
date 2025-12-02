@@ -1,33 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
 
 /* DEFINIÇÃO DO ESCOPO
-   Tudo começa a partir do ID #perfil-page-wrapper 
+    Tudo começa a partir do ID #perfil-page-wrapper
 */
 
 #perfil-page-wrapper {
-  /* Movemos as variáveis do :root para cá para não conflitar com outras páginas */
-  --bg-deep: #050714;
-  --bg-card: rgba(20, 18, 42, 0.6);
-  --bg-input: rgba(10, 10, 30, 0.8);
+  /* ======================================= */
+  /* === VARIÁVEIS DE COR AZUL/AZUL-ESCURO === */
+  /* ======================================= */
+  --bg-deep: #0e1126; 
+  --bg-card: rgba(17, 21, 55, 0.78);
+  --bg-input: rgba(10, 10, 30, 0.8); 
   
-  --primary: #6366f1;
-  --primary-glow: #818cf8;
-  --accent: #d946ef;
-  --accent-glow: #f0abfc;
+  --primary: #4d8eff;       /* Azul principal (claro) */
+  --primary-glow: #3f70ff;  /* Azul para brilhos */
+  --accent: #1a56ff;        /* Azul de Destaque (escuro) */
+  --accent-glow: #153e9a;   /* Azul muito escuro para sombras */
   
   --text-main: #ffffff;
-  --text-muted: #94a3b8;
+  --text-muted: #c7cbff; 
   
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-  --neon-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --neon-shadow: 0 0 20px rgba(77, 142, 255, 0.4);
+  --card-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Estilos que antes estavam no BODY */
   background-color: var(--bg-deep);
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(217, 70, 239, 0.1), transparent 25%);
+    radial-gradient(circle at 15% 50%, rgba(77, 142, 255, 0.15), transparent 25%), 
+    radial-gradient(circle at 85% 30%, rgba(26, 86, 255, 0.1), transparent 25%); /* Novo Accent */
   color: var(--text-main);
   font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
@@ -69,7 +71,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(5,7,20,0) 0%, var(--bg-deep) 100%);
+  background: linear-gradient(to bottom, rgba(14,17,38,0) 0%, var(--bg-deep) 100%);
 }
 
 #perfil-page-wrapper .edit-banner-btn {
@@ -124,9 +126,9 @@
   width: 160px;
   height: 160px;
   padding: 4px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: linear-gradient(135deg, var(--primary), var(--accent)); /* GRADIENTE AZUL CLARO -> AZUL ESCURO */
   border-radius: 50%;
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 30px rgba(77, 142, 255, 0.5);
 }
 
 #perfil-page-wrapper .foto-perfil {
@@ -152,7 +154,7 @@
 #perfil-page-wrapper .foto-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(99, 102, 241, 0.6);
+  background: rgba(77, 142, 255, 0.6);
   backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
@@ -168,7 +170,7 @@
 
 #perfil-page-wrapper .foto-wrapper:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 50px rgba(217, 70, 239, 0.6);
+  box-shadow: 0 0 50px rgba(26, 86, 255, 0.6); /* Sombra com Accent (azul escuro) */
   transition: var(--transition);
 }
 
@@ -187,7 +189,7 @@
 #perfil-page-wrapper .user-identity h2 {
   font-size: 2.2rem;
   font-weight: 700;
-  background: linear-gradient(90deg, #fff, var(--primary-glow));
+  background: linear-gradient(90deg, #fff, var(--primary-glow)); 
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -211,16 +213,16 @@
 #perfil-page-wrapper .status .dot {
   width: 8px;
   height: 8px;
-  background: #22c55e;
+  background: #4dd26f; 
   border-radius: 50%;
-  box-shadow: 0 0 10px #22c55e;
+  box-shadow: 0 0 10px #4dd26f;
   animation: pulseProfile 2s infinite;
 }
 
 @keyframes pulseProfile {
-  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(77, 210, 111, 0.4); } 
+  70% { box-shadow: 0 0 0 6px rgba(77, 210, 111, 0); } 
+  100% { box-shadow: 0 0 0 0 rgba(77, 210, 111, 0); } 
 }
 
 /* Botões de Ação Principal */
@@ -249,7 +251,7 @@
 #perfil-page-wrapper .btn-primary {
   background: var(--primary);
   color: white;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 20px rgba(77, 142, 255, 0.3);
 }
 
 /* Efeito de brilho passando no botão */
@@ -271,7 +273,7 @@
 #perfil-page-wrapper .btn-primary:hover {
   background: var(--primary-glow);
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 10px 30px rgba(77, 142, 255, 0.5); 
 }
 
 #perfil-page-wrapper .btn-secondary {
@@ -326,7 +328,7 @@
 }
 
 #perfil-page-wrapper .section-title svg {
-  color: var(--accent);
+  color: var(--accent); /* Corrigido para Azul Escuro */
 }
 
 /* ===== SIDEBAR & FORM ===== */
@@ -371,14 +373,14 @@
 
 #perfil-page-wrapper .role-form select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 15px rgba(77, 142, 255, 0.2); 
 }
 
 #perfil-page-wrapper .btn-small {
   width: 100%;
   padding: 12px;
   font-size: 0.9rem;
-  background: linear-gradient(135deg, var(--bg-deep), #1e1b4b);
+  background: linear-gradient(135deg, var(--bg-deep), #161b40); 
   color: var(--text-main);
   border: 1px solid var(--primary);
   border-radius: 10px;
@@ -407,9 +409,9 @@
 }
 
 #perfil-page-wrapper .btn-danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(248, 96, 96, 0.1); 
+  color: #ff8080; 
+  border: 1px solid rgba(255, 128, 128, 0.2); 
   padding: 12px;
   border-radius: 10px;
   cursor: pointer;
@@ -419,9 +421,9 @@
 }
 
 #perfil-page-wrapper .btn-danger:hover {
-  background: #ef4444;
+  background: #ff8080;
   color: white;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 20px rgba(248, 96, 96, 0.4);
 }
 
 /* ===== GRID DE EVENTOS ===== */
@@ -444,7 +446,7 @@
 /* Efeito Hover no Card */
 #perfil-page-wrapper .event-card:hover {
   transform: translateY(-8px);
-  border-color: var(--accent);
+  border-color: var(--accent); /* Corrigido para Azul Escuro */
   background: rgba(255,255,255,0.06);
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
@@ -457,7 +459,7 @@
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background: linear-gradient(90deg, var(--primary), var(--accent)); /* GRADIENTE AZUL CLARO -> AZUL ESCURO */
   opacity: 0.7;
   transition: var(--transition);
 }
@@ -465,7 +467,7 @@
 #perfil-page-wrapper .event-card:hover::before {
   opacity: 1;
   height: 6px;
-  box-shadow: 0 0 15px var(--accent);
+  box-shadow: 0 0 15px var(--accent); /* Corrigido para Azul Escuro */
 }
 
 #perfil-page-wrapper .event-card h4 {
