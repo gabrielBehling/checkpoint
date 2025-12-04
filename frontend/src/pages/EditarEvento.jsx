@@ -195,7 +195,7 @@ export default function EditEventPage() {
         <main className="container error-container">
           <h1>Ocorreu um erro</h1>
           <p>{error}</p>
-          <button onClick={() => navigate(-1)} className="btn btn-cancel">Voltar</button>
+          <button onClick={() => navigate(-1)} className="btn btn-cancel-Edit-Event">Voltar</button>
         </main>
         <Footer />
       </>
@@ -340,7 +340,7 @@ export default function EditEventPage() {
             </div>
 
             <div className="form-actions">
-              <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>Cancelar</button>
+              <button type="button" className="btn btn-cancel-Edit" onClick={() => navigate(-1)}>Cancelar</button>
               <button type="submit" className="btn">Salvar Alterações</button>
             </div>
 

@@ -184,11 +184,11 @@ select:focus {
   transform: translateY(-1px);
 }
 
-.btn-cancel {
+.btn-cancel-Edit-Event {
   background: #3a3d55; /* Cinza escuro/azulado */
 }
 
-.btn-cancel:hover {
+.btn-cancel-Edit-Event:hover {
   background: #4a4d6b;
 }
 

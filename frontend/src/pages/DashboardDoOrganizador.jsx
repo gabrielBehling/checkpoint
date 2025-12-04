@@ -319,7 +319,7 @@ export default function DashboardDoOrganizador() {
                           {showCancelButton && (
                             <button
                               type="button"
-                              className="dashboard-button btn-cancel"
+                              className="dashboard-button btn-cancel-Org"
                               disabled={actionLoading === `${eventId}-Canceled`}
                               onClick={() => updateEventStatus(eventId, "Canceled")}
                             >
