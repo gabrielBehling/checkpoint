@@ -13,23 +13,22 @@ import Footer from "./components/Footer";
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [carouselData, setCarouselData] = useState([]);
   const totalSlides = carouselData.length;
   const [activeIndex, setActiveIndex] = useState(0);
+
   const [errorSources, setErrorSources] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [eventosProximos, setEventosProximos] = useState([]);
   const [eventosEmAlta, setEventosEmAlta] = useState([]);
+
   const [loadingEventos, setLoadingEventos] = useState(true);
   const [loadingEventosAlta, setLoadingEventosAlta] = useState(true);
-  const { user, logout } = useAuth();
 
-  const getProfileSrc = (profilePath) => {
-    if (!profilePath) return null;
-    if (profilePath.startsWith("http")) return profilePath;
-    return `${window.location.origin}/api/auth${profilePath}`;
-  };
+  const { user } = useAuth();
 
   const fetchEventosEmAlta = async () => {
     setLoadingEventosAlta(true);
@@ -42,6 +41,7 @@ function App() {
         const eventos = response.data.data.data
           .sort((a, b) => (b.currentParticipants || 0) - (a.currentParticipants || 0))
           .slice(0, 6);
+
         setEventosEmAlta(eventos);
       }
     } catch (err) {
@@ -53,6 +53,7 @@ function App() {
 
   const fetchEventosProximos = async () => {
     setLoadingEventos(true);
+
     try {
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
@@ -67,21 +68,19 @@ function App() {
 
       if (response.data.success) {
         const eventosFiltrados = response.data.data.data.filter((evento) => {
-  
           if (!evento.startDate) return false;
-          
-          const dataString = evento.startDate.toString().split('T')[0]; 
-          const partesData = dataString.split('-'); 
-          
+
+          const dataString = evento.startDate.toString().split("T")[0];
+          const partesData = dataString.split("-");
           const dataEvento = new Date(partesData[0], partesData[1] - 1, partesData[2]);
           dataEvento.setHours(0, 0, 0, 0);
 
           return dataEvento >= hoje && dataEvento <= limiteSeteDias;
         });
 
-        const eventosOrdenados = eventosFiltrados.sort((a, b) => {
-          return new Date(a.startDate) - new Date(b.startDate);
-        });
+        const eventosOrdenados = eventosFiltrados.sort(
+          (a, b) => new Date(a.startDate) - new Date(b.startDate)
+        );
 
         setEventosProximos(eventosOrdenados.slice(0, 6));
       }
@@ -95,15 +94,19 @@ function App() {
   const fetchCarouselData = async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const response = await api.get("/events/?limit=5");
+      const response = await api.get("/events/", {
+        params: { limit: 5 },
+      });
 
       if (response.data.success) {
         const newCarouselData = response.data.data.data.map((event) => ({
           id: event.eventId,
-          src: event.bannerURL && event.bannerURL.trim() !== "" 
-            ? "http://checkpoint.localhost/api/events" + event.bannerURL 
-            : FALLBACK_IMAGE_SRC,
+          src:
+            event.bannerURL && event.bannerURL.trim() !== ""
+              ? `${window.location.origin}/api/events${event.bannerURL}`
+              : FALLBACK_IMAGE_SRC,
           alt: event.title || "Evento sem título",
           link: `/evento/${event.eventId}/`,
         }));
@@ -115,9 +118,12 @@ function App() {
         throw new Error("Falha ao carregar os eventos");
       }
     } catch (err) {
-      console.error("Erro ao carregar banners dos eventos:", err);
-      setError("Não foi possível carregar os eventos. Tente novamente.");
-      setCarouselData([{ id: 99, src: FALLBACK_IMAGE_SRC, alt: "Erro de carregamento" }]);
+      console.error("Erro ao carregar banners:", err);
+      setError("Erro ao carregar os eventos.");
+
+      setCarouselData([
+        { id: 99, src: FALLBACK_IMAGE_SRC, alt: "Erro de carregamento" },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -127,16 +133,19 @@ function App() {
     fetchCarouselData();
     fetchEventosProximos();
     fetchEventosEmAlta();
+
     const interval = setInterval(nextSlide, 15 * 60 * 1000);
     return () => clearInterval(interval);
   }, [totalSlides]);
 
   const nextSlide = () => {
-    setActiveIndex((prevIndex) => (prevIndex + 1) % totalSlides);
+    if (totalSlides === 0) return;
+    setActiveIndex((prev) => (prev + 1) % totalSlides);
   };
 
   const prevSlide = () => {
-    setActiveIndex((prevIndex) => (prevIndex - 1 + totalSlides) % totalSlides);
+    if (totalSlides === 0) return;
+    setActiveIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   const handleImageError = (index) => {
@@ -145,31 +154,44 @@ function App() {
 
   const getSlideClasses = (index) => {
     let classes = "card";
-    const relativeIndex = index - activeIndex;
-    const distance = ((relativeIndex + totalSlides + totalSlides / 2) % totalSlides) - totalSlides / 2;
 
-    if (distance === 0) classes += " active";
-    else if (distance === 1 || distance === -totalSlides + 1) classes += " right";
-    else if (distance === -1 || distance === totalSlides - 1) classes += " left";
-    else if (distance === 2 || distance === -totalSlides + 2) classes += " right-far";
-    else if (distance === -2 || distance === totalSlides - 2) classes += " left-far";
+    if (totalSlides <= 1) {
+      classes += " active";
+    } else {
+      const relativeIndex = index - activeIndex;
+      const distance =
+        ((relativeIndex + totalSlides + totalSlides / 2) % totalSlides) -
+        totalSlides / 2;
+
+      if (distance === 0) classes += " active";
+      else if (distance === 1 || distance === -totalSlides + 1) classes += " right";
+      else if (distance === -1 || distance === totalSlides - 1) classes += " left";
+      else if (distance === 2 || distance === -totalSlides + 2)
+        classes += " right-far";
+      else if (distance === -2 || distance === totalSlides - 2)
+        classes += " left-far";
+    }
 
     if (errorSources[index]) classes += " error-orange";
+
     return classes;
   };
 
   return (
     <>
-      <Header /> {/* ✅ Header padronizado */}
+      <Header />
 
       <section className="hero">
-        {loading && <div className="loading-message">Carregando banners de eventos...</div>}
+        {loading && <div className="loading-message">Carregando banners...</div>}
         {error && <div className="error-message">Erro: {error}</div>}
 
         <div className="carousel" style={{ overflowX: "auto" }}>
-          {!loading && carouselData.length > 0
-            ? carouselData.map((item, index) => {
-              const currentSrc = errorSources[index] ? FALLBACK_IMAGE_SRC : item.src;
+          {!loading && carouselData.length > 0 ? (
+            carouselData.map((item, index) => {
+              const currentSrc = errorSources[index]
+                ? FALLBACK_IMAGE_SRC
+                : item.src;
+
               return (
                 <img
                   key={item.id}
@@ -186,26 +208,36 @@ function App() {
                 />
               );
             })
-            : !loading && !error && <div className="placeholder-card card active">Nenhum evento encontrado para o carrossel.</div>}
+          ) : (
+            !loading &&
+            !error && (
+              <div className="placeholder-card card active">
+                Nenhum evento encontrado para o carrossel.
+              </div>
+            )
+          )}
         </div>
 
-        <div className="controls">
-          <button id="prev" onClick={prevSlide}>
-            ◀
-          </button>
-          <button id="next" onClick={nextSlide}>
-            ▶
-          </button>
-        </div>
+        {/* CONTROLES DO CARROSSEL */}
+        {!loading && carouselData.length > 1 && (
+          <div className="controls">
+            <button id="prev" onClick={prevSlide}>
+              ◀
+            </button>
+            <button id="next" onClick={nextSlide}>
+              ▶
+            </button>
+          </div>
+        )}
 
         {!user && (
           <div className="cta">
             <p>
               Cadastre-se e aproveite benefícios exclusivos!
               <br />
-              Tenha acesso a conteúdos especiais, ofertas e novidades antes de todo mundo.
-              <br />É rápido, gratuito e feito pra você!
+              Acesso antecipado a novidades e promoções.
             </p>
+
             <Link to="/cadastro" state={{ from: location }} className="btn">
               Cadastre-se
             </Link>
@@ -213,43 +245,46 @@ function App() {
         )}
       </section>
 
+      {/* EVENTOS PROXIMOS */}
       <section className="eventos" style={{ overflowX: "auto" }}>
         <h2>Eventos Próximos</h2>
-        <div id="lista-eventos" className="eventos-container">
+
+        <div className="eventos-container">
           {loadingEventos ? (
             <p>Carregando eventos...</p>
           ) : eventosProximos.length > 0 ? (
             eventosProximos.map((evento) => {
               const dataEvento = new Date(evento.startDate);
-              const diaDisplay = dataEvento.getUTCDate();
-              const mesDisplay = dataEvento.getUTCMonth() + 1;
-              const anoDisplay = dataEvento.getUTCFullYear();
-              const dataFormatada = `${diaDisplay.toString().padStart(2, '0')}/${mesDisplay.toString().padStart(2, '0')}/${anoDisplay}`;
+              const dia = String(dataEvento.getUTCDate()).padStart(2, "0");
+              const mes = String(dataEvento.getUTCMonth() + 1).padStart(2, "0");
+              const ano = dataEvento.getUTCFullYear();
 
               return (
                 <div key={evento.eventId} className="evento-card">
                   <div className="imagem-evento">
                     <img
-                      src={evento.bannerURL && evento.bannerURL.trim() !== "" 
-                        ? "http://checkpoint.localhost/api/events" + evento.bannerURL 
-                        : FALLBACK_IMAGE_SRC}
+                      src={
+                        evento.bannerURL && evento.bannerURL.trim() !== ""
+                          ? `${window.location.origin}/api/events${evento.bannerURL}`
+                          : FALLBACK_IMAGE_SRC
+                      }
                       alt={evento.title}
-                      onError={(e) => {
-                        e.target.src = FALLBACK_IMAGE_SRC;
-                      }}
+                      onError={(e) => (e.target.src = FALLBACK_IMAGE_SRC)}
                     />
                   </div>
+
                   <div className="info-evento">
                     <h3>{evento.title}</h3>
+
                     <p>
-                      Data: {dataFormatada}
+                      Data: {dia}/{mes}/{ano}
                       <br />
                       Horário: {evento.startHour || "Definir"}
                       <br />
-                      {evento.prizes && `Premiação: ${evento.prizes}`}
-                      <br />
+                      {evento.prizes && <>Premiação: {evento.prizes}<br /></>}
                       {evento.isOnline ? "Online" : `Local: ${evento.location}`}
                     </p>
+
                     <Link to={`/evento/${evento.eventId}`} className="btn">
                       Ver detalhes
                     </Link>
@@ -258,49 +293,57 @@ function App() {
               );
             })
           ) : (
-            <p>Nenhum evento próximo (próximos 7 dias) encontrado.</p>
+            <p>Nenhum evento próximo encontrado.</p>
           )}
         </div>
       </section>
 
+      {/* EVENTOS EM ALTA */}
       <section className="eventos eventos-alta" style={{ overflowX: "auto" }}>
         <h2>Eventos em Alta</h2>
-        <div id="lista-eventos-alta" className="eventos-container">
+
+        <div className="eventos-container">
           {loadingEventosAlta ? (
             <p>Carregando eventos em alta...</p>
           ) : eventosEmAlta.length > 0 ? (
             eventosEmAlta.map((evento) => {
               const dataEvento = new Date(evento.startDate);
-              const diaDisplay = dataEvento.getUTCDate();
-              const mesDisplay = dataEvento.getUTCMonth() + 1;
-              const anoDisplay = dataEvento.getUTCFullYear();
-              const dataFormatada = `${diaDisplay.toString().padStart(2, '0')}/${mesDisplay.toString().padStart(2, '0')}/${anoDisplay}`;
+              const dia = String(dataEvento.getUTCDate()).padStart(2, "0");
+              const mes = String(dataEvento.getUTCMonth() + 1).padStart(2, "0");
+              const ano = dataEvento.getUTCFullYear();
 
               return (
                 <div key={evento.eventId} className="evento-card">
                   <div className="imagem-evento">
                     <img
-                      src={evento.bannerURL && evento.bannerURL.trim() !== "" 
-                        ? "http://checkpoint.localhost/api/events" + evento.bannerURL 
-                        : FALLBACK_IMAGE_SRC}
+                      src={
+                        evento.bannerURL && evento.bannerURL.trim() !== ""
+                          ? `${window.location.origin}/api/events${evento.bannerURL}`
+                          : FALLBACK_IMAGE_SRC
+                      }
                       alt={evento.title}
-                      onError={(e) => {
-                        e.target.src = FALLBACK_IMAGE_SRC;
-                      }}
+                      onError={(e) => (e.target.src = FALLBACK_IMAGE_SRC)}
                     />
-                    {evento.currentParticipants > 0 && <div className="participantes-badge">{evento.currentParticipants} participantes</div>}
+
+                    {evento.currentParticipants > 0 && (
+                      <div className="participantes-badge">
+                        {evento.currentParticipants} participantes
+                      </div>
+                    )}
                   </div>
+
                   <div className="info-evento">
                     <h3>{evento.title}</h3>
+
                     <p>
-                      Data: {dataFormatada}
+                      Data: {dia}/{mes}/{ano}
                       <br />
                       Horário: {evento.startHour || "Definir"}
                       <br />
-                      {evento.prizes && `Premiação: ${evento.prizes}`}
-                      <br />
+                      {evento.prizes && <>Premiação: {evento.prizes}<br /></>}
                       {evento.isOnline ? "Online" : `Local: ${evento.location}`}
                     </p>
+
                     <Link to={`/evento/${evento.eventId}`} className="btn">
                       Ver detalhes
                     </Link>

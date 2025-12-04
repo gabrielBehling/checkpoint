@@ -44,8 +44,10 @@ function RequestResetPasswordPage() {
     }
 
     return (
+        <><Header/>
+        
         <div className="request-reset-container">
-            <Header/>
+            
             {loading && <div className="loading-overlay">Carregando...</div>}
             
             <div className="request-reset-form">
@@ -77,8 +79,9 @@ function RequestResetPasswordPage() {
                     ← Voltar para o Login
                 </button>
             </div>
-            <Footer/>
+            
         </div>
+        <Footer/></>
     );
 }
 
