@@ -2,7 +2,6 @@
    RESET
 ======================================================= */
 * {
-  
   padding: 0;
   box-sizing: border-box;
 }
@@ -14,8 +13,6 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
 }
-
-
 
 /* =======================================================
    HERO / CARROSSEL
@@ -194,13 +191,14 @@ body {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
+/* 🔥 CORREÇÃO APLICADA: imagem sempre visível */
 .imagem-evento {
   position: absolute;
   inset: 0;
   background-position: center;
   background-size: cover;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  opacity: 1; /* ← antes era 0 */
+  transition: transform 0.4s ease;
 }
 
 .info-evento {
@@ -208,7 +206,7 @@ body {
   inset: 0;
   background: rgba(10, 13, 42, 0.92);
   color: #fff;
-  opacity: 0;
+  opacity: 0; /* texto invisível até hover */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -218,9 +216,14 @@ body {
   transition: opacity 0.4s ease;
 }
 
-.evento-card:hover .imagem-evento,
+/* Texto aparece */
 .evento-card:hover .info-evento {
   opacity: 1;
+}
+
+/* Zoom suave na imagem */
+.evento-card:hover .imagem-evento {
+  transform: scale(1.05);
 }
 
 .info-evento h3 {
@@ -234,8 +237,6 @@ body {
   font-size: 0.95rem;
   color: #ddd;
 }
-
-
 
 /* =======================================================
    RESPONSIVIDADE
@@ -314,6 +315,6 @@ body {
   }
 
   .logo-text {
-    display: none; /* oculta texto da logo em telas muito pequenas */
+    display: none;
   }
 }
