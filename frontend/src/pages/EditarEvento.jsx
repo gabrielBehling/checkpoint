@@ -7,6 +7,24 @@ import { useCustomModal } from "../hooks/useCustomModal";
 import Header from "../components/Header"; 
 import Footer from "../components/Footer";
 
+// --- FUNÇÕES DE FORMATAÇÃO ---
+const formatDataParaInput = (dataISO) => {
+  if (!dataISO) return "";
+  if (typeof dataISO === 'string') return dataISO.split('T')[0];
+  const date = new Date(dataISO);
+  const ano = date.getUTCFullYear();
+  const mes = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dia = String(date.getUTCDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+};
+
+const formatHoraParaInput = (horaISO) => {
+  if (!horaISO) return "";
+  const str = horaISO.toString();
+  if (str.includes('T')) return str.split('T')[1].slice(0, 5);
+  return str.slice(0, 5);
+};
+
 export default function EditEventPage() {
   const { eventId } = useParams(); 
   const navigate = useNavigate();
@@ -16,13 +34,15 @@ export default function EditEventPage() {
     Title: "",
     Description: "",
     GameID: "",
-    Mode: "",
+    ModeID: "",
     StartDate: "",
+    StartHour: "",
     EndDate: "",
+    EndHour: "",
     Location: "",
     Ticket: "",
     ParticipationCost: "",
-    Language: "",
+    LanguageID: "",
     Platform: "",
     IsOnline: false,
     MaxParticipants: "",
@@ -33,49 +53,64 @@ export default function EditEventPage() {
     BannerURL: ""
   });
 
+  const [originalData, setOriginalData] = useState({});
   const [banner, setBanner] = useState(null);
+  const [currentBannerUrl, setCurrentBannerUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentBannerUrl, setCurrentBannerUrl] = useState('');
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         setLoading(true);
         const response = await api.get(`/events/${eventId}`);
-        const eventData = response.data;
+        const data = response.data.data || response.data;
 
-        setForm({
-          Title: eventData.title || "",
-          Description: eventData.description || "",
-          GameID: eventData.gameId || "",
-          Mode: eventData.mode || "",
-          StartDate: eventData.startDate ? new Date(eventData.startDate).toISOString().split('T')[0] : "",
-          EndDate: eventData.endDate ? new Date(eventData.endDate).toISOString().split('T')[0] : "",
-          Location: eventData.location || "",
-          Ticket: eventData.ticket || "",
-          ParticipationCost: eventData.participationCost || "",
-          Language: eventData.language || "",
-          Platform: eventData.platform || "",
-          IsOnline: eventData.isOnline || false,
-          MaxParticipants: eventData.maxParticipants || "",
-          TeamSize: eventData.teamSize || "",
-          MaxTeams: eventData.maxTeams || "",
-          Rules: eventData.rules || "",
-          Prizes: eventData.prizes || "",
-          BannerURL: eventData.bannerUrl || "", // Guarda a URL existente
-          CreatedBy: eventData.createdBy || "",
-        });
-        setCurrentBannerUrl(eventData.bannerUrl || ""); // Exibe o banner atual
+        const formattedData = {
+          Title: data.title || "",
+          Description: data.description || "",
+          GameID: data.gameId || "", 
+          ModeID: data.modeId || "", 
+          
+          StartDate: formatDataParaInput(data.startDate),
+          StartHour: formatHoraParaInput(data.startHour || "00:00"),
+          
+          EndDate: formatDataParaInput(data.endDate),
+          EndHour: formatHoraParaInput(data.endHour || ""),
+
+          Location: data.location || "",
+          Ticket: data.ticket || "",
+          ParticipationCost: data.participationCost || "",
+          LanguageID: data.languageId || "", 
+          
+          Platform: data.platform || "",
+          IsOnline: data.isOnline || false,
+          MaxParticipants: data.maxParticipants || "",
+          TeamSize: data.teamSize || "",
+          MaxTeams: data.maxTeams || "",
+          Rules: data.rules || "",
+          Prizes: data.prizes || "",
+          BannerURL: data.bannerUrl || "",
+        };
+
+        setForm(formattedData);
+        setOriginalData(formattedData);
+
+        if (data.bannerUrl) {
+           const baseUrl = "http://checkpoint.localhost/api/events"; 
+           const fullUrl = data.bannerUrl.startsWith('http') ? data.bannerUrl : `${baseUrl}${data.bannerUrl}`;
+           setCurrentBannerUrl(fullUrl);
+        }
+
         setLoading(false);
       } catch (err) {
         console.error("Erro ao carregar evento:", err);
-        setError("Não foi possível carregar os detalhes do evento.");
+        setError("Não foi possível carregar os dados.");
         setLoading(false);
       }
     };
 
-    fetchEvent();
+    if (eventId) fetchEvent();
   }, [eventId]);
 
   const handleChange = (e) => {
@@ -91,9 +126,6 @@ export default function EditEventPage() {
     if (file) {
       setBanner(file);
       setCurrentBannerUrl(URL.createObjectURL(file));
-    } else {
-      setBanner(null);
-      setCurrentBannerUrl(form.BannerURL); 
     }
   };
 
@@ -101,25 +133,44 @@ export default function EditEventPage() {
     e.preventDefault();
 
     try {
-      let dataToSubmit = form;
+      const formData = new FormData();
+      
+      Object.entries(form).forEach(([key, value]) => {
+        if (value === "" || value === null || value === undefined) return;
+
+        const isDateOrTimeField = ["StartDate", "StartHour", "EndDate", "EndHour"].includes(key);
+        
+        if (isDateOrTimeField && value === originalData[key]) {
+            return;
+        }
+
+        let valueToSend = value;
+        if ((key === 'StartHour' || key === 'EndHour') && typeof value === 'string') {
+             if (value.length > 5) valueToSend = value.substring(0, 5);
+        }
+
+        formData.append(key, valueToSend);
+      });
 
       if (banner) {
-        const formData = new FormData();
-        Object.entries(form).forEach(([key, value]) => formData.append(key, value));
         formData.append("BannerFile", banner);
-        formData.delete("BannerURL"); 
-        dataToSubmit = formData;
       }
 
-      const response = await api.put(`/events/${eventId}`, dataToSubmit); 
+      const response = await api.put(`/events/${eventId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      showSuccess("Evento atualizado com sucesso!");
-      console.log(response.data);
+      if (response.data.success) {
+        showSuccess("Evento atualizado com sucesso!");
+        setTimeout(() => navigate(`/evento/${eventId}`), 1500);
+      } else {
+        showError("Erro: " + response.data.message);
+      }
 
-      navigate(`/eventos/${eventId}`);
-    } catch (error) {
-      console.error(error);
-      showError("Erro ao atualizar evento.");
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.message || err.response?.data?.error || "Erro ao salvar alterações.";
+      showError(msg);
     }
   };
 
@@ -128,9 +179,8 @@ export default function EditEventPage() {
       <>
         <Modal />
         <Header />
-        <main className="container" style={{ textAlign: 'center', padding: '50px' }}>
-          <h1>Carregando Evento...</h1>
-          <p>Por favor, aguarde.</p>
+        <main className="container loading-container">
+          <h1>Carregando dados...</h1>
         </main>
         <Footer />
       </>
@@ -142,10 +192,10 @@ export default function EditEventPage() {
       <>
         <Modal />
         <Header />
-        <main className="container" style={{ textAlign: 'center', padding: '50px' }}>
-          <h1>Erro: {error}</h1>
-          <p>Não foi possível carregar o evento. Verifique o ID ou tente novamente.</p>
-          <button onClick={() => navigate(-1)} className="btn">Voltar</button>
+        <main className="container error-container">
+          <h1>Ocorreu um erro</h1>
+          <p>{error}</p>
+          <button onClick={() => navigate(-1)} className="btn btn-cancel">Voltar</button>
         </main>
         <Footer />
       </>
@@ -158,217 +208,142 @@ export default function EditEventPage() {
       <Header />
 
       <main className="container">
+        <h2 className="page-title">Editar Evento</h2>
+        
         <form className="form-evento" onSubmit={handleSubmit}>
+          
           <div className="col-esquerda">
             <label>Título do Evento</label>
-            <input
-              type="text"
-              name="Title"
-              value={form.Title}
-              onChange={handleChange}
-              placeholder="Digite o nome do evento"
-              required
-            />
+            <input type="text" name="Title" value={form.Title} onChange={handleChange} required />
 
             <label>Descrição</label>
-            <textarea
-              name="Description"
-              value={form.Description}
-              onChange={handleChange}
-              placeholder="Descrição detalhada do evento"
-            ></textarea>
+            <textarea name="Description" value={form.Description} onChange={handleChange} rows="5"></textarea>
 
             <label>Jogo (Game ID)</label>
-            <input
-              type="text"
-              name="GameID"
-              value={form.GameID}
-              onChange={handleChange}
-              placeholder="ID do jogo"
-            />
+            <input type="number" name="GameID" value={form.GameID} onChange={handleChange} placeholder="ID" />
 
-            <label>Modo</label>
-            <input
-              type="text"
-              name="Mode"
-              value={form.Mode}
-              onChange={handleChange}
-              placeholder="Ex: Eliminação, Grupo, Leaderboard..."
-            />
+            <label>Modo (Mode ID)</label>
+            <input type="number" name="ModeID" value={form.ModeID} onChange={handleChange} placeholder="ID" />
 
             <label>Localização</label>
-            <input
-              type="text"
-              name="Location"
-              value={form.Location}
-              onChange={handleChange}
-              placeholder="Digite o local"
-            />
+            <input type="text" name="Location" value={form.Location} onChange={handleChange} disabled={form.IsOnline} />
 
-            <label>Banner do Evento</label>
-            <label className="banner-upload">
-              + Carregar Novo Banner
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleBannerChange}
-              />
-            </label>
+            <label>Banner</label>
             {currentBannerUrl && (
-              <img
-                src={currentBannerUrl}
-                alt="banner-preview"
-                className="preview-banner"
-              />
+                <img src={currentBannerUrl} alt="Preview" className="preview-banner" />
             )}
+            
+            <label className="banner-upload-btn">
+               Alterar Imagem
+               <input type="file" accept="image/*" onChange={handleBannerChange} hidden />
+            </label>
           </div>
 
           <div className="col-direita">
-            <h3>Configurações do evento</h3>
+            <h3>Datas e Horários</h3>
 
             <div className="form-group-row">
               <div className="form-field-group">
-                <label>Premiações</label>
-                <input
-                  type="text"
-                  name="Prizes"
-                  value={form.Prizes}
-                  onChange={handleChange}
-                  placeholder="[ESCREVA]"
+                <label>Data Início</label>
+                <input 
+                    type="date" 
+                    name="StartDate" 
+                    value={form.StartDate} 
+                    onChange={handleChange} 
+                    required 
                 />
               </div>
-
               <div className="form-field-group">
-                <label>Idioma</label>
-                <select
-                  name="Language"
-                  value={form.Language}
-                  onChange={handleChange}
-                >
-                  <option value="">Selecione</option>
-                  <option value="Português">Português</option>
-                  <option value="Inglês">Inglês</option>
-                </select>
+                <label>Hora Início</label>
+                <input 
+                    type="time" 
+                    name="StartHour" 
+                    value={form.StartHour} 
+                    onChange={handleChange} 
+                    required 
+                />
               </div>
             </div>
-            
+
+            <div className="form-group-row">
+              <div className="form-field-group">
+                <label>Data Término</label>
+                <input 
+                    type="date" 
+                    name="EndDate" 
+                    value={form.EndDate} 
+                    onChange={handleChange} 
+                />
+              </div>
+              <div className="form-field-group">
+                <label>Hora Fim</label>
+                <input 
+                    type="time" 
+                    name="EndHour" 
+                    value={form.EndHour} 
+                    onChange={handleChange} 
+                />
+              </div>
+            </div>
+
+            <h3>Configurações</h3>
+            <label>Premiações</label>
+            <input type="text" name="Prizes" value={form.Prizes} onChange={handleChange} />
+
             <label>Regras</label>
-            <input
-              type="text"
-              name="Rules"
-              value={form.Rules}
-              onChange={handleChange}
-              placeholder="[ESCREVA]"
-            />
-            
-            <div className="form-group-row">
-              <div className="form-field-group">
-                <label>Data de Início</label>
-                <input
-                  type="date"
-                  name="StartDate"
-                  value={form.StartDate}
-                  onChange={handleChange}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-              </div>
-
-              <div className="form-field-group">
-                <label>Data de Término</label>
-                <input
-                  type="date"
-                  name="EndDate"
-                  value={form.EndDate}
-                  onChange={handleChange}
-                  min={form.StartDate}
-                />
-              </div>
-            </div>
+            <textarea name="Rules" value={form.Rules} onChange={handleChange} />
 
             <label>Plataforma</label>
-            <input
-              type="text"
-              name="Platform"
-              value={form.Platform}
-              onChange={handleChange}
-              placeholder="Ex: Steam, PS5, Xbox..."
-            />
+            <input type="text" name="Platform" value={form.Platform} onChange={handleChange} />
 
             <div className="form-group-row">
               <div className="form-field-group">
-                <label>Ingresso (Ticket)</label>
-                <input
-                  type="text"
-                  name="Ticket"
-                  value={form.Ticket}
-                  onChange={handleChange}
-                  placeholder="Preço ou descrição do ingresso"
-                />
+                <label>Valor Ingresso</label>
+                <input type="number" step="0.01" name="Ticket" value={form.Ticket} onChange={handleChange} />
               </div>
               <div className="form-field-group">
-                <label>Custo de Participação</label>
-                <input
-                  type="number"
-                  name="ParticipationCost"
-                  value={form.ParticipationCost}
-                  onChange={handleChange}
-                  placeholder="Valor de inscrição (se houver)"
-                />
+                <label>Custo Inscrição</label>
+                <input type="number" step="0.01" name="ParticipationCost" value={form.ParticipationCost} onChange={handleChange} />
               </div>
             </div>
 
-            <label>Evento Online?</label>
-            <div className="tipo-evento">
-              <label>
-                <input
-                  type="checkbox"
-                  name="IsOnline"
-                  checked={form.IsOnline}
-                  onChange={handleChange}
-                />{" "}
-                Online
-              </label>
+            <div className="checkbox-wrapper">
+               <label className="checkbox-label">
+                  <input type="checkbox" name="IsOnline" checked={form.IsOnline} onChange={handleChange} />
+                  <strong>Evento Online?</strong>
+               </label>
             </div>
 
             <div className="form-group-row three-cols">
               <div className="form-field-group">
-                <label>Máx. Participantes</label>
-                <input
-                  type="number"
-                  name="MaxParticipants"
-                  value={form.MaxParticipants}
-                  onChange={handleChange}
-                  placeholder="Número máximo"
-                />
+                <label>Máx. Players</label>
+                <input type="number" name="MaxParticipants" value={form.MaxParticipants} onChange={handleChange} />
               </div>
-
               <div className="form-field-group">
-                <label>Tamanho da Equipe</label>
-                <input
-                  type="number"
-                  name="TeamSize"
-                  value={form.TeamSize}
-                  onChange={handleChange}
-                  placeholder="Ex: 5"
-                />
+                <label>Tam. Time</label>
+                <input type="number" name="TeamSize" value={form.TeamSize} onChange={handleChange} />
               </div>
-
               <div className="form-field-group">
-                <label>Máximo de Equipes</label>
-                <input
-                  type="number"
-                  name="MaxTeams"
-                  value={form.MaxTeams}
-                  onChange={handleChange}
-                  placeholder="Ex: 8"
-                />
+                <label>Máx. Times</label>
+                <input type="number" name="MaxTeams" value={form.MaxTeams} onChange={handleChange} />
               </div>
             </div>
 
-            <button type="submit" className="btn">
-              Salvar Alterações
-            </button>
+            <div className="form-field-group mt-10">
+               <label>Idioma</label>
+               <select name="LanguageID" value={form.LanguageID} onChange={handleChange}>
+                  <option value="">Selecione</option>
+                  <option value="1">Português</option> 
+                  <option value="2">Inglês</option>
+                  <option value="3">Espanhol</option>
+               </select>
+            </div>
+
+            <div className="form-actions">
+              <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>Cancelar</button>
+              <button type="submit" className="btn">Salvar Alterações</button>
+            </div>
+
           </div>
         </form>
       </main>

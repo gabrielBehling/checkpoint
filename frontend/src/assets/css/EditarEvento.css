@@ -2,26 +2,25 @@
  * ===================================
  * ARQUIVO: EditEventPage.css
  * ===================================
- * Tema consistente com o restante do sistema:
- * Fundo: #0B0C1D / #12133A (degradê)
- * Cards e inputs: #1A1C42 / #2A2D5E
- * Botões e destaques: #4D5BF9 (azul primário)
- * Texto: #F5F5F5 / #B0B0D0 (secundário)
  */
 
-/* ====== RESET GLOBAL ====== */
-
-body {
+/* ====== RESET GLOBAL (Se necessário, mas idealmente vai no index.css) ====== */
+/* body {
   background: linear-gradient(180deg, #0b0c1d 0%, #12133a 100%);
   color: #f5f5f5;
   overflow-x: hidden;
-}
+} */
 
 /* ====== CONTAINER PRINCIPAL ====== */
 .container {
   max-width: 1200px;
   margin: 50px auto;
   padding: 30px;
+}
+
+.page-title {
+  margin-bottom: 20px;
+  color: #f5f5f5;
 }
 
 /* ====== FORMULÁRIO ====== */
@@ -57,12 +56,14 @@ label {
   color: #b0b0d0;
   font-size: 0.9rem;
   margin-bottom: 5px;
+  display: block;
 }
 
 /* ====== INPUTS ====== */
 input[type="text"],
 input[type="number"],
 input[type="date"],
+input[type="time"], /* Adicionado */
 textarea,
 select {
   background: #2a2d5e;
@@ -73,6 +74,7 @@ select {
   font-size: 0.95rem;
   transition: border-color 0.2s, background 0.2s;
   width: 100%;
+  font-family: inherit; /* Importante para inputs */
 }
 
 textarea {
@@ -89,7 +91,7 @@ select:focus {
 }
 
 /* ====== BANNER UPLOAD ====== */
-.banner-upload {
+.banner-upload-btn {
   background: #1a1c42;
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 10px;
@@ -99,9 +101,11 @@ select:focus {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  display: block;
+  margin-top: 10px;
 }
 
-.banner-upload:hover {
+.banner-upload-btn:hover {
   background: rgba(77, 91, 249, 0.1);
   border-color: #4d5bf9;
 }
@@ -133,18 +137,36 @@ select:focus {
 }
 
 /* ====== CHECKBOX ====== */
-.tipo-evento {
+.checkbox-wrapper {
+  margin: 15px 0;
+}
+
+.checkbox-label {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
 }
 
-.tipo-evento input[type="checkbox"] {
+.checkbox-label input[type="checkbox"] {
   accent-color: #4d5bf9;
   transform: scale(1.1);
+  width: auto; /* Reset para checkbox não esticar */
 }
 
-/* ====== BOTÃO ====== */
+/* ====== UTILITARIOS ====== */
+.mt-10 {
+  margin-top: 10px;
+}
+
+/* ====== BOTÕES E AÇÕES ====== */
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .btn {
   background: #4d5bf9;
   color: #fff;
@@ -155,8 +177,6 @@ select:focus {
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
-  margin-top: 20px;
-  align-self: flex-start;
 }
 
 .btn:hover {
@@ -164,15 +184,26 @@ select:focus {
   transform: translateY(-1px);
 }
 
+.btn-cancel {
+  background: #3a3d55; /* Cinza escuro/azulado */
+}
+
+.btn-cancel:hover {
+  background: #4a4d6b;
+}
+
 /* ====== ESTADOS ====== */
-.loading,
-.error {
+.loading-container,
+.error-container {
   text-align: center;
   padding: 60px 20px;
 }
 
-.loading h1,
-.error h1 {
+.error-container h1 {
+  color: #ff6b6b;
+}
+
+.loading-container h1 {
   color: #8ba0ff;
 }
 
@@ -199,6 +230,10 @@ select:focus {
   .container {
     padding: 20px;
     margin: 30px auto;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
   }
 
   .btn {
