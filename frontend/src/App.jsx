@@ -97,7 +97,7 @@ function App() {
 
     try {
       const response = await api.get("/events/", {
-        params: { limit: 5 },
+        params: { limit: 5, status:"active" },
       });
 
       if (response.data.success) {
@@ -211,7 +211,7 @@ function App() {
           ) : (
             !loading &&
             !error && (
-              <div className="placeholder-card card active">
+              <div className="placeholder-card card inativo">
                 Nenhum evento encontrado para o carrossel.
               </div>
             )
@@ -352,7 +352,7 @@ function App() {
               );
             })
           ) : (
-            <p>Nenhum evento em alta encontrado.</p>
+            <p >Nenhum evento em alta encontrado.</p>
           )}
         </div>
       </section>
