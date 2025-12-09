@@ -27,7 +27,7 @@ export default function Termos() {
             },
             
             {
-                Titulo:"4. Responsabilidade Financeira Relacionados a Torneios e Eventos",
+                titulo:"4. Responsabilidade Financeira Relacionados a Torneios e Eventos",
                 conteudo:"O checkpoint  atua estritamente como facilitadora e provedora de tecnologia da plataforma para o desenvolvimento e gerenciamento de eventos relacionados à área de eSports. É expressamente estabelecido que a checkpoint não assume qualquer responsabilidade legal, contratual ou financeira, direta ou indireta, por quaisquer perdas, danos, custos, taxas, ou problemas de natureza financeira que possam surgir da participação do Usuário em tais eventos. Isso abrange integralmente questões relativas a taxas de inscrição, reembolsos, distribuição e recebimento de prêmios em dinheiro, ou qualquer outra transação monetária efetuada entre o usuário e terceiros. Qualquer disputa, contestação ou problema de pagamento relacionado a um torneio ou evento deve ser resolvido integral e exclusivamente entre o usuário participante e o Organizador do Evento (ou a entidade terceira responsável pela gestão dos fundos). O Usuário reconhece e concorda que a checkpoint está isenta da obrigação de mediar, intervir, investigar ou de qualquer forma participar na resolução de tais disputas financeiras, devendo o Usuário exercer a devida diligência ao se envolver em transações monetárias com Organizadores através da plataforma."
             },
             
