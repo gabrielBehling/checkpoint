@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import "../assets/css/login.css"; 
 import api from "./api";
-import LOGO_IMG from "../assets/img/imagem.png";
+import LOGO_IMG from "../assets/img/logo.png";
 
 import { useAuth } from "../contexts/AuthContext";
 import { useCustomModal } from "../hooks/useCustomModal";

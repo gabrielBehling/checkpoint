@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import LOGO_IMG from "../assets/img/imagem.png";
+import LOGO_IMG from "../assets/img/logo.png";
 import "../assets/css/hf.css";
 
 function Header() {
