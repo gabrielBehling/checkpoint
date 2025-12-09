@@ -13,6 +13,8 @@ import RankingFinal from "../components/RankingFinal";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
+import FALLBACK_IMAGE_SRC from "../assets/img/fundo.png";
+
 // --- Função Auxiliar de Formatação ---
 function formatarData(dataISO) {
   if (!dataISO) return "-";
@@ -143,9 +145,9 @@ export default function EventoInfo() {
   if (!evento) return null;
 
   // --- Variáveis para Dados (Limpeza e Formatação) ---
-  const bannerUrl = "http://checkpoint.localhost/api/events" + evento.bannerURL;
+  const bannerUrl = evento.bannerURL ? "http://checkpoint.localhost/api/events" + evento.bannerURL : FALLBACK_IMAGE_SRC;
   const creatorUsername = evento.createdBy?.username
-  const creatorAvatar = evento.organizerProfileURL ? "http://checkpoint.localhost/api/auth/" + evento.organizerProfileURL : "caminho/padrao/avatar.png"; 
+  const creatorAvatar = evento.organizerProfileURL ? "http://checkpoint.localhost/api/auth/" + evento.organizerProfileURL : FALLBACK_IMAGE_SRC; 
 
   const isAtivo = evento.status === "Active";
 
