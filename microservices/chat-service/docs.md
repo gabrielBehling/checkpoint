@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://checkpoint.localhost/api/chat
+http://checkpoint.buzz/api/chat
 ```
 
 ## 🔐 Autenticação
@@ -275,12 +275,12 @@ GET /api/chat/upload/1234567890-image.jpg
 
 ### Conexão
 
-**URL:** `http://checkpoint.localhost`  
+**URL:** `http://checkpoint.buzz`  
 **Path:** `/api/chat/socket.io`
 
 **Configuração do Cliente:**
 ```javascript
-const socket = io('http://checkpoint.localhost', {
+const socket = io('http://checkpoint.buzz', {
   path: '/api/chat/socket.io',
   withCredentials: true,
   reconnectionAttempts: 5,
@@ -785,12 +785,12 @@ app.use('/chat/uploads', express.static(path.join(publicDir, 'uploads')));
 
 **URL Pública:**
 ```
-http://checkpoint.localhost/api/chat/uploads/[filename]
+http://checkpoint.buzz/api/chat/uploads/[filename]
 ```
 
 **Exemplo:**
 ```
-http://checkpoint.localhost/api/chat/uploads/1704115200000-screenshot.png
+http://checkpoint.buzz/api/chat/uploads/1704115200000-screenshot.png
 ```
 
 **Notas:**
@@ -1319,7 +1319,7 @@ socket.emit('authError', 'Você não tem permissão para enviar mensagens para e
 ### Conectar ao Chat e Entrar em uma Equipe
 
 ```javascript
-const socket = io('http://checkpoint.localhost', {
+const socket = io('http://checkpoint.buzz', {
   path: '/api/chat/socket.io',
   withCredentials: true,
   reconnectionAttempts: 5,
@@ -1379,7 +1379,7 @@ sendButton.addEventListener('click', () => {
 ```javascript
 const teamId = '1';
 
-fetch(`http://checkpoint.localhost/api/chat/messages/${teamId}`, {
+fetch(`http://checkpoint.buzz/api/chat/messages/${teamId}`, {
   credentials: 'include'
 })
   .then(res => {
@@ -1423,7 +1423,7 @@ fileInput.addEventListener('change', async (event) => {
   formData.append('teamId', teamId);
   
   try {
-    const response = await fetch('http://checkpoint.localhost/api/chat/upload', {
+    const response = await fetch('http://checkpoint.buzz/api/chat/upload', {
       method: 'POST',
       credentials: 'include',
       body: formData
@@ -1452,7 +1452,7 @@ fileInput.addEventListener('change', async (event) => {
 const eventId = '5';
 const commentText = 'Great event! Looking forward to it!';
 
-fetch(`http://checkpoint.localhost/api/chat/events/${eventId}/comments`, {
+fetch(`http://checkpoint.buzz/api/chat/events/${eventId}/comments`, {
   method: 'POST',
   credentials: 'include',
   headers: {
@@ -1485,7 +1485,7 @@ fetch(`http://checkpoint.localhost/api/chat/events/${eventId}/comments`, {
 ```javascript
 const eventId = '5';
 
-fetch(`http://checkpoint.localhost/api/chat/events/${eventId}/comments`)
+fetch(`http://checkpoint.buzz/api/chat/events/${eventId}/comments`)
   .then(res => {
     if (!res.ok) {
       throw new Error('Failed to fetch comments');
@@ -1537,14 +1537,14 @@ function displayMessage(message) {
       content += `<div class="message-text">${safeText}</div>`;
     }
     content += `<div class="message-image">
-      <img src="http://checkpoint.localhost/api/chat${message.fileUrl}" alt="Imagem enviada">
+      <img src="http://checkpoint.buzz/api/chat${message.fileUrl}" alt="Imagem enviada">
     </div>`;
   } else if (message.type === 'audio') {
     if (message.message) {
       content += `<div class="message-text">${safeText}</div>`;
     }
     content += `<div class="message-audio">
-      <audio controls src="http://checkpoint.localhost/api/chat${message.fileUrl}"></audio>
+      <audio controls src="http://checkpoint.buzz/api/chat${message.fileUrl}"></audio>
     </div>`;
   }
   

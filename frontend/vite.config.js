@@ -8,7 +8,7 @@ export default defineConfig({
     allowedHosts: ['frontend'],
     port: 80,
     hmr: {
-      host: 'checkpoint.localhost'
+      host: 'checkpoint.buzz'
     },
     watch: {
       usePolling: true,

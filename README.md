@@ -52,6 +52,6 @@ docker compose up --build
 ```
 
 ### URLs de Acesso
-- **Frontend**: http://checkpoint.localhost
-- **API Gateway**: http://checkpoint.localhost/api/{serviço}
+- **Frontend**: http://checkpoint.buzz
+- **API Gateway**: http://checkpoint.buzz/api/{serviço}
 

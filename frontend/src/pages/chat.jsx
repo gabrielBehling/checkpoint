@@ -48,7 +48,7 @@ export default function ChatPage() {
   // --- Socket Connection ---
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io("http://checkpoint.localhost", {
+      socket.current = io("http://checkpoint.buzz", {
         path: "/api/chat/socket.io",
         withCredentials: true,
         transports: ["websocket"],
@@ -226,7 +226,7 @@ export default function ChatPage() {
                         {msg.fileUrl && (
                           <div className="message-image-container">
                             <img
-                              src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `http://checkpoint.localhost/api/chat${msg.fileUrl}`}
+                              src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `http://checkpoint.buzz/api/chat${msg.fileUrl}`}
                               className="chat-image"
                               alt="Anexo"
                               style={{ maxWidth: '100%', borderRadius: '8px', display: 'block' }}
