@@ -54,14 +54,15 @@ body {
 }
 
 .logo-title .logo-img {
-    width: 80px;
-    height: 80px;
+    width: 50px;   /* ↓ diminuído */
+    height: 50px;  /* ↓ diminuído */
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--azul);
     box-shadow: 0 0 15px rgba(74, 144, 226, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 
 .logo-title .logo-img:hover {
     transform: scale(1.05);
