@@ -72,9 +72,9 @@ body {
 /* =======================================================
    MENSAGENS DE ESTADO
 ======================================================= */
-.loading-message,
-.error-message,
-.empty-message {
+.loading-message1,
+.error-message1,
+.empty-message1 {
   text-align: center;
   background: #14122a;
   border: 1px solid #241d3b;
@@ -84,22 +84,22 @@ body {
   font-size: 1rem;
 }
 
-.loading-message {
+.loading-message1 {
   color: #a78bfa;
   font-weight: 500;
 }
 
-.error-message {
+.error-message1 {
   color: #ff4e4e;
   font-weight: 600;
 }
 
-.empty-message p {
+.empty-message1 p {
   color: #ccc;
   margin-bottom: 15px;
 }
 
-.empty-message .btn {
+.empty-message1 .btn {
   background: linear-gradient(90deg, #3c1c94, #5d3fd3);
   color: #fff;
   padding: 10px 20px;
@@ -109,7 +109,7 @@ body {
   transition: 0.3s;
 }
 
-.empty-message .btn:hover {
+.empty-message1 .btn:hover {
   background: linear-gradient(90deg, #5d3fd3, #7e5bef);
   transform: scale(1.05);
 }
@@ -123,7 +123,7 @@ body {
   gap: 20px;
 }
 
-.evento-card {
+.evento-card1 {
   background: #14122a;
   border: 1px solid #241d3b;
   border-radius: 12px;
@@ -137,24 +137,24 @@ body {
   justify-content: space-between;
 }
 
-.evento-card h3 {
+.evento-card1 h3 {
   color: #a78bfa;
   font-size: 1.2rem;
   margin-bottom: 10px;
   font-weight: 600;
 }
 
-.evento-card p {
+.evento-card1 p {
   font-size: 0.95rem;
   color: #ccc;
   margin-bottom: 6px;
 }
 
-.evento-card strong {
+.evento-card1 strong {
   color: #a78bfa;
 }
 
-.evento-card:hover {
+.evento-card1:hover {
   background: #1b1b3a;
   transform: scale(1.05);
   box-shadow: 0 0 12px rgba(167, 139, 250, 0.2);

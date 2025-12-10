@@ -207,7 +207,7 @@ select {
 }
 
 /* Botão */
-.btn {
+.btn-evnt {
   background: #4a90e2;
   color: white;
   border: none;
@@ -221,7 +221,7 @@ select {
   width: 200px;
 }
 
-.btn:hover {
+.btn-evnt:hover {
   background: #3b7ad1;
 }
 

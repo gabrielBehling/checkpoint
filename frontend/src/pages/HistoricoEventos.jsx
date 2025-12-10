@@ -51,15 +51,15 @@ function HistoricoEventos() {
                     </div>
 
                     {loading && (
-                        <div className="loading-message">Carregando histórico...</div>
+                        <div className="loading-message1">Carregando histórico...</div>
                     )}
                     
                     {!loading && error && (
-                        <div className="error-message">{error}</div>
+                        <div className="error-message1">{error}</div>
                     )}
                     
                     {!loading && !error && eventos.length === 0 && (
-                        <div className="empty-message">
+                        <div className="empty-message1">
                             <p>Você ainda não participou de nenhum evento.</p>
                             <Link to="/" className="btn" style={{marginTop: '20px', display: 'inline-block', background: '#6C63FF'}}>
                                 Explorar Eventos
@@ -71,7 +71,7 @@ function HistoricoEventos() {
                         <div className="grid-eventos">
                             {/* Mapeia o array eventsHistory que veio do userData */}
                             {eventos.map((evento, index) => (
-                                <Link to={`/evento/${evento.eventId || evento.id}`} className="evento-card" key={evento.eventId || evento.id || index}>
+                                <Link to={`/evento/${evento.eventId || evento.id}`} className="evento-card1" key={evento.eventId || evento.id || index}>
                                     <h3>{evento.title || evento.nome}</h3>
                                     <p>
                                         <strong>Data:</strong> {new Date(evento.startDate || evento.data_evento).toLocaleDateString('pt-BR')}

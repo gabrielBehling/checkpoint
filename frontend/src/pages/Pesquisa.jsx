@@ -311,7 +311,7 @@ function SearchPage() {
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSearch()}
         />
-        <button className="btn-primary" onClick={handleSearch}>
+        <button className="btn-primary2" onClick={handleSearch}>
           Buscar
         </button>
       </div>
@@ -324,7 +324,7 @@ function SearchPage() {
             <button className="btn-secondary" onClick={() => setShowFilters(prev => !prev)}>
               {showFilters ? "Esconder" : "Mostrar"}
             </button>
-            <button className="btn-secondary" onClick={handleClearFilters}>
+            <button className="btn-secondary2" onClick={handleClearFilters}>
               Limpar filtros
             </button>
           </div>
