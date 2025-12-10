@@ -3,11 +3,14 @@ FROM nginx:1.27-alpine
 # Remove configuração padrão
 RUN rm /etc/nginx/conf.d/default.conf
 
+# Cria diretório para certificados SSL
+RUN mkdir -p /etc/nginx/ssl
+
 # Copia configuração customizada
 COPY infra/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Garante permissões corretas
 RUN chmod 644 /etc/nginx/nginx.conf
 
-EXPOSE 80
+EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]

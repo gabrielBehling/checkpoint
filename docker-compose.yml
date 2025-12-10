@@ -118,6 +118,9 @@ services:
       dockerfile: infra/nginx/Dockerfile
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/ssl:/etc/nginx/ssl:ro
     depends_on:
       - frontend
       - auth-service

@@ -130,3 +130,8 @@ dist
 .pnp.*
 
 uploads/
+
+# SSL Certificates
+infra/nginx/ssl/*.pem
+infra/nginx/ssl/*.key
+!infra/nginx/ssl/README.md
