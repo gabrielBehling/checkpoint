@@ -196,7 +196,7 @@
       // Mostrar barra de progresso
       progressBar.width('30%');
       
-      fetch('http://api.localhost/chat/upload', {
+      fetch('https://api.localhost/chat/upload', {
         method: 'POST',
         body: formData
       })
@@ -222,7 +222,7 @@
     });
 
     // Busca mensagens antigas do MongoDB
-    fetch('http://api.localhost/chat/messages')
+    fetch('https://api.localhost/chat/messages')
       .then(res => res.json())
       .then(messages => {
         messages.forEach(renderMessage);

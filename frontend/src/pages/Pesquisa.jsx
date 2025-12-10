@@ -56,7 +56,7 @@ function SearchPage() {
       try {
         setFiltersLoading(true);
         // Ajuste a URL se necessário para o seu ambiente
-        const response = await fetch(`http://checkpoint.buzz/api/events/filters`);
+        const response = await fetch(`https://checkpoint.buzz/api/events/filters`);
         if (!response.ok) {
           throw new Error("Falha ao buscar opções de filtro");
         }
@@ -93,7 +93,7 @@ function SearchPage() {
           }
         });
         
-        const response = await fetch(`http://checkpoint.buzz/api/events?${params.toString()}`);
+        const response = await fetch(`https://checkpoint.buzz/api/events?${params.toString()}`);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch events (status: ${response.status})`);

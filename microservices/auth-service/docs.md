@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://checkpoint.buzz/api/auth
+https://checkpoint.buzz/api/auth
 ```
 
 ## 📋 Formato de Resposta Padronizado
@@ -401,7 +401,7 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 
 **Exemplo de Uso:**
 ```bash
-curl -X PUT http://checkpoint.buzz/api/auth/update-info \
+curl -X PUT https://checkpoint.buzz/api/auth/update-info \
   -H "Cookie: accessToken=your_token" \
   -F "username=novonome" \
   -F "email=novo@email.com" \
@@ -555,7 +555,7 @@ Reseta a senha usando o token recebido por email.
 
 ### Login
 ```bash
-curl -X POST http://checkpoint.buzz/api/auth/login \
+curl -X POST https://checkpoint.buzz/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "usuario@email.com",
@@ -565,7 +565,7 @@ curl -X POST http://checkpoint.buzz/api/auth/login \
 
 ### Registro
 ```bash
-curl -X POST http://checkpoint.buzz/api/auth/register \
+curl -X POST https://checkpoint.buzz/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "novousuario",
@@ -577,19 +577,19 @@ curl -X POST http://checkpoint.buzz/api/auth/register \
 
 ### Refresh Token
 ```bash
-curl -X POST http://checkpoint.buzz/api/auth/refresh-token \
+curl -X POST https://checkpoint.buzz/api/auth/refresh-token \
   -H "Cookie: accessToken=old_token; refreshToken=refresh_token"
 ```
 
 ### Obter Informações do Usuário
 ```bash
-curl http://checkpoint.buzz/api/auth/me \
+curl https://checkpoint.buzz/api/auth/me \
   -H "Cookie: accessToken=your_token"
 ```
 
 ### Solicitar Reset de Senha
 ```bash
-curl -X POST http://checkpoint.buzz/api/auth/request-password-reset \
+curl -X POST https://checkpoint.buzz/api/auth/request-password-reset \
   -H "Content-Type: application/json" \
   -d '{
     "email": "usuario@email.com"
@@ -598,7 +598,7 @@ curl -X POST http://checkpoint.buzz/api/auth/request-password-reset \
 
 ### Resetar Senha
 ```bash
-curl -X POST http://checkpoint.buzz/api/auth/reset-password \
+curl -X POST https://checkpoint.buzz/api/auth/reset-password \
   -H "Content-Type: application/json" \
   -d '{
     "token": "token_recebido_no_email",
@@ -608,7 +608,7 @@ curl -X POST http://checkpoint.buzz/api/auth/reset-password \
 
 ### Logout
 ```bash
-curl -X POST http://checkpoint.buzz/api/auth/logout \
+curl -X POST https://checkpoint.buzz/api/auth/logout \
   -H "Cookie: refreshToken=your_refresh_token"
 ```
 

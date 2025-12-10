@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://checkpoint.buzz/api/chat
+https://checkpoint.buzz/api/chat
 ```
 
 ## 🔐 Autenticação
@@ -275,12 +275,12 @@ GET /api/chat/upload/1234567890-image.jpg
 
 ### Conexão
 
-**URL:** `http://checkpoint.buzz`  
+**URL:** `https://checkpoint.buzz`  
 **Path:** `/api/chat/socket.io`
 
 **Configuração do Cliente:**
 ```javascript
-const socket = io('http://checkpoint.buzz', {
+const socket = io('https://checkpoint.buzz', {
   path: '/api/chat/socket.io',
   withCredentials: true,
   reconnectionAttempts: 5,
@@ -627,7 +627,7 @@ O Chat Service depende do Events Service para verificar permissões de acesso a 
 
 **URL do Events Service:**
 ```javascript
-const EVENTS_SERVICE_URL = process.env.EVENTS_SERVICE_URL || 'http://events-service:3000';
+const EVENTS_SERVICE_URL = process.env.EVENTS_SERVICE_URL || 'https://events-service:3000';
 ```
 
 ---
@@ -693,7 +693,7 @@ async function isUserMemberOfTeam(userId, teamId, authToken) {
 
 **Fluxo:**
 1. Valida parâmetros de entrada
-2. Faz requisição GET para `http://events-service:3000/teams/:teamId`
+2. Faz requisição GET para `https://events-service:3000/teams/:teamId`
 3. Envia o cookie de autenticação no header
 4. Timeout de 3 segundos (AbortController)
 5. Se resposta não for `ok` (2xx), retorna `false`
@@ -785,12 +785,12 @@ app.use('/chat/uploads', express.static(path.join(publicDir, 'uploads')));
 
 **URL Pública:**
 ```
-http://checkpoint.buzz/api/chat/uploads/[filename]
+https://checkpoint.buzz/api/chat/uploads/[filename]
 ```
 
 **Exemplo:**
 ```
-http://checkpoint.buzz/api/chat/uploads/1704115200000-screenshot.png
+https://checkpoint.buzz/api/chat/uploads/1704115200000-screenshot.png
 ```
 
 **Notas:**
@@ -873,7 +873,7 @@ await message.save();
 io.to(teamId).emit('receivedMessage', message);
 ```
 
-**7. Resposta HTTP:**
+**7. Resposta https:**
 ```json
 { "success": true }
 ```
@@ -1196,7 +1196,7 @@ Todos os campos são armazenados no MongoDB.
 
 **Endpoint Consultado:**
 ```
-GET http://events-service:3000/teams/:teamId
+GET https://events-service:3000/teams/:teamId
 Cookie: accessToken=<jwt_token>
 ```
 
@@ -1319,7 +1319,7 @@ socket.emit('authError', 'Você não tem permissão para enviar mensagens para e
 ### Conectar ao Chat e Entrar em uma Equipe
 
 ```javascript
-const socket = io('http://checkpoint.buzz', {
+const socket = io('https://checkpoint.buzz', {
   path: '/api/chat/socket.io',
   withCredentials: true,
   reconnectionAttempts: 5,
@@ -1379,7 +1379,7 @@ sendButton.addEventListener('click', () => {
 ```javascript
 const teamId = '1';
 
-fetch(`http://checkpoint.buzz/api/chat/messages/${teamId}`, {
+fetch(`https://checkpoint.buzz/api/chat/messages/${teamId}`, {
   credentials: 'include'
 })
   .then(res => {
@@ -1423,7 +1423,7 @@ fileInput.addEventListener('change', async (event) => {
   formData.append('teamId', teamId);
   
   try {
-    const response = await fetch('http://checkpoint.buzz/api/chat/upload', {
+    const response = await fetch('https://checkpoint.buzz/api/chat/upload', {
       method: 'POST',
       credentials: 'include',
       body: formData
@@ -1452,7 +1452,7 @@ fileInput.addEventListener('change', async (event) => {
 const eventId = '5';
 const commentText = 'Great event! Looking forward to it!';
 
-fetch(`http://checkpoint.buzz/api/chat/events/${eventId}/comments`, {
+fetch(`https://checkpoint.buzz/api/chat/events/${eventId}/comments`, {
   method: 'POST',
   credentials: 'include',
   headers: {
@@ -1485,7 +1485,7 @@ fetch(`http://checkpoint.buzz/api/chat/events/${eventId}/comments`, {
 ```javascript
 const eventId = '5';
 
-fetch(`http://checkpoint.buzz/api/chat/events/${eventId}/comments`)
+fetch(`https://checkpoint.buzz/api/chat/events/${eventId}/comments`)
   .then(res => {
     if (!res.ok) {
       throw new Error('Failed to fetch comments');
@@ -1537,14 +1537,14 @@ function displayMessage(message) {
       content += `<div class="message-text">${safeText}</div>`;
     }
     content += `<div class="message-image">
-      <img src="http://checkpoint.buzz/api/chat${message.fileUrl}" alt="Imagem enviada">
+      <img src="https://checkpoint.buzz/api/chat${message.fileUrl}" alt="Imagem enviada">
     </div>`;
   } else if (message.type === 'audio') {
     if (message.message) {
       content += `<div class="message-text">${safeText}</div>`;
     }
     content += `<div class="message-audio">
-      <audio controls src="http://checkpoint.buzz/api/chat${message.fileUrl}"></audio>
+      <audio controls src="https://checkpoint.buzz/api/chat${message.fileUrl}"></audio>
     </div>`;
   }
   

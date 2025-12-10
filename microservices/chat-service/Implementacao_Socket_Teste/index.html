@@ -116,7 +116,7 @@
         if (msg.message) {
           html += `<div class="message-text">${validator.escape(msg.message)}</div>`;
         }
-        html += `<div class="message-image"><img src="http://checkpoint.buzz/api/chat${msg.fileUrl}" alt="Imagem enviada"></div>`;
+        html += `<div class="message-image"><img src="https://checkpoint.buzz/api/chat${msg.fileUrl}" alt="Imagem enviada"></div>`;
       }
 
       // Áudio
@@ -187,7 +187,7 @@
 
       progressBar.width('30%');
 
-      fetch('http://checkpoint.buzz/api/chat/upload', {
+      fetch('https://checkpoint.buzz/api/chat/upload', {
         method: 'POST',
         body: formData
       })
@@ -213,7 +213,7 @@
     });
 
     // Buscar mensagens antigas
-    fetch('http://checkpoint.buzz/api/chat/messages')
+    fetch('https://checkpoint.buzz/api/chat/messages')
       .then(res => res.json())
       .then(messages => {
         messages.forEach(renderMessage);

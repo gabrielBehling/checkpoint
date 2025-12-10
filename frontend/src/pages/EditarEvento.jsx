@@ -97,7 +97,7 @@ export default function EditEventPage() {
         setOriginalData(formattedData);
 
         if (data.bannerUrl) {
-           const baseUrl = "http://checkpoint.buzz/api/events"; 
+           const baseUrl = "https://checkpoint.buzz/api/events"; 
            const fullUrl = data.bannerUrl.startsWith('http') ? data.bannerUrl : `${baseUrl}${data.bannerUrl}`;
            setCurrentBannerUrl(fullUrl);
         }

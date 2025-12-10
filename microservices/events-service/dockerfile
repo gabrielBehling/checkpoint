@@ -9,7 +9,7 @@ RUN apk add --no-cache curl # Para health checks
 RUN mkdir -p /app/uploads/banners
 VOLUME ["/app/uploads"]
 HEALTHCHECK --interval=30s --timeout=5s \
-  CMD curl -f http://localhost:3000/health || exit 1
+  CMD curl -f https://localhost:3000/health || exit 1
 
 EXPOSE 3000
 CMD ["node", "src/app.js"]

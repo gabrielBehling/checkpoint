@@ -27,7 +27,7 @@ const io = socketIO(server, {
   cookie: true
 });
 
-const EVENTS_SERVICE_URL = process.env.EVENTS_SERVICE_URL || 'http://events-service:3000';
+const EVENTS_SERVICE_URL = process.env.EVENTS_SERVICE_URL || 'https://events-service:3000';
 const mongoUser = process.env.MONGO_USER;
 const mongoPass = process.env.MONGO_PASSWORD;
 const mongoDb = process.env.MONGO_DB;

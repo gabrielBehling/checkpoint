@@ -16,7 +16,7 @@ const STATUS_LABELS = {
 function resolveBannerURL(bannerURL) {
   if (!bannerURL) return null;
   if (bannerURL.startsWith("http")) return bannerURL;
-  return `http://checkpoint.buzz/api/events${bannerURL}`;
+  return `https://checkpoint.buzz/api/events${bannerURL}`;
 }
 
 function formatDateRange(startDate, startHour, endDate, endHour) {

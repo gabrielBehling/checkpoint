@@ -145,9 +145,9 @@ export default function EventoInfo() {
   if (!evento) return null;
 
   // --- Variáveis para Dados (Limpeza e Formatação) ---
-  const bannerUrl = evento.bannerURL ? "http://checkpoint.buzz/api/events" + evento.bannerURL : FALLBACK_IMAGE_SRC;
+  const bannerUrl = evento.bannerURL ? "https://checkpoint.buzz/api/events" + evento.bannerURL : FALLBACK_IMAGE_SRC;
   const creatorUsername = evento.createdBy?.username
-  const creatorAvatar = evento.organizerProfileURL ? "http://checkpoint.buzz/api/auth/" + evento.organizerProfileURL : FALLBACK_IMAGE_SRC; 
+  const creatorAvatar = evento.organizerProfileURL ? "https://checkpoint.buzz/api/auth/" + evento.organizerProfileURL : FALLBACK_IMAGE_SRC; 
 
   const isAtivo = evento.status === "Active";
 
