@@ -282,7 +282,7 @@ export default function Evento() {
               </div>
             </div>
 
-            <button type="submit" className="btn">
+            <button type="submit" className="btn-evnt">
               Criar Evento
             </button>
           </div>

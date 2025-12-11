@@ -192,13 +192,34 @@ body {
 }
 
 /* 🔥 CORREÇÃO APLICADA: imagem sempre visível */
+/* 🔥 Mesma lógica das imagens do CAROUSEL */
 .imagem-evento {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;             /* igual ao carousel */
+}
+
+.imagem-evento::before {
+  content: "";
+  position: absolute;
   inset: 0;
-  background-position: center;
-  background-size: cover;
-  opacity: 1; /* ← antes era 0 */
+  background-image: inherit;    /* usa a mesma imagem colocada no elemento */
+  background-size: cover;       /* cobre 100% igual ao carousel */
+  background-position: center;  /* foca no centro igual ao carousel */
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;            /* MESMA LÓGICA DO CAROUSEL */
   transition: transform 0.4s ease;
+}
+
+/* zoom suave igual ao carousel */
+.evento-card:hover .imagem-evento::before {
+  transform: scale(1.05);
 }
 
 .info-evento {

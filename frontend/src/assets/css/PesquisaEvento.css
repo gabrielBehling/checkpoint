@@ -66,7 +66,7 @@
   color: var(--text-muted);
 }
 
-.btn-primary {
+.btn-primary2 {
   padding: 12px 32px;
   background: var(--primary-gradient);
   border: none;
@@ -78,7 +78,7 @@
   white-space: nowrap;
 }
 
-.btn-primary:hover {
+.btn-primary2:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(77, 142, 255, 0.4);
 }
@@ -124,7 +124,7 @@
   gap: 10px;
 }
 
-.btn-secondary {
+.btn-secondary2 {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
@@ -135,7 +135,7 @@
   font-size: 0.9rem;
 }
 
-.btn-secondary:hover {
+.btn-secondary2:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
 }

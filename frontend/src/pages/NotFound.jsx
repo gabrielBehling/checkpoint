@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // 1. Importe o hook 'useNavigate'
-import LOGO_IMG from "../assets/img/imagem.png";
+import LOGO_IMG from "../assets/img/logo.png";
 
 // 2. Importe seus arquivos CSS
 // (Assumindo que eles estão na raiz do 'src' ou ajustados)

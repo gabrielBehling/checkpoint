@@ -196,8 +196,8 @@ export default function PerfilPage() {
                         </div>
 
                         <div className="perfil-actions">
-                            <Link to="/historico" className="btn-secondary">Histórico</Link>
-                            <Link to="/chat" className="btn-primary">Abrir Chat</Link>
+                            <Link to="/historico" className="btn-secondary1">Histórico</Link>
+                            <Link to="/chat" className="btn-primary1">Abrir Chat</Link>
                         </div>
                     </div>
 
