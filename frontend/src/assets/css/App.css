@@ -174,11 +174,17 @@ body {
   justify-items: center;
 }
 
+/* =======================================================
+   EVENTO CARD (CORRIGIDO)
+======================================================= */
 .evento-card {
   position: relative;
   width: 100%;
   max-width: 330px;
-  height: 230px;
+
+  /* 🔥 Agora todos os cards têm tamanho PADRÃO */
+  aspect-ratio: 4 / 3;
+
   background-color: #2a2f5a;
   border-radius: 12px;
   overflow: hidden;
@@ -191,34 +197,25 @@ body {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* 🔥 CORREÇÃO APLICADA: imagem sempre visível */
-/* 🔥 Mesma lógica das imagens do CAROUSEL */
 .imagem-evento {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;             /* igual ao carousel */
+  inset: 0;
 }
 
-.imagem-evento::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: inherit;    /* usa a mesma imagem colocada no elemento */
-  background-size: cover;       /* cobre 100% igual ao carousel */
-  background-position: center;  /* foca no centro igual ao carousel */
-  background-repeat: no-repeat;
+.imagem-evento img {
   width: 100%;
   height: 100%;
+
+  /* 🔥 AQUI A FORÇA PRA FICAR PERFEITO */
+  object-fit: cover;
+  object-position: center;
+
   display: block;
-  object-fit: cover;            /* MESMA LÓGICA DO CAROUSEL */
   transition: transform 0.4s ease;
 }
 
-/* zoom suave igual ao carousel */
-.evento-card:hover .imagem-evento::before {
+/* Zoom suave */
+.evento-card:hover .imagem-evento img {
   transform: scale(1.05);
 }
 
@@ -227,7 +224,7 @@ body {
   inset: 0;
   background: rgba(10, 13, 42, 0.92);
   color: #fff;
-  opacity: 0; /* texto invisível até hover */
+  opacity: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -237,14 +234,8 @@ body {
   transition: opacity 0.4s ease;
 }
 
-/* Texto aparece */
 .evento-card:hover .info-evento {
   opacity: 1;
-}
-
-/* Zoom suave na imagem */
-.evento-card:hover .imagem-evento {
-  transform: scale(1.05);
 }
 
 .info-evento h3 {
