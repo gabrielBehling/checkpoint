@@ -232,7 +232,7 @@
   margin-top: 25px;
 }
 
-#perfil-page-wrapper .btn-primary, 
+#perfil-page-wrapper .btn-primary1, 
 #perfil-page-wrapper .btn-secondary1 {
   padding: 12px 28px;
   border-radius: 12px;
@@ -252,6 +252,7 @@
   background: var(--primary);
   color: white;
   box-shadow: 0 0 20px rgba(77, 142, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Efeito de brilho passando no botão */
