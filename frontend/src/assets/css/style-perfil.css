@@ -12,24 +12,23 @@
   --bg-card: rgba(17, 21, 55, 0.78);
   --bg-input: rgba(10, 10, 30, 0.8); 
   
-  --primary: #4d8eff;       /* Azul principal (claro) */
-  --primary-glow: #3f70ff;  /* Azul para brilhos */
-  --accent: #1a56ff;        /* Azul de Destaque (escuro) */
-  --accent-glow: #153e9a;   /* Azul muito escuro para sombras */
+  --primary: #4d8eff;
+  --primary-glow: #3f70ff;
+  --accent: #1a56ff;
+  --accent-glow: #153e9a;
   
   --text-main: #ffffff;
-  --text-muted: #c7cbff; 
+  --text-muted: #c7cbff;
   
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
   --neon-shadow: 0 0 20px rgba(77, 142, 255, 0.4);
   --card-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Estilos que antes estavam no BODY */
   background-color: var(--bg-deep);
   background-image: 
     radial-gradient(circle at 15% 50%, rgba(77, 142, 255, 0.15), transparent 25%), 
-    radial-gradient(circle at 85% 30%, rgba(26, 86, 255, 0.1), transparent 25%); /* Novo Accent */
+    radial-gradient(circle at 85% 30%, rgba(26, 86, 255, 0.1), transparent 25%);
   color: var(--text-main);
   font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
@@ -38,7 +37,7 @@
   position: relative;
 }
 
-/* Reset local - afeta apenas elementos DENTRO do wrapper */
+/* Reset */
 #perfil-page-wrapper * {
   box-sizing: border-box;
   margin: 0;
@@ -51,7 +50,7 @@
   min-height: 100vh;
 }
 
-/* ===== BANNER CINEMATOGRÁFICO ===== */
+/* ===== BANNER ===== */
 #perfil-page-wrapper .perfil-banner {
   width: 100%;
   height: 320px;
@@ -102,7 +101,7 @@
   transform: translateY(-2px);
 }
 
-/* ===== USER INFO (FLUTUANTE) ===== */
+/* ===== USER INFO ===== */
 #perfil-page-wrapper .perfil-header-info {
   position: relative;
   margin-top: -100px;
@@ -114,19 +113,18 @@
   animation: slideUpProfile 0.8s ease forwards;
 }
 
-/* Renomeado keyframe para evitar conflito global */
 @keyframes slideUpProfile {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Foto com Borda Gradiente Animada */
+/* Foto */
 #perfil-page-wrapper .foto-wrapper {
   position: relative;
   width: 160px;
   height: 160px;
   padding: 4px;
-  background: linear-gradient(135deg, var(--primary), var(--accent)); /* GRADIENTE AZUL CLARO -> AZUL ESCURO */
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   border-radius: 50%;
   box-shadow: 0 0 30px rgba(77, 142, 255, 0.5);
 }
@@ -170,17 +168,11 @@
 
 #perfil-page-wrapper .foto-wrapper:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 50px rgba(26, 86, 255, 0.6); /* Sombra com Accent (azul escuro) */
+  box-shadow: 0 0 50px rgba(26, 86, 255, 0.6);
   transition: var(--transition);
 }
 
-#perfil-page-wrapper .perfil-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Identidade do Usuário */
+/* User Identity */
 #perfil-page-wrapper .user-identity {
   text-align: center;
   margin-top: 15px;
@@ -197,6 +189,7 @@
   letter-spacing: -1px;
 }
 
+/* STATUS */
 #perfil-page-wrapper .status {
   display: inline-flex;
   align-items: center;
@@ -213,7 +206,7 @@
 #perfil-page-wrapper .status .dot {
   width: 8px;
   height: 8px;
-  background: #4dd26f; 
+  background: #4dd26f;
   border-radius: 50%;
   box-shadow: 0 0 10px #4dd26f;
   animation: pulseProfile 2s infinite;
@@ -225,7 +218,7 @@
   100% { box-shadow: 0 0 0 0 rgba(77, 210, 111, 0); } 
 }
 
-/* Botões de Ação Principal */
+/* ===== BOTÕES ===== */
 #perfil-page-wrapper .perfil-actions {
   display: flex;
   gap: 15px;
@@ -248,14 +241,15 @@
   overflow: hidden;
 }
 
+/* ⭐ PRIMARY COM BORDA NOVA ⭐ */
 #perfil-page-wrapper .btn-primary1 {
   background: var(--primary);
   color: white;
   box-shadow: 0 0 20px rgba(77, 142, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--accent); /* ← Borda aplicada */
 }
 
-/* Efeito de brilho passando no botão */
+/* Flash */
 #perfil-page-wrapper .btn-primary1::before {
   content: '';
   position: absolute;
@@ -274,12 +268,14 @@
 #perfil-page-wrapper .btn-primary1:hover {
   background: var(--primary-glow);
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(77, 142, 255, 0.5); 
+  border-color: var(--primary-glow);
+  box-shadow: 0 10px 30px rgba(77, 142, 255, 0.5);
 }
 
+/* ⭐ SECONDARY COM BORDA REFORÇADA ⭐ */
 #perfil-page-wrapper .btn-secondary1 {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.25); /* ← Nova borda */
   color: var(--text-main);
   backdrop-filter: blur(5px);
 }
@@ -290,7 +286,7 @@
   transform: translateY(-3px);
 }
 
-/* ===== LAYOUT PRINCIPAL ===== */
+/* ===== MAIN LAYOUT ===== */
 #perfil-page-wrapper main {
   display: grid;
   grid-template-columns: 340px 1fr;
@@ -301,7 +297,7 @@
   width: 100%;
 }
 
-/* ===== EFEITO GLASSPHORISM NOS CARDS ===== */
+/* ===== CARDS ===== */
 #perfil-page-wrapper .card-box {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -329,10 +325,10 @@
 }
 
 #perfil-page-wrapper .section-title svg {
-  color: var(--accent); /* Corrigido para Azul Escuro */
+  color: var(--accent);
 }
 
-/* ===== SIDEBAR & FORM ===== */
+/* ===== INFO LIST ===== */
 #perfil-page-wrapper .info-group {
   margin-bottom: 25px;
 }
@@ -354,7 +350,7 @@
   letter-spacing: 0.5px;
 }
 
-/* Select customizado */
+/* Select */
 #perfil-page-wrapper .role-form select {
   width: 100%;
   background: var(--bg-input);
@@ -374,14 +370,15 @@
 
 #perfil-page-wrapper .role-form select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 15px rgba(77, 142, 255, 0.2); 
+  box-shadow: 0 0 15px rgba(77, 142, 255, 0.2);
 }
 
+/* BOTÃO SMALL */
 #perfil-page-wrapper .btn-small {
   width: 100%;
   padding: 12px;
   font-size: 0.9rem;
-  background: linear-gradient(135deg, var(--bg-deep), #161b40); 
+  background: linear-gradient(135deg, var(--bg-deep), #161b40);
   color: var(--text-main);
   border: 1px solid var(--primary);
   border-radius: 10px;
@@ -400,7 +397,7 @@
   cursor: not-allowed;
 }
 
-/* DANGER ZONE */
+/* ===== DANGER ZONE ===== */
 #perfil-page-wrapper .danger-zone {
   margin-top: auto;
   padding-top: 20px;
@@ -410,9 +407,9 @@
 }
 
 #perfil-page-wrapper .btn-danger {
-  background: rgba(248, 96, 96, 0.1); 
-  color: #ff8080; 
-  border: 1px solid rgba(255, 128, 128, 0.2); 
+  background: rgba(248, 96, 96, 0.1);
+  color: #ff8080;
+  border: 1px solid rgba(255, 128, 128, 0.2);
   padding: 12px;
   border-radius: 10px;
   cursor: pointer;
@@ -427,7 +424,7 @@
   box-shadow: 0 0 20px rgba(248, 96, 96, 0.4);
 }
 
-/* ===== GRID DE EVENTOS ===== */
+/* ===== EVENTOS ===== */
 #perfil-page-wrapper .events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -444,15 +441,13 @@
   overflow: hidden;
 }
 
-/* Efeito Hover no Card */
 #perfil-page-wrapper .event-card:hover {
   transform: translateY(-8px);
-  border-color: var(--accent); /* Corrigido para Azul Escuro */
+  border-color: var(--accent);
   background: rgba(255,255,255,0.06);
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
-/* Barra lateral colorida no card */
 #perfil-page-wrapper .event-card::before {
   content: '';
   position: absolute;
@@ -460,7 +455,7 @@
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--accent)); /* GRADIENTE AZUL CLARO -> AZUL ESCURO */
+  background: linear-gradient(90deg, var(--primary), var(--accent));
   opacity: 0.7;
   transition: var(--transition);
 }
@@ -468,7 +463,7 @@
 #perfil-page-wrapper .event-card:hover::before {
   opacity: 1;
   height: 6px;
-  box-shadow: 0 0 15px var(--accent); /* Corrigido para Azul Escuro */
+  box-shadow: 0 0 15px var(--accent);
 }
 
 #perfil-page-wrapper .event-card h4 {
