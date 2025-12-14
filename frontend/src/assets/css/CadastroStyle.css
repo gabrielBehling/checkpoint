@@ -1,8 +1,6 @@
-
-
 body {
   background: #100c1f; /* Fundo principal */
-  color: #f0f0f0;      /* Cor do texto principal */
+  color: #f0f0f0; /* Cor do texto principal */
   overflow-x: hidden;
 }
 
@@ -12,13 +10,13 @@ body {
 */
 .topbar {
   width: 100%;
-  background: #1c172c; 
-  padding: 15px 40px; 
+  background: #1c172c;
+  padding: 15px 40px;
   display: flex;
   justify-content: space-between; /* Distribui logo/nav/auth */
   align-items: center;
   border-bottom: 1px solid rgba(74, 144, 226, 0.2);
-  position: sticky; 
+  position: sticky;
   top: 0;
   z-index: 1000;
 }
@@ -80,7 +78,7 @@ body {
   color: #f0f0f0;
   font-size: 1.5em;
   margin-bottom: 20px;
-  text-align: left; 
+  text-align: left;
 }
 
 /* * ==============================================

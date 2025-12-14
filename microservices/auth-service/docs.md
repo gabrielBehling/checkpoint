@@ -1,6 +1,7 @@
 # 🔐 API de Autenticação - Checkpoint
 
 ## Base URL
+
 ```
 https://checkpoint.buzz/api/auth
 ```
@@ -10,27 +11,34 @@ https://checkpoint.buzz/api/auth
 A API utiliza um formato padronizado para todas as respostas:
 
 ### Resposta de Sucesso
+
 ```json
 {
   "success": true,
   "message": "Operation completed successfully",
-  "data": { /* dados específicos */ },
+  "data": {
+    /* dados específicos */
+  },
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
 ### Resposta de Erro
+
 ```json
 {
   "success": false,
   "message": "Error description",
   "error": "ERROR_CODE",
-  "details": { /* detalhes adicionais (opcional) */ },
+  "details": {
+    /* detalhes adicionais (opcional) */
+  },
   "timestamp": "2024-01-01T10:00:00.000Z"
 }
 ```
 
 **Códigos de Erro Comuns:**
+
 - `VALIDATION_ERROR` - Erro de validação de dados
 - `INVALID_CREDENTIALS` - Email ou senha inválidos
 - `INVALID_TOKEN` - Token inválido ou expirado
@@ -56,11 +64,13 @@ A API utiliza um formato padronizado para todas as respostas:
 ## 🔐 Endpoints de Autenticação
 
 ### 1. Health Check
+
 **GET** `/health`
 
 Verifica o status do serviço.
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -75,11 +85,13 @@ Verifica o status do serviço.
 ---
 
 ### 2. Login
+
 **POST** `/login`
 
 Autentica um usuário e retorna tokens de acesso.
 
 **Body**:
+
 ```json
 {
   "email": "usuario@email.com",
@@ -88,6 +100,7 @@ Autentica um usuário e retorna tokens de acesso.
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -102,14 +115,17 @@ Autentica um usuário e retorna tokens de acesso.
 ```
 
 **Cookies Set**:
+
 - `accessToken`: JWT válido por 1 hora
 - `refreshToken`: JWT válido por 7 dias
 
 **Status Codes:**
+
 - `200`: Login bem-sucedido
 - `401`: Credenciais inválidas ou erro de validação
 
 **Resposta de Erro:**
+
 ```json
 {
   "success": false,
@@ -122,16 +138,19 @@ Autentica um usuário e retorna tokens de acesso.
 ---
 
 ### 3. Registro
+
 **POST** `/register`
 
 Cria uma nova conta de usuário. Suporta upload de foto de perfil via `multipart/form-data`.
 
 **Headers:**
+
 ```
 Content-Type: multipart/form-data
 ```
 
 **Form Data:**
+
 ```
 username: "novousuario"
 email: "novo@email.com"
@@ -145,15 +164,18 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 ---
 
 ### 4. Refresh Token
+
 **POST** `/refresh-token`
 
 Renova os tokens de acesso usando o refresh token.
 
 **Cookies Requeridos**:
+
 - `refreshToken`
 - `accessToken` (último token expirado)
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -168,14 +190,17 @@ Renova os tokens de acesso usando o refresh token.
 ```
 
 **Cookies Updated**:
+
 - `accessToken`: Novo JWT válido por 1 hora
 - `refreshToken`: Novo JWT válido por 7 dias
 
 **Status Codes:**
+
 - `200`: Tokens renovados com sucesso
 - `401`: Tokens inválidos, ausentes ou não correspondem
 
 **Resposta de Erro:**
+
 ```json
 {
   "success": false,
@@ -188,14 +213,17 @@ Renova os tokens de acesso usando o refresh token.
 ---
 
 ### 5. Logout
+
 **POST** `/logout`
 
 Realiza logout do usuário, invalidando os tokens.
 
 **Cookies Opcionais**:
+
 - `refreshToken` (se presente, será removido do Redis)
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -205,25 +233,30 @@ Realiza logout do usuário, invalidando os tokens.
 ```
 
 **Cookies Cleared**:
+
 - `accessToken`
 - `refreshToken`
 
 **Status Codes:**
+
 - `200`: Logout bem-sucedido
 
 ---
 
 ### 6. Deletar Conta
+
 **DELETE** `/delete-account`
 
 Remove permanentemente a conta do usuário (soft delete).
 
 **Headers**:
+
 ```
 Cookie: accessToken=<token>
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -233,16 +266,19 @@ Cookie: accessToken=<token>
 ```
 
 **Cookies Cleared**:
+
 - `accessToken`
 - `refreshToken`
 
 **Status Codes:**
+
 - `200`: Conta deletada com sucesso
 - `401`: Token inválido ou ausente
 - `404`: Usuário não encontrado ou já deletado
 - `500`: Erro no banco de dados
 
 **Resposta de Erro:**
+
 ```json
 {
   "success": false,
@@ -255,16 +291,19 @@ Cookie: accessToken=<token>
 ---
 
 ### 7. Obter Informações do Usuário Atual
+
 **GET** `/me`
 
 Retorna informações do usuário autenticado baseado no token.
 
 **Headers**:
+
 ```
 Cookie: accessToken=<token>
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -301,10 +340,12 @@ Cookie: accessToken=<token>
 ```
 
 **Status Codes:**
+
 - `200`: Informações retornadas com sucesso
 - `401`: Token inválido ou ausente
 
 **Resposta de Erro:**
+
 ```json
 {
   "success": false,
@@ -315,25 +356,29 @@ Cookie: accessToken=<token>
 ```
 
 Notes:
+
 - `email` is returned for the authenticated user (the `/me` endpoint). If you want to restrict email visibility further, we can add additional policy checks.
 - `eventsHistory` is an array of past and current event registrations for the user. Each item contains `registrationId`, `eventId`, `title`, `startDate`, `endDate`, `status` and `registeredAt`. The service only returns registrations and events that are not soft-deleted.
- - `eventsHistory` is an array of past and current event registrations for the user. Each item contains `registrationId`, `eventId`, `title`, `startDate`, `endDate`, `status` and `registeredAt`.
- - Items may also include `viaTeam` (boolean), and when true, `teamId` and `teamName` indicating the team through which the user participated. The service only returns registrations and events that are not soft-deleted.
+- `eventsHistory` is an array of past and current event registrations for the user. Each item contains `registrationId`, `eventId`, `title`, `startDate`, `endDate`, `status` and `registeredAt`.
+- Items may also include `viaTeam` (boolean), and when true, `teamId` and `teamName` indicating the team through which the user participated. The service only returns registrations and events that are not soft-deleted.
 
 ---
 
 ### 8. Atualizar Informações do Usuário
+
 **PUT** `/update-info`
 
 Atualiza informações do usuário autenticado. Permite alterar `username`, `email`, `userRole` e/ou foto de perfil.
 
 **Headers:**
+
 ```
 Cookie: accessToken=<token>
 Content-Type: multipart/form-data
 ```
 
 **Form Data:**
+
 ```
 username: "novonome" (opcional)
 email: "novo@email.com" (opcional)
@@ -342,11 +387,13 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 ```
 
 **Validações:**
+
 - Se `username` ou `email` já existirem para outro usuário, retorna erro.
 - Se nenhum campo válido for enviado, retorna erro.
 - Para alterar para `Administrator`, é necessário já ser `Administrator`.
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -363,6 +410,7 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 ```
 
 **Status Codes:**
+
 - `200`: Informações atualizadas com sucesso
 - `400`: Dados inválidos, username ou email já existente, nenhum campo válido
 - `401`: Token inválido ou ausente
@@ -370,6 +418,7 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 - `500`: Erro no banco de dados
 
 **Resposta de Erro (Username Existente):**
+
 ```json
 {
   "success": false,
@@ -380,6 +429,7 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 ```
 
 **Resposta de Erro (Email Existente):**
+
 ```json
 {
   "success": false,
@@ -390,6 +440,7 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 ```
 
 **Resposta de Erro (Campos Inválidos):**
+
 ```json
 {
   "success": false,
@@ -400,6 +451,7 @@ ProfileFile: [FILE] // campo opcional para foto de perfil
 ```
 
 **Exemplo de Uso:**
+
 ```bash
 curl -X PUT https://checkpoint.buzz/api/auth/update-info \
   -H "Cookie: accessToken=your_token" \
@@ -413,11 +465,13 @@ curl -X PUT https://checkpoint.buzz/api/auth/update-info \
 ### 9. Recuperação de Senha
 
 #### 9.1 Solicitar Reset
+
 **POST** `/request-password-reset`
 
 Envia um email com link para resetar a senha.
 
 **Body**:
+
 ```json
 {
   "email": "usuario@email.com"
@@ -425,6 +479,7 @@ Envia um email com link para resetar a senha.
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -436,11 +491,13 @@ Envia um email com link para resetar a senha.
 **Nota**: A resposta sempre retorna sucesso, mesmo se o email não existir, para prevenir enumeração de emails.
 
 **Status Codes:**
+
 - `200`: Solicitação processada (sempre retorna sucesso)
 - `400`: Email não fornecido
 - `500`: Erro ao processar solicitação
 
 **Resposta de Erro:**
+
 ```json
 {
   "success": false,
@@ -451,11 +508,13 @@ Envia um email com link para resetar a senha.
 ```
 
 #### 9.2 Resetar Senha
+
 **POST** `/reset-password`
 
 Reseta a senha usando o token recebido por email.
 
 **Body**:
+
 ```json
 {
   "token": "token_recebido_no_email",
@@ -464,6 +523,7 @@ Reseta a senha usando o token recebido por email.
 ```
 
 **Resposta de Sucesso:**
+
 ```json
 {
   "success": true,
@@ -475,6 +535,7 @@ Reseta a senha usando o token recebido por email.
 **Nota**: Após o reset bem-sucedido, todos os refresh tokens do usuário são invalidados por segurança.
 
 **Status Codes:**
+
 - `200`: Senha resetada com sucesso
 - `400`: Token ou nova senha não fornecidos
 - `401`: Token de reset inválido ou expirado
@@ -482,6 +543,7 @@ Reseta a senha usando o token recebido por email.
 - `500`: Erro ao resetar senha
 
 **Resposta de Erro (Token Inválido):**
+
 ```json
 {
   "success": false,
@@ -492,6 +554,7 @@ Reseta a senha usando o token recebido por email.
 ```
 
 **Resposta de Erro (Campos Obrigatórios):**
+
 ```json
 {
   "success": false,
@@ -506,6 +569,7 @@ Reseta a senha usando o token recebido por email.
 ## 🚨 Tratamento de Erros
 
 ### Códigos de Status HTTP
+
 - `200`: Sucesso
 - `400`: Dados inválidos ou validação falhou
 - `401`: Token inválido, não fornecido ou credenciais inválidas
@@ -513,6 +577,7 @@ Reseta a senha usando o token recebido por email.
 - `500`: Erro interno do servidor
 
 ### Exemplo de Resposta de Erro com Detalhes:
+
 ```json
 {
   "success": false,
@@ -528,21 +593,25 @@ Reseta a senha usando o token recebido por email.
 ## 🔒 Segurança
 
 ### Tokens JWT
+
 - **Access Token**: 1 hora de validade
 - **Refresh Token**: 7 dias de validade
 - **Algoritmo**: HS256
 - **Armazenamento**: Cookies HTTP-only e Secure
 
 ### Hash de Senhas
+
 - **Biblioteca**: bcrypt
 - **Salt Rounds**: 10
 
 ### Reset de Senha
+
 - **Validade do Token**: 15 minutos
 - **Uso Único**: Token é deletado após uso
 - **Segurança**: Todos os refresh tokens são invalidados após reset
 
 ### Proteções
+
 - Rate limiting no Nginx
 - Tokens armazenados em Redis
 - Validação de entrada com Yup
@@ -554,6 +623,7 @@ Reseta a senha usando o token recebido por email.
 ## 📊 Exemplos de Uso
 
 ### Login
+
 ```bash
 curl -X POST https://checkpoint.buzz/api/auth/login \
   -H "Content-Type: application/json" \
@@ -564,6 +634,7 @@ curl -X POST https://checkpoint.buzz/api/auth/login \
 ```
 
 ### Registro
+
 ```bash
 curl -X POST https://checkpoint.buzz/api/auth/register \
   -H "Content-Type: application/json" \
@@ -576,18 +647,21 @@ curl -X POST https://checkpoint.buzz/api/auth/register \
 ```
 
 ### Refresh Token
+
 ```bash
 curl -X POST https://checkpoint.buzz/api/auth/refresh-token \
   -H "Cookie: accessToken=old_token; refreshToken=refresh_token"
 ```
 
 ### Obter Informações do Usuário
+
 ```bash
 curl https://checkpoint.buzz/api/auth/me \
   -H "Cookie: accessToken=your_token"
 ```
 
 ### Solicitar Reset de Senha
+
 ```bash
 curl -X POST https://checkpoint.buzz/api/auth/request-password-reset \
   -H "Content-Type: application/json" \
@@ -597,6 +671,7 @@ curl -X POST https://checkpoint.buzz/api/auth/request-password-reset \
 ```
 
 ### Resetar Senha
+
 ```bash
 curl -X POST https://checkpoint.buzz/api/auth/reset-password \
   -H "Content-Type: application/json" \
@@ -607,6 +682,7 @@ curl -X POST https://checkpoint.buzz/api/auth/reset-password \
 ```
 
 ### Logout
+
 ```bash
 curl -X POST https://checkpoint.buzz/api/auth/logout \
   -H "Cookie: refreshToken=your_refresh_token"
@@ -627,4 +703,3 @@ curl -X POST https://checkpoint.buzz/api/auth/logout \
 5. **Roles de Administrador**: Apenas usuários com role `Administrator` podem criar novas contas de administrador.
 
 6. **Timestamp**: Todas as respostas incluem um campo `timestamp` com a data/hora da resposta em formato ISO 8601.
-

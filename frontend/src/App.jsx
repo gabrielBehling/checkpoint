@@ -30,6 +30,23 @@ function App() {
 
   const { user } = useAuth();
 
+  // ----- FUNÇÃO QUE REMOVE 1970-01-01 -----
+  const formatarHora = (hora) => {
+    if (!hora) return "Definir";
+
+    // Caso venha como "14:00"
+    if (!hora.includes("T")) return hora.substring(0, 5);
+
+    // Caso venha como "1970-01-01T14:00:00"
+    const partes = hora.split("T")[1];
+    if (!partes) return "Definir";
+
+    return partes.substring(0, 5); // "HH:MM"
+  };
+
+  // ------------------------------
+  // EVENTOS EM ALTA
+  // ------------------------------
   const fetchEventosEmAlta = async () => {
     setLoadingEventosAlta(true);
     try {
@@ -51,6 +68,9 @@ function App() {
     }
   };
 
+  // ------------------------------
+  // EVENTOS PRÓXIMOS
+  // ------------------------------
   const fetchEventosProximos = async () => {
     setLoadingEventos(true);
 
@@ -91,13 +111,16 @@ function App() {
     }
   };
 
+  // ------------------------------
+  // CARROSSEL PRINCIPAL
+  // ------------------------------
   const fetchCarouselData = async () => {
     setLoading(true);
     setError(null);
 
     try {
       const response = await api.get("/events/", {
-        params: { limit: 5, status:"active" },
+        params: { limit: 5, status: "active" },
       });
 
       if (response.data.success) {
@@ -260,7 +283,11 @@ function App() {
               const ano = dataEvento.getUTCFullYear();
 
               return (
-                <div key={evento.eventId} className="evento-card">
+                <div
+                  key={evento.eventId}
+                  className="evento-card"
+                  title={`Data: ${dia}/${mes}/${ano} • Horário: ${formatarHora(evento.startHour)}`}
+                >
                   <div className="imagem-evento">
                     <img
                       src={
@@ -279,7 +306,7 @@ function App() {
                     <p>
                       Data: {dia}/{mes}/{ano}
                       <br />
-                      Horário: {evento.startHour || "Definir"}
+                      Horário: {formatarHora(evento.startHour)}
                       <br />
                       {evento.prizes && <>Premiação: {evento.prizes}<br /></>}
                       {evento.isOnline ? "Online" : `Local: ${evento.location}`}
@@ -313,7 +340,11 @@ function App() {
               const ano = dataEvento.getUTCFullYear();
 
               return (
-                <div key={evento.eventId} className="evento-card">
+                <div
+                  key={evento.eventId}
+                  className="evento-card"
+                  title={`Data: ${dia}/${mes}/${ano} • Horário: ${formatarHora(evento.startHour)}`}
+                >
                   <div className="imagem-evento">
                     <img
                       src={
@@ -338,7 +369,7 @@ function App() {
                     <p>
                       Data: {dia}/{mes}/{ano}
                       <br />
-                      Horário: {evento.startHour || "Definir"}
+                      Horário: {formatarHora(evento.startHour)}
                       <br />
                       {evento.prizes && <>Premiação: {evento.prizes}<br /></>}
                       {evento.isOnline ? "Online" : `Local: ${evento.location}`}
@@ -352,7 +383,7 @@ function App() {
               );
             })
           ) : (
-            <p >Nenhum evento em alta encontrado.</p>
+            <p>Nenhum evento em alta encontrado.</p>
           )}
         </div>
       </section>

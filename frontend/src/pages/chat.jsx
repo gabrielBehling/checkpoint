@@ -100,7 +100,6 @@ export default function ChatPage() {
       socket.current.off("receivedMessage", handleReceiveMessage);
       socket.current.off("typing", handleTypingServer);
     };
-
   }, [selectedTeam]);
 
   // --- Handlers ---
@@ -127,7 +126,7 @@ export default function ChatPage() {
     });
   };
 
-  //  ENVIO DA MENSAGEM 
+  //  ENVIO DA MENSAGEM
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -138,13 +137,13 @@ export default function ChatPage() {
     // 1. UPLOAD (Se houver arquivo)
     if (selectedFile) {
       const formData = new FormData();
-      formData.append('teamId', selectedTeam.TeamId);
-      formData.append('file', selectedFile);
+      formData.append("teamId", selectedTeam.TeamId);
+      formData.append("file", selectedFile);
 
       try {
         // O Await aqui é essencial. O código para até o upload terminar.
-        const res = await api.post('/chat/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        const res = await api.post("/chat/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
 
         if (res.data && res.data.fileUrl) {
@@ -159,27 +158,30 @@ export default function ChatPage() {
 
     // 2. SOCKET EMIT (Texto e/ou URL)
     if (message.trim() || finalFileUrl) {
-      socket.current.emit("sendMessage", {
-        teamId: selectedTeam.TeamId,
-        message: message,
-        fileUrl: finalFileUrl
-      }, (response) => {
-        if (response && response.status !== 'success') {
-          console.error("Erro no socket:", response);
+      socket.current.emit(
+        "sendMessage",
+        {
+          teamId: selectedTeam.TeamId,
+          message: message,
+          fileUrl: finalFileUrl,
+        },
+        (response) => {
+          if (response && response.status !== "success") {
+            console.error("Erro no socket:", response);
+          }
         }
-      });
+      );
     }
 
     setMessage("");
     clearFile();
   }
 
-  //  RENDER 
+  //  RENDER
   return (
     <>
       <Header />
       <div id="chat-page-wrapper">
-
         <div className="chat-container">
           <aside className="chat-sidebar">
             <div className="sidebar-header">
@@ -217,82 +219,73 @@ export default function ChatPage() {
                   {messages.map((msg, i) => {
                     const isSent = msg.userId == user.userId;
                     return (
-                      <div
-                        key={i}
-                        className={`message-bubble ${isSent ? "sent" : "received"}`}
-                      >
+                      <div key={i} className={`message-bubble ${isSent ? "sent" : "received"}`}>
                         {!isSent && <span className="message-sender">{msg.author}</span>}
 
                         {msg.fileUrl && (
                           <div className="message-image-container">
                             <img
-                              src={msg.fileUrl.startsWith('http') ? msg.fileUrl : `https://checkpoint.buzz/api/chat${msg.fileUrl}`}
+                              src={msg.fileUrl.startsWith("http") ? msg.fileUrl : `https://checkpoint.localhost/api/chat${msg.fileUrl}`}
                               className="chat-image"
                               alt="Anexo"
-                              style={{ maxWidth: '100%', borderRadius: '8px', display: 'block' }}
-                              onError={(e) => { e.target.style.display = 'none'; }}
+                              style={{ maxWidth: "100%", borderRadius: "8px", display: "block" }}
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
                             />
                           </div>
                         )}
 
                         {msg.message && (
-                          <span className="message-text" style={{ display: 'block', marginTop: msg.fileUrl ? '5px' : '0' }}>
+                          <span className="message-text" style={{ display: "block", marginTop: msg.fileUrl ? "5px" : "0" }}>
                             {msg.message}
                           </span>
                         )}
 
-                        <span className="message-timestamp">
-                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                        <span className="message-timestamp">{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                       </div>
                     );
                   })}
 
                   {/* Typing Indicator */}
-                  {Object.keys(typingUsers).length > 0 && (
-                    <div className="typing-indicator">
-                      {Object.keys(typingUsers).join(", ")} digitando...
-                    </div>
-                  )}
+                  {Object.keys(typingUsers).length > 0 && <div className="typing-indicator">{Object.keys(typingUsers).join(", ")} digitando...</div>}
                   <div ref={bottomRef}></div>
                 </div>
 
                 {/* Preview da Imagem Selecionada */}
                 {previewUrl && (
-                  <div className="image-preview-container" style={{ padding: '10px', background: 'rgba(0,0,0,0.1)', display: 'flex' }}>
-                    <div style={{ position: 'relative' }}>
-                      <img src={previewUrl} alt="Preview" style={{ height: '80px', borderRadius: '5px' }} />
+                  <div className="image-preview-container" style={{ padding: "10px", background: "rgba(0,0,0,0.1)", display: "flex" }}>
+                    <div style={{ position: "relative" }}>
+                      <img src={previewUrl} alt="Preview" style={{ height: "80px", borderRadius: "5px" }} />
                       <button
                         onClick={clearFile}
                         style={{
-                          position: 'absolute', top: -5, right: -5, background: 'red', color: 'white',
-                          borderRadius: '50%', border: 'none', cursor: 'pointer', width: '20px', height: '20px'
+                          position: "absolute",
+                          top: -5,
+                          right: -5,
+                          background: "red",
+                          color: "white",
+                          borderRadius: "50%",
+                          border: "none",
+                          cursor: "pointer",
+                          width: "20px",
+                          height: "20px",
                         }}
-                      >X</button>
+                      >
+                        X
+                      </button>
                     </div>
                   </div>
                 )}
 
                 {/* Input Form */}
                 <form className="message-input-form" onSubmit={handleSubmit}>
-                  <input
-                    type="text"
-                    placeholder="Digite sua mensagem..."
-                    value={message}
-                    onChange={handleTypingInput}
-                  />
+                  <input type="text" placeholder="Digite sua mensagem..." value={message} onChange={handleTypingInput} />
 
-                  <label htmlFor="file-upload" className="file-upload-btn" style={{ cursor: 'pointer', margin: '0 10px' }}>
+                  <label htmlFor="file-upload" className="file-upload-btn" style={{ cursor: "pointer", margin: "0 10px" }}>
                     📷
                   </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                  />
+                  <input id="file-upload" type="file" accept="image/*" onChange={handleFileSelect} ref={fileInputRef} style={{ display: "none" }} />
 
                   <button type="submit" disabled={!message.trim() && !selectedFile}>
                     Enviar
@@ -302,7 +295,6 @@ export default function ChatPage() {
             )}
           </main>
         </div>
-
       </div>
       <Footer />
     </>
