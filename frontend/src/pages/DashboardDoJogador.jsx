@@ -16,7 +16,7 @@ const STATUS_LABELS = {
 function resolveBannerURL(bannerURL) {
   if (!bannerURL) return null;
   if (bannerURL.startsWith("http")) return bannerURL;
-  return `http://checkpoint.localhost/api/events${bannerURL}`;
+  return `https://checkpoint.localhost/api/events${bannerURL}`;
 }
 
 function formatDateRange(startDate, startHour, endDate, endHour) {
@@ -67,9 +67,7 @@ export default function DashboardDoJogador() {
 
       // 1. Buscar times do usuário
       const teamsResponse = await api.get("/events/my-teams");
-      const teams = Array.isArray(teamsResponse.data)
-        ? teamsResponse.data
-        : teamsResponse.data?.data || [];
+      const teams = Array.isArray(teamsResponse.data) ? teamsResponse.data : teamsResponse.data?.data || [];
 
       if (teams.length === 0) {
         setEvents([]);
@@ -77,14 +75,10 @@ export default function DashboardDoJogador() {
       }
 
       // 2. Coletar eventos únicos
-      const eventIds = [...new Set(teams.map(t => t.EventID).filter(Boolean))];
-      const eventPromises = eventIds.map(eventId =>
-        api.get(`/events/${eventId}`).catch(() => null)
-      );
+      const eventIds = [...new Set(teams.map((t) => t.EventID).filter(Boolean))];
+      const eventPromises = eventIds.map((eventId) => api.get(`/events/${eventId}`).catch(() => null));
       const eventResponses = await Promise.all(eventPromises);
-      const validEvents = eventResponses
-        .filter(res => res?.data?.success)
-        .map(res => ({ ...res.data.data, myTeamId: teams.find(t => t.EventID === res.data.data.eventId)?.TeamId }));
+      const validEvents = eventResponses.filter((res) => res?.data?.success).map((res) => ({ ...res.data.data, myTeamId: teams.find((t) => t.EventID === res.data.data.eventId)?.TeamId }));
 
       setEvents(validEvents);
     } catch (requestError) {
@@ -168,12 +162,7 @@ export default function DashboardDoJogador() {
             <p>Visualize seus eventos inscritos, acompanhe seus times, partidas e gerencie sua participação.</p>
           </div>
           <div className="dashboard-header-actions">
-            <button
-              type="button"
-              className="dashboard-refresh"
-              onClick={fetchMyEvents}
-              disabled={loading}
-            >
+            <button type="button" className="dashboard-refresh" onClick={fetchMyEvents} disabled={loading}>
               Atualizar lista
             </button>
           </div>
@@ -192,35 +181,18 @@ export default function DashboardDoJogador() {
             {!error && sortedEvents.length === 0 && (
               <div className="empty-state">
                 Você ainda não está inscrito em nenhum evento.
-                <br/>
+                <br />
               </div>
             )}
             {!error && sortedEvents.length > 0 && (
               <div className="event-grid">
                 {sortedEvents.map((event) => {
-                  const {
-                    eventId,
-                    title,
-                    status,
-                    startDate,
-                    startHour,
-                    endDate,
-                    endHour,
-                    location,
-                    isOnline,
-                    bannerURL,
-                    mode,
-                    game,
-                    myTeamId,
-                  } = event;
+                  const { eventId, title, status, startDate, startHour, endDate, endHour, location, isOnline, bannerURL, mode, game, myTeamId } = event;
                   const banner = resolveBannerURL(bannerURL);
 
                   return (
                     <article key={eventId} className="event-card">
-                      <div
-                        className="event-card-banner"
-                        style={banner ? { backgroundImage: `url(${banner})` } : undefined}
-                      />
+                      <div className="event-card-banner" style={banner ? { backgroundImage: `url(${banner})` } : undefined} />
                       <div className="event-card-content">
                         <header className="event-card-header">
                           <h3>{title}</h3>
@@ -233,33 +205,17 @@ export default function DashboardDoJogador() {
                           {mode && <span>🧩 Modo: {mode}</span>}
                         </div>
                         <div className="event-card-actions">
-                          <button
-                            type="button"
-                            className="dashboard-button btn-view"
-                            onClick={() => handleViewEvent(eventId)}
-                          >
+                          <button type="button" className="dashboard-button btn-view" onClick={() => handleViewEvent(eventId)}>
                             Ver evento
                           </button>
-                          <button
-                            type="button"
-                            className="dashboard-button btn-manage"
-                            onClick={() => handleViewMyTeam(eventId)}
-                          >
+                          <button type="button" className="dashboard-button btn-manage" onClick={() => handleViewMyTeam(eventId)}>
                             Meu Time
                           </button>
-                          <button
-                            type="button"
-                            className="dashboard-button btn-view"
-                            onClick={() => handleViewMatches(eventId)}
-                          >
+                          <button type="button" className="dashboard-button btn-view" onClick={() => handleViewMatches(eventId)}>
                             Partidas
                           </button>
                           {status !== "Finished" && status !== "Canceled" && (
-                            <button
-                              type="button"
-                              className="dashboard-button btn-cancel"
-                              onClick={() => handleCancelRegistration(eventId, myTeamId)}
-                            >
+                            <button type="button" className="dashboard-button btn-cancel" onClick={() => handleCancelRegistration(eventId, myTeamId)}>
                               Cancelar
                             </button>
                           )}

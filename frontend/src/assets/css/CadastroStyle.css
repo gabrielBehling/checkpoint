@@ -1,8 +1,6 @@
-
-
 body {
   background: #100c1f; /* Fundo principal */
-  color: #f0f0f0;      /* Cor do texto principal */
+  color: #f0f0f0; /* Cor do texto principal */
   overflow-x: hidden;
 }
 
@@ -12,13 +10,13 @@ body {
 */
 .topbar {
   width: 100%;
-  background: #1c172c; 
-  padding: 15px 40px; 
+  background: #1c172c;
+  padding: 15px 40px;
   display: flex;
   justify-content: space-between; /* Distribui logo/nav/auth */
   align-items: center;
   border-bottom: 1px solid rgba(74, 144, 226, 0.2);
-  position: sticky; 
+  position: sticky;
   top: 0;
   z-index: 1000;
 }
@@ -80,7 +78,7 @@ body {
   color: #f0f0f0;
   font-size: 1.5em;
   margin-bottom: 20px;
-  text-align: left; 
+  text-align: left;
 }
 
 /* * ==============================================
@@ -154,7 +152,7 @@ select {
 
 .col-direita select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23f0f0f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='https://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23f0f0f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 15px center;
   background-size: 16px;

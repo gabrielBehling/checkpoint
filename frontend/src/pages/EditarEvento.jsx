@@ -4,29 +4,29 @@ import api from "./api";
 import "../assets/css/CadastroStyle.css";
 
 import { useCustomModal } from "../hooks/useCustomModal";
-import Header from "../components/Header"; 
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 // --- FUNÇÕES DE FORMATAÇÃO ---
 const formatDataParaInput = (dataISO) => {
   if (!dataISO) return "";
-  if (typeof dataISO === 'string') return dataISO.split('T')[0];
+  if (typeof dataISO === "string") return dataISO.split("T")[0];
   const date = new Date(dataISO);
   const ano = date.getUTCFullYear();
-  const mes = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const dia = String(date.getUTCDate()).padStart(2, '0');
+  const mes = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const dia = String(date.getUTCDate()).padStart(2, "0");
   return `${ano}-${mes}-${dia}`;
 };
 
 const formatHoraParaInput = (horaISO) => {
   if (!horaISO) return "";
   const str = horaISO.toString();
-  if (str.includes('T')) return str.split('T')[1].slice(0, 5);
+  if (str.includes("T")) return str.split("T")[1].slice(0, 5);
   return str.slice(0, 5);
 };
 
 export default function EditEventPage() {
-  const { eventId } = useParams(); 
+  const { eventId } = useParams();
   const navigate = useNavigate();
   const { Modal, showSuccess, showError } = useCustomModal();
 
@@ -50,12 +50,12 @@ export default function EditEventPage() {
     MaxTeams: "",
     Rules: "",
     Prizes: "",
-    BannerURL: ""
+    BannerURL: "",
   });
 
   const [originalData, setOriginalData] = useState({});
   const [banner, setBanner] = useState(null);
-  const [currentBannerUrl, setCurrentBannerUrl] = useState('');
+  const [currentBannerUrl, setCurrentBannerUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -69,20 +69,20 @@ export default function EditEventPage() {
         const formattedData = {
           Title: data.title || "",
           Description: data.description || "",
-          GameID: data.gameId || "", 
-          ModeID: data.modeId || "", 
-          
+          GameID: data.gameId || "",
+          ModeID: data.modeId || "",
+
           StartDate: formatDataParaInput(data.startDate),
           StartHour: formatHoraParaInput(data.startHour || "00:00"),
-          
+
           EndDate: formatDataParaInput(data.endDate),
           EndHour: formatHoraParaInput(data.endHour || ""),
 
           Location: data.location || "",
           Ticket: data.ticket || "",
           ParticipationCost: data.participationCost || "",
-          LanguageID: data.languageId || "", 
-          
+          LanguageID: data.languageId || "",
+
           Platform: data.platform || "",
           IsOnline: data.isOnline || false,
           MaxParticipants: data.maxParticipants || "",
@@ -97,9 +97,9 @@ export default function EditEventPage() {
         setOriginalData(formattedData);
 
         if (data.bannerUrl) {
-           const baseUrl = "http://checkpoint.localhost/api/events"; 
-           const fullUrl = data.bannerUrl.startsWith('http') ? data.bannerUrl : `${baseUrl}${data.bannerUrl}`;
-           setCurrentBannerUrl(fullUrl);
+          const baseUrl = "https://checkpoint.localhost/api/events";
+          const fullUrl = data.bannerUrl.startsWith("http") ? data.bannerUrl : `${baseUrl}${data.bannerUrl}`;
+          setCurrentBannerUrl(fullUrl);
         }
 
         setLoading(false);
@@ -134,19 +134,19 @@ export default function EditEventPage() {
 
     try {
       const formData = new FormData();
-      
+
       Object.entries(form).forEach(([key, value]) => {
         if (value === "" || value === null || value === undefined) return;
 
         const isDateOrTimeField = ["StartDate", "StartHour", "EndDate", "EndHour"].includes(key);
-        
+
         if (isDateOrTimeField && value === originalData[key]) {
-            return;
+          return;
         }
 
         let valueToSend = value;
-        if ((key === 'StartHour' || key === 'EndHour') && typeof value === 'string') {
-             if (value.length > 5) valueToSend = value.substring(0, 5);
+        if ((key === "StartHour" || key === "EndHour") && typeof value === "string") {
+          if (value.length > 5) valueToSend = value.substring(0, 5);
         }
 
         formData.append(key, valueToSend);
@@ -166,7 +166,6 @@ export default function EditEventPage() {
       } else {
         showError("Erro: " + response.data.message);
       }
-
     } catch (err) {
       console.error(err);
       const msg = err.response?.data?.message || err.response?.data?.error || "Erro ao salvar alterações.";
@@ -195,7 +194,9 @@ export default function EditEventPage() {
         <main className="container error-container">
           <h1>Ocorreu um erro</h1>
           <p>{error}</p>
-          <button onClick={() => navigate(-1)} className="btn btn-cancel-Edit-Event">Voltar</button>
+          <button onClick={() => navigate(-1)} className="btn btn-cancel-Edit-Event">
+            Voltar
+          </button>
         </main>
         <Footer />
       </>
@@ -209,9 +210,8 @@ export default function EditEventPage() {
 
       <main className="container">
         <h2 className="page-title">Editar Evento</h2>
-        
+
         <form className="form-evento" onSubmit={handleSubmit}>
-          
           <div className="col-esquerda">
             <label>Título do Evento</label>
             <input type="text" name="Title" value={form.Title} onChange={handleChange} required />
@@ -229,13 +229,11 @@ export default function EditEventPage() {
             <input type="text" name="Location" value={form.Location} onChange={handleChange} disabled={form.IsOnline} />
 
             <label>Banner</label>
-            {currentBannerUrl && (
-                <img src={currentBannerUrl} alt="Preview" className="preview-banner" />
-            )}
-            
+            {currentBannerUrl && <img src={currentBannerUrl} alt="Preview" className="preview-banner" />}
+
             <label className="banner-upload-btn">
-               Alterar Imagem
-               <input type="file" accept="image/*" onChange={handleBannerChange} hidden />
+              Alterar Imagem
+              <input type="file" accept="image/*" onChange={handleBannerChange} hidden />
             </label>
           </div>
 
@@ -245,44 +243,22 @@ export default function EditEventPage() {
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Data Início</label>
-                <input 
-                    type="date" 
-                    name="StartDate" 
-                    value={form.StartDate} 
-                    onChange={handleChange} 
-                    required 
-                />
+                <input type="date" name="StartDate" value={form.StartDate} onChange={handleChange} required />
               </div>
               <div className="form-field-group">
                 <label>Hora Início</label>
-                <input 
-                    type="time" 
-                    name="StartHour" 
-                    value={form.StartHour} 
-                    onChange={handleChange} 
-                    required 
-                />
+                <input type="time" name="StartHour" value={form.StartHour} onChange={handleChange} required />
               </div>
             </div>
 
             <div className="form-group-row">
               <div className="form-field-group">
                 <label>Data Término</label>
-                <input 
-                    type="date" 
-                    name="EndDate" 
-                    value={form.EndDate} 
-                    onChange={handleChange} 
-                />
+                <input type="date" name="EndDate" value={form.EndDate} onChange={handleChange} />
               </div>
               <div className="form-field-group">
                 <label>Hora Fim</label>
-                <input 
-                    type="time" 
-                    name="EndHour" 
-                    value={form.EndHour} 
-                    onChange={handleChange} 
-                />
+                <input type="time" name="EndHour" value={form.EndHour} onChange={handleChange} />
               </div>
             </div>
 
@@ -308,10 +284,10 @@ export default function EditEventPage() {
             </div>
 
             <div className="checkbox-wrapper">
-               <label className="checkbox-label">
-                  <input type="checkbox" name="IsOnline" checked={form.IsOnline} onChange={handleChange} />
-                  <strong>Evento Online?</strong>
-               </label>
+              <label className="checkbox-label">
+                <input type="checkbox" name="IsOnline" checked={form.IsOnline} onChange={handleChange} />
+                <strong>Evento Online?</strong>
+              </label>
             </div>
 
             <div className="form-group-row three-cols">
@@ -330,20 +306,23 @@ export default function EditEventPage() {
             </div>
 
             <div className="form-field-group mt-10">
-               <label>Idioma</label>
-               <select name="LanguageID" value={form.LanguageID} onChange={handleChange}>
-                  <option value="">Selecione</option>
-                  <option value="1">Português</option> 
-                  <option value="2">Inglês</option>
-                  <option value="3">Espanhol</option>
-               </select>
+              <label>Idioma</label>
+              <select name="LanguageID" value={form.LanguageID} onChange={handleChange}>
+                <option value="">Selecione</option>
+                <option value="1">Português</option>
+                <option value="2">Inglês</option>
+                <option value="3">Espanhol</option>
+              </select>
             </div>
 
             <div className="form-actions">
-              <button type="button" className="btn btn-cancel-Edit" onClick={() => navigate(-1)}>Cancelar</button>
-              <button type="submit" className="btn">Salvar Alterações</button>
+              <button type="button" className="btn btn-cancel-Edit" onClick={() => navigate(-1)}>
+                Cancelar
+              </button>
+              <button type="submit" className="btn">
+                Salvar Alterações
+              </button>
             </div>
-
           </div>
         </form>
       </main>

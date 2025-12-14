@@ -15,7 +15,7 @@ const STATUS_LABELS = {
 function resolveBannerURL(bannerURL) {
   if (!bannerURL) return null;
   if (bannerURL.startsWith("http")) return bannerURL;
-  return `http://checkpoint.localhost/api/events${bannerURL}`;
+  return `https://checkpoint.localhost/api/events${bannerURL}`;
 }
 
 function formatDateRange(startDate, startHour, endDate, endHour) {
@@ -25,14 +25,14 @@ function formatDateRange(startDate, startHour, endDate, endHour) {
   const end = endDate ? new Date(endDate) : null;
 
   const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
-    timeZone: 'UTC',
+    timeZone: "UTC",
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 
   const timeFormatter = new Intl.DateTimeFormat("pt-BR", {
-    timeZone: 'UTC',
+    timeZone: "UTC",
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -206,19 +206,10 @@ export default function DashboardDoOrganizador() {
             <p>Gerencie os eventos que você criou, atualize status e acesse ferramentas esportivas.</p>
           </div>
           <div className="dashboard-header-actions">
-            <button
-              type="button"
-              className="dashboard-create"
-              onClick={() => navigate("/cadastroEvento")}
-            >
+            <button type="button" className="dashboard-create" onClick={() => navigate("/cadastroEvento")}>
               Criar evento
             </button>
-            <button
-              type="button"
-              className="dashboard-refresh"
-              onClick={fetchMyEvents}
-              disabled={loading}
-            >
+            <button type="button" className="dashboard-refresh" onClick={fetchMyEvents} disabled={loading}>
               Atualizar lista
             </button>
           </div>
@@ -237,30 +228,12 @@ export default function DashboardDoOrganizador() {
               </div>
             )}
 
-            {!error && sortedEvents.length === 0 && (
-              <div className="empty-state">
-                Você ainda não criou nenhum evento. Clique em &quot;Criar Evento&quot; no menu para começar!
-              </div>
-            )}
+            {!error && sortedEvents.length === 0 && <div className="empty-state">Você ainda não criou nenhum evento. Clique em &quot;Criar Evento&quot; no menu para começar!</div>}
 
             {!error && sortedEvents.length > 0 && (
               <div className="event-grid">
                 {sortedEvents.map((event) => {
-                  const {
-                    eventId,
-                    title,
-                    status,
-                    startDate,
-                    startHour,
-                    endDate,
-                    endHour,
-                    location,
-                    isOnline,
-                    bannerURL,
-                    mode,
-                    gameName,
-                    game,
-                  } = event;
+                  const { eventId, title, status, startDate, startHour, endDate, endHour, location, isOnline, bannerURL, mode, gameName, game } = event;
 
                   const banner = resolveBannerURL(bannerURL);
                   const canManageMatches = status === "Active";
@@ -271,10 +244,7 @@ export default function DashboardDoOrganizador() {
 
                   return (
                     <article key={eventId} className="event-card">
-                      <div
-                        className="event-card-banner"
-                        style={banner ? { backgroundImage: `url(${banner})` } : undefined}
-                      />
+                      <div className="event-card-banner" style={banner ? { backgroundImage: `url(${banner})` } : undefined} />
 
                       <div className="event-card-content">
                         <header className="event-card-header">
@@ -290,58 +260,31 @@ export default function DashboardDoOrganizador() {
                         </div>
 
                         <div className="event-card-actions">
-                          <button
-                            type="button"
-                            className="dashboard-button btn-view"
-                            onClick={() => handleViewEvent(eventId)}
-                          >
+                          <button type="button" className="dashboard-button btn-view" onClick={() => handleViewEvent(eventId)}>
                             Ver evento
                           </button>
                           {showEditButton && (
-                            <button
-                              type="button"
-                              className="dashboard-button btn-edit"
-                              onClick={() => handleEditEvent(eventId)}
-                            >
+                            <button type="button" className="dashboard-button btn-edit" onClick={() => handleEditEvent(eventId)}>
                               Editar
                             </button>
                           )}
                           {showStartButton && (
-                            <button
-                              type="button"
-                              className="dashboard-button btn-start"
-                              disabled={actionLoading === `${eventId}-Active`}
-                              onClick={() => updateEventStatus(eventId, "Active")}
-                            >
+                            <button type="button" className="dashboard-button btn-start" disabled={actionLoading === `${eventId}-Active`} onClick={() => updateEventStatus(eventId, "Active")}>
                               {actionLoading === `${eventId}-Active` ? "Ativando..." : "Iniciar"}
                             </button>
                           )}
                           {showCancelButton && (
-                            <button
-                              type="button"
-                              className="dashboard-button btn-cancel-Org"
-                              disabled={actionLoading === `${eventId}-Canceled`}
-                              onClick={() => updateEventStatus(eventId, "Canceled")}
-                            >
+                            <button type="button" className="dashboard-button btn-cancel-Org" disabled={actionLoading === `${eventId}-Canceled`} onClick={() => updateEventStatus(eventId, "Canceled")}>
                               {actionLoading === `${eventId}-Canceled` ? "Cancelando..." : "Cancelar"}
                             </button>
                           )}
                           {showFinishButton && (
-                            <button
-                              type="button"
-                              className="dashboard-button btn-finish"
-                              disabled={actionLoading === `${eventId}-Finished`}
-                              onClick={() => updateEventStatus(eventId, "Finished")}
-                            >
+                            <button type="button" className="dashboard-button btn-finish" disabled={actionLoading === `${eventId}-Finished`} onClick={() => updateEventStatus(eventId, "Finished")}>
                               {actionLoading === `${eventId}-Finished` ? "Finalizando..." : "Finalizar"}
                             </button>
                           )}
                           {canManageMatches && (
-                            <button
-                              type="button"
-                              className="dashboard-button btn-manage"
-                              onClick={() => handleManageMatches(eventId)}
-                            >
+                            <button type="button" className="dashboard-button btn-manage" onClick={() => handleManageMatches(eventId)}>
                               Gerenciar partidas
                             </button>
                           )}
@@ -359,4 +302,3 @@ export default function DashboardDoOrganizador() {
     </div>
   );
 }
-
