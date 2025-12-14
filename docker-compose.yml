@@ -121,8 +121,8 @@ services:
       - "443:443"
     volumes:
       # Let's Encrypt certificates (production with certbot)
-      - ./infra/nginx/ssl/cert.pem:/etc/nginx/ssl/cert.pem:ro
-      - ./infra/nginx/ssl/key.pem:/etc/nginx/ssl/key.pem:ro
+      - /etc/letsencrypt/live/checkpoint.buzz/fullchain.pem:/etc/nginx/ssl/cert.pem:ro
+      - /etc/letsencrypt/live/checkpoint.buzz/privkey.pem:/etc/nginx/ssl/key.pem:ro
       # ACME challenge directory for certbot renewal
       - /var/www/certbot:/var/www/certbot:ro
       # Alternative: local SSL directory (for development or manual certificates)
