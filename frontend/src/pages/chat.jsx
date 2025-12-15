@@ -225,7 +225,7 @@ export default function ChatPage() {
                         {msg.fileUrl && (
                           <div className="message-image-container">
                             <img
-                              src={msg.fileUrl.startsWith("http") ? msg.fileUrl : `https://checkpoint.localhost/api/chat${msg.fileUrl}`}
+                              src={msg.fileUrl.startsWith("http") ? msg.fileUrl : `https://checkpoint.buzz/api/chat${msg.fileUrl}`}
                               className="chat-image"
                               alt="Anexo"
                               style={{ maxWidth: "100%", borderRadius: "8px", display: "block" }}

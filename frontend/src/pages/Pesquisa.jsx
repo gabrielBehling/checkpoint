@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import "../assets/css/PesquisaEvento.css"; // ✅ Importa o CSS estilizado
 
+import FALLBACK_IMAGE_SRC from "../assets/img/fundo.png";
+
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
@@ -380,11 +382,11 @@ function SearchPage() {
                     {event.bannerURL && (
                       <img
                         className="event-card-image"
-                        src={event.bannerURL}
+                        src={'https://checkpoint.buzz/api/events'+event.bannerURL}
                         alt={event.title}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "https://via.placeholder.com/400x200?text=Sem+Banner";
+                          e.target.src = FALLBACK_IMAGE_SRC;
                         }}
                       />
                     )}
